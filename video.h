@@ -1,8 +1,13 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+#ifdef _WIN32
+#include <SDL.h>
+#include <SDL_opengl.h>
+#else
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
+#endif
 //#include <map>
 
 #ifndef _WIN32
@@ -40,7 +45,9 @@ extern PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB;
 extern PFNGLMAPBUFFERARBPROC glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB;
 
-//extern PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements;
+#ifdef _WIN32
+extern PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements;
+#endif
 
 #define GL_BUFFER_OFFSET(i) ((char *)(0) + (i))
 

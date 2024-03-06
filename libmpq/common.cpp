@@ -230,8 +230,11 @@ int libmpq_read_hashtable(mpq_archive *mpq_a) {
 
 	//lseek(mpq_a->fd, mpq_a->header->hashtablepos, SEEK_SET);
     // Fixed support for large / 64bit addresses
-    //_lseeki64(mpq_a->fd, mpq_a->header->hashtablepos, SEEK_SET);
+#ifdef _WIN32
+    _lseeki64(mpq_a->fd, mpq_a->header->hashtablepos, SEEK_SET);
+#else
     lseek64(mpq_a->fd, mpq_a->header->hashtablepos, SEEK_SET);
+#endif
 
 	rb = read(mpq_a->fd, mpq_a->hashtable, bytes);
 	if (rb != bytes) {
@@ -289,8 +292,11 @@ int libmpq_read_blocktable(mpq_archive *mpq_a) {
 
 	//lseek(mpq_a->fd, mpq_a->header->blocktablepos, SEEK_SET);
     // Fixed support for large / 64bit addresses
-    //_lseeki64(mpq_a->fd, mpq_a->header->blocktablepos, SEEK_SET);
+#ifdef _WIN32
+    _lseeki64(mpq_a->fd, mpq_a->header->blocktablepos, SEEK_SET);
+#else
     lseek64(mpq_a->fd, mpq_a->header->blocktablepos, SEEK_SET);
+#endif
 
 	rb = read(mpq_a->fd, mpq_a->blocktable, bytes);
 	if (rb != bytes) {
@@ -352,8 +358,11 @@ int libmpq_file_read_block(mpq_archive *mpq_a, mpq_file *mpq_f, unsigned int blo
 		if (mpq_f->mpq_b->filepos != mpq_a->filepos) {
 			//lseek(mpq_a->fd, mpq_f->mpq_b->filepos, SEEK_SET);
             // Fixed support for large / 64bit addresses
-            //_lseeki64(mpq_a->fd, mpq_f->mpq_b->filepos, SEEK_SET);
+#ifdef _WIN32
+            _lseeki64(mpq_a->fd, mpq_f->mpq_b->filepos, SEEK_SET);
+#else
             lseek64(mpq_a->fd, mpq_f->mpq_b->filepos, SEEK_SET);
+#endif
 		}
 
 		/* Read block positions from begin of file. */
@@ -431,8 +440,11 @@ int libmpq_file_read_block(mpq_archive *mpq_a, mpq_file *mpq_f, unsigned int blo
 	if (mpq_a->filepos != readpos) {
 		//mpq_a->filepos = lseek(mpq_a->fd, readpos, SEEK_SET);
         // Fixed support for large / 64bit addresses
-        //mpq_a->filepos = _lseeki64(mpq_a->fd, readpos, SEEK_SET);
+#ifdef _WIN32
+        mpq_a->filepos = _lseeki64(mpq_a->fd, readpos, SEEK_SET);
+#else
         mpq_a->filepos = lseek64(mpq_a->fd, readpos, SEEK_SET);
+#endif
 	}
 
 	/* 15018F87 - Read all requested blocks. */
@@ -441,8 +453,11 @@ int libmpq_file_read_block(mpq_archive *mpq_a, mpq_file *mpq_f, unsigned int blo
 
 	/* Block processing part. */
 	unsigned int blockstart = 0;			/* Index of block start in work buffer. */
-	//unsigned int blocksize  = min(blockbytes, mpq_a->blocksize);
+#ifdef _WIN32
+	unsigned int blocksize  = min(blockbytes, mpq_a->blocksize);
+#else
 	unsigned int blocksize  = std::min(blockbytes, mpq_a->blocksize);
+#endif
 	unsigned int index      = blocknum;		/* Current block index. */
 	bytesread = 0;					/* Clear read byte counter */
 

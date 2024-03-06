@@ -1,7 +1,11 @@
 #ifndef APPSTATE_H
 #define APPSTATE_H
 
+#ifdef _WIN32
+#include <SDL.h>
+#else
 #include <SDL/SDL.h>
+#endif
 #include <vector>
 
 class AppState {
