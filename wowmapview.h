@@ -1,7 +1,6 @@
 #ifndef WOWMAPVIEW_H
 #define WOWMAPVIEW_H
 
-#include <algorithm>
 #include <vector>
 #include <string>
 #include "appstate.h"
