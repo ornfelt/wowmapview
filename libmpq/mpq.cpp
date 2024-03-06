@@ -74,7 +74,8 @@ int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename) {
 		mpq_a->header->id = 0;
 
         //_lseek(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
-        _lseeki64(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
+        //_lseeki64(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
+        lseek64(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
 
 		rb = read(mpq_a->fd, mpq_a->header, sizeof(mpq_header));
 
@@ -106,7 +107,8 @@ int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename) {
     if (mpq_a->header->offset != sizeof(mpq_header)) {
         //lseek(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
         // Fixed support for large / 64bit addresses
-        _lseeki64(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
+        //_lseeki64(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
+        lseek64(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
     }
 
 	/* get the right positions of the hash table and the block table. */

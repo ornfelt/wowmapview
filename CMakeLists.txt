@@ -60,6 +60,7 @@ install(TARGETS zlib
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
 
 find_package(SDL REQUIRED)
+find_package(OpenGL REQUIRED)
 #[[add_library(sdl)
 set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
 set_target_properties(SDL::SDL PROPERTIES SOVERSION 1)
@@ -81,25 +82,69 @@ add_library(libmpq STATIC
         ${mpqfiles}
         )
 
-target_include_directories(libmpq PRIVATE
-        zlib)
-target_link_libraries(libmpq PRIVATE
-        zlib)
-#find_package(ZLIB REQUIRED)
-#include_directories(${SDL_INCLUDE_DIR})
-find_package(OpenGL REQUIRED)
+    #target_include_directories(libmpq PRIVATE
+    #        zlib)
+
+    # target_link_libraries(libmpq PRIVATE
+    #         zlib)
+    # #find_package(ZLIB REQUIRED)
+    # #include_directories(${SDL_INCLUDE_DIR})
+    # 
+    # find_package(OpenGL REQUIRED)
+    # target_link_libraries(wowmapview PRIVATE
+    #         #ZLIB::ZLIB
+    #         #SDL
+    #         ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
+    #         ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+    #         zlib
+    #         libmpq)
+    # target_include_directories(wowmapview PRIVATE
+    #         ${SDL_INCLUDE_DIR}
+    #         zlib
+    #         #[[${ZLIB_INCLUDE_DIRS}]]
+    #         libmpq)
+
+
+# SDL
+#find_package(SDL REQUIRED)
+include_directories(${SDL_INCLUDE_DIR})
+# For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
+
+# OpenGL
+#find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
+
+# zlib (Consider using find_package(ZLIB REQUIRED) if zlib is installed on the system)
+#file(GLOB zlibfiles zlib/*.c)
+#add_library(zlib STATIC ${zlibfiles})
+#target_include_directories(zlib PRIVATE zlib)
+
+# libmpq
+#file(GLOB mpqfiles libmpq/*.cpp libmpq/*.h *.h)
+#add_library(libmpq STATIC ${mpqfiles})
+#target_include_directories(libmpq PRIVATE zlib)
+#target_link_libraries(libmpq PRIVATE zlib)
+
+# Link libraries
 target_link_libraries(wowmapview PRIVATE
-        #ZLIB::ZLIB
-        #SDL
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+        ${SDL_LIBRARY}
+        ${OPENGL_LIBRARIES}
         zlib
         libmpq)
-target_include_directories(wowmapview PRIVATE
-        ${SDL_INCLUDE_DIR}
-        zlib
-        #[[${ZLIB_INCLUDE_DIRS}]]
-        libmpq)
+
+if(WIN32)
+    # Additional Windows-specific libraries
+    target_link_libraries(wowmapview PRIVATE
+            ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
+            ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib)
+else()
+    # Linux-specific configurations
+    target_link_libraries(wowmapview PRIVATE
+            SDL
+            GL)
+endif()
+
+
 
 #include_directories(${OPENGL_INCLUDE_DIR})
 #include_directories(${ZLIB_INCLUDE_DIR})

@@ -27,7 +27,8 @@
 
 int fullscreen = 0;
 
-std::string gamePath = "E:\\Games\\WoW Classic";//"./";
+//std::string gamePath = "E:/Games/WoW Classic";//"./";
+std::string gamePath = "/media/2024/wow_classic";//"./";
 int expansion = 0;
 FILE *flog;
 bool glogfirst = true;
@@ -140,9 +141,9 @@ int main(int argc, char *argv[])
         }
 
         if (expansion > 0)
-            gamePath.append("\\data\\");
+            gamePath.append("/data/");
         else
-            gamePath.append("\\Data\\");
+            gamePath.append("/Data/");
     }
     else
         getGamePath();
@@ -155,25 +156,25 @@ int main(int argc, char *argv[])
     // TBC+ have archives in locale folders
     if (expansion > 0)
     {
-        const char* archiveNames[] = {"common.MPQ", "expansion.MPQ", "enUS\\locale-enUS.MPQ", "enUS\\expansion-locale-enUS.MPQ", "enGB\\locale-enGB.MPQ", "enGB\\expansion-locale-enGB.MPQ", "deDE\\locale-deDE.MPQ", "deDE\\expansion-locale-deDE.MPQ", "frFR\\locale-frFR.MPQ", "frFR\\expansion-locale-frFR.MPQ"};
+        const char* archiveNames[] = {"common.MPQ", "expansion.MPQ", "enUS/locale-enUS.MPQ", "enUS/expansion-locale-enUS.MPQ", "enGB/locale-enGB.MPQ", "enGB/expansion-locale-enGB.MPQ", "deDE/locale-deDE.MPQ", "deDE/expansion-locale-deDE.MPQ", "frFR/locale-frFR.MPQ", "frFR/expansion-locale-frFR.MPQ"};
 
         if (usePatch) {
             // patch goes first -> fake priority handling
             sprintf(path, "%s%s", gamePath.c_str(), "patch.MPQ");
             archives.push_back(new MPQArchive(path));
 
-            sprintf(path, "%s%s", gamePath.c_str(), "enUS\\Patch-enUS.MPQ");
+            sprintf(path, "%s%s", gamePath.c_str(), "enUS/Patch-enUS.MPQ");
             archives.push_back(new MPQArchive(path));
-            sprintf(path, "%s%s", gamePath.c_str(), "enUS\\Patch-enUS-2.MPQ");
-            archives.push_back(new MPQArchive(path));
-
-            sprintf(path, "%s%s", gamePath.c_str(), "enGB\\Patch-enGB.MPQ");
+            sprintf(path, "%s%s", gamePath.c_str(), "enUS/Patch-enUS-2.MPQ");
             archives.push_back(new MPQArchive(path));
 
-            sprintf(path, "%s%s", gamePath.c_str(), "deDE\\Patch-deDE.MPQ");
+            sprintf(path, "%s%s", gamePath.c_str(), "enGB/Patch-enGB.MPQ");
             archives.push_back(new MPQArchive(path));
 
-            sprintf(path, "%s%s", gamePath.c_str(), "frFR\\Patch-frFR.MPQ");
+            sprintf(path, "%s%s", gamePath.c_str(), "deDE/Patch-deDE.MPQ");
+            archives.push_back(new MPQArchive(path));
+
+            sprintf(path, "%s%s", gamePath.c_str(), "frFR/Patch-frFR.MPQ");
             archives.push_back(new MPQArchive(path));
         }
 
@@ -424,16 +425,17 @@ void getGamePath()
     s = 1024;
     memset(path,0,s);
 
-    l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\World of Warcraft",0,KEY_QUERY_VALUE,&key);
+    l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE/Blizzard Entertainment/World of Warcraft",0,KEY_QUERY_VALUE,&key);
     if (l == ERROR_SUCCESS) {
         l = RegQueryValueEx(key,"InstallPath",0,&t,(LPBYTE)path,&s);
         RegCloseKey(key);
         gamePath.clear();
         gamePath.append(reinterpret_cast<const char*>(path));
-        gamePath.append("Data\\");
+        gamePath.append("Data/");
     }
 #else
-    strcpy(gamepath,"data/");
+    //strcpy(gamePath,"data/");
+    gamePath += "Data/";
 #endif
 }
 

@@ -22,7 +22,7 @@ PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB = NULL;
 PFNGLMAPBUFFERARBPROC glMapBufferARB = NULL;
 PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB = NULL;
 
-PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
+//PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
 
 bool supportCompression = false;
 bool supportMultiTex = false;

@@ -44,7 +44,7 @@
 //lseek ...
 #include <unistd.h>
 //PATH_MAX
-//#include <linux/limits.h>
+#include <linux/limits.h>
 // size_t
 #include <stdlib.h>
 #define O_BINARY 0
@@ -126,10 +126,11 @@ extern "C" {
 #define TRUE 1
 #endif
 
+#ifdef _WIN32
 #ifndef min
 #define min(a, b) ((a < b) ? a : b)
 #endif
-
+#endif
 
 typedef unsigned int	mpq_buffer[LIBMPQ_TOOLS_BUFSIZE];
 typedef int		(*DECOMPRESS)(char *, int *, char *, int);

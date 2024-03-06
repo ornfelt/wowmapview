@@ -209,6 +209,9 @@ unsigned char table1502A630[] = {
 	0x00, 0x00
 };
 
+#include <stdint.h>
+typedef int32_t __int32;
+
 /* Gets previous Huffman tree item (?) */
 struct huffman_tree_item *libmpq_huff_get_prev_item(struct huffman_tree_item *hi, __int32 value) {
 	if (PTR_INT(hi->prev) < 0) {
@@ -581,7 +584,8 @@ static struct huffman_tree_item *libmpq_huff_call1500E740(struct huffman_tree *h
 		p_item1->prev = pp_item[1];
 		/* EDI = ht->item305C; */
 		p_prev = pp_item[1];			/* ECX */
-		if (p_prev <= 0) {
+		//if (p_prev <= 0) {
+		if (p_prev == NULL) {
 			p_prev = PTR_NOT(p_prev);
 			p_prev->next = p_item1;
 			p_prev->prev = p_item2;
@@ -766,7 +770,8 @@ __int32 libmpq_huff_do_decompress(struct huffman_tree *ht, struct huffman_input_
 
 		if (dcmp_byte == 0x101)	{		/* Huffman tree needs to be modified */
 			n8bits  = libmpq_huff_get_8bits(is);
-			p_item1 = (ht->last <= 0) ? NULL : ht->last;
+			//p_item1 = (ht->last <= 0) ? NULL : ht->last;
+            p_item1 = (ht->last == NULL) ? NULL : ht->last;
 
 			p_item2 = libmpq_huff_call1500E740(ht, 1);
 			p_item2->parent     = p_item1;
