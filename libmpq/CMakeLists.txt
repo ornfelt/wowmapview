@@ -32,3 +32,8 @@ set_target_properties(mpq_shared PROPERTIES OUTPUT_NAME "mpq")
 
 # Set the output names for convenience
 set_target_properties(mpq PROPERTIES OUTPUT_NAME "mpq")
+
+#install(TARGETS mpq_shared
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib
+#        RUNTIME DESTINATION bin)  # For Windows DLLs
