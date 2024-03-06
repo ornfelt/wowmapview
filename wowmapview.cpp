@@ -28,7 +28,7 @@
 int fullscreen = 0;
 
 //std::string gamePath = "E:/Games/WoW Classic";//"./";
-std::string gamePath = "/media/2024/wow_classic";//"./";
+std::string gamePath = "/home/jonas/Downloads/wow_classic";
 int expansion = 0;
 FILE *flog;
 bool glogfirst = true;

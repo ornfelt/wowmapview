@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
+
 add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp)
 if(WIN32)
     #set(ZLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/zlib/")
@@ -61,6 +63,7 @@ install(TARGETS zlib
 
 find_package(SDL REQUIRED)
 find_package(OpenGL REQUIRED)
+
 #[[add_library(sdl)
 set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
 set_target_properties(SDL::SDL PROPERTIES SOVERSION 1)
@@ -74,7 +77,7 @@ install(TARGETS sdl
 
 #add_subdirectory(zlib)
 #add_subdirectory(SDL/include)
-#add_subdirectory(libmpq)
+add_subdirectory(libmpq)
 
 file(GLOB mpqfiles libmpq/*.cpp libmpq/*.h *.h)
 
@@ -90,7 +93,6 @@ add_library(libmpq STATIC
     # #find_package(ZLIB REQUIRED)
     # #include_directories(${SDL_INCLUDE_DIR})
     # 
-    # find_package(OpenGL REQUIRED)
     # target_link_libraries(wowmapview PRIVATE
     #         #ZLIB::ZLIB
     #         #SDL
@@ -111,18 +113,17 @@ include_directories(${SDL_INCLUDE_DIR})
 # For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
 
 # OpenGL
-#find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 # zlib (Consider using find_package(ZLIB REQUIRED) if zlib is installed on the system)
 #file(GLOB zlibfiles zlib/*.c)
 #add_library(zlib STATIC ${zlibfiles})
-#target_include_directories(zlib PRIVATE zlib)
+target_include_directories(zlib PRIVATE zlib)
 
 # libmpq
 #file(GLOB mpqfiles libmpq/*.cpp libmpq/*.h *.h)
 #add_library(libmpq STATIC ${mpqfiles})
-#target_include_directories(libmpq PRIVATE zlib)
+target_include_directories(libmpq PRIVATE zlib)
 #target_link_libraries(libmpq PRIVATE zlib)
 
 # Link libraries
@@ -138,13 +139,11 @@ if(WIN32)
             ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
             ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib)
 else()
-    # Linux-specific configurations
+    # Linux
     target_link_libraries(wowmapview PRIVATE
             SDL
             GL)
 endif()
-
-
 
 #include_directories(${OPENGL_INCLUDE_DIR})
 #include_directories(${ZLIB_INCLUDE_DIR})
@@ -161,6 +160,7 @@ endif()
 #target_include_directories(wowmapview PUBLIC ${ZLIB_INCLUDE_DIR})
 #target_include_directories(wowmapview PUBLIC ${LIBMPQ_INCLUDE_DIR})
 #target_include_directories(wowmapview PUBLIC ${SDL_INCLUDE_DIR})
+
 #target_link_libraries(wowmapview PRIVATE SDL)
 #target_link_libraries(wowmapview
 #        ${SDL_LIBRARY}
@@ -186,3 +186,4 @@ add_custom_command(
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
 file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
 file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
+
