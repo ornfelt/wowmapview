@@ -40,6 +40,7 @@
 //#define lseek _lseek
 #define PATH_MAX 259
 #else
+#define PATH_MAX 259
 #include <dirent.h>
 //lseek ...
 #include <unistd.h>

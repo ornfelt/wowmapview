@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 3.24)
 project(wowmapview)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+if(WIN32)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+endif()
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+	message(STATUS "Using Linux port")
+	add_definitions(-D_LINUX)
+	add_definitions(-D_LINUX32)
+endif()
 
 add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp)
 if(WIN32)
@@ -165,20 +174,22 @@ if(LINUX)
 endif()
 
 # Add conf file to dev folder
-add_custom_command(
-        TARGET ${PROJECT_NAME}  POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/fonts/arial.info
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.info)
-add_custom_command(
-        TARGET ${PROJECT_NAME}  POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/fonts/arial.tga
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.tga)
-add_custom_command(
-        TARGET ${PROJECT_NAME}  POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.dll
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
-file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
-file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
+if(WIN32)
+    add_custom_command(
+            TARGET ${PROJECT_NAME}  POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/fonts/arial.info
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.info)
+    add_custom_command(
+            TARGET ${PROJECT_NAME}  POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/fonts/arial.tga
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.tga)
+    add_custom_command(
+            TARGET ${PROJECT_NAME}  POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.dll
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
+    file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
+    file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
+endif()
