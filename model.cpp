@@ -7,6 +7,28 @@ int globalTime = 0;
 
 Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(forceAnim)
 {
+	// Test (see models south of pvpzone01)
+	if (name == "World\\Kalimdor\\Winterspring\\Passivedoodads\\Trees\\Newwinterspringmidtree02.Mdx"
+		|| name == "World\\Generic\\Orc\\Passive Doodads\\Braziers\\Mediumbrazier01.Mdx"
+		|| name == "World\\Generic\\Ogre\\Passive Doodads\\Torches\\Ogrewalltorchblue.Mdx"
+		|| name == "World\\Generic\\Human\\Passive Doodads\\Outposts\\Generaloutpost07.Mdx")
+	{
+		gLog("Loading model %s\n", name);
+		//name = "Spells\\Blizzard_Impact_Base.mdx";
+
+		//name = "character\\human\\male\\humanmale.mdx";
+		//name = "character\\scourge\\male\\scourgemale.mdx";
+
+		name = "creature\\dragon\\dragononyxia.mdx";
+		//name = "creature\\drake\\drake.mdx";
+		//name = "creature\\Cow\\cow.mdx";
+		//name = "creature\\druidbear\\druidbear.mdx";
+		//name = "creature\\diablo\\DiabloFunSized.mdx";
+		//name = "creature\\voidwalker\\voidwalker.mdx";
+		//name = "creature\\panda\\pandacub.mdx";
+		//name = "creature\\rabbit\\rabbit.mdx";
+	}
+
 	// replace .MDX with .M2
 	char tempname[256];
 	strcpy(tempname,name.c_str());
@@ -34,7 +56,8 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 
 	animated = isAnimated(f) || forceAnim;  // isAnimated will set animGeometry and animTextures
 
-	gLog("Loading model %s%s\n", tempname, animated ? " (animated)" : "");
+	//if (animated)
+	//gLog("Loading model %s%s\n", tempname, animated ? " (animated)" : "");
 
 	trans = 1.0f;
 
@@ -270,12 +293,46 @@ void Model::initCommon(MPQFile &f)
 			if (texdef[i].type == 0) {
 				strncpy(texname, f.getBuffer() + texdef[i].nameOfs, texdef[i].nameLen);
 				texname[texdef[i].nameLen] = 0;
+				//std::cout << "Loading texture: " << texname << std::endl;
 				std::string path(texname);
 				fixname(path);
 				textures[i] = video.textures.add(texname);
 			} else {
 				// special texture - only on characters and such...
-                textures[i] = 0;
+                //textures[i] = 0;
+
+				std::cout << "Loading char/creature texture: " << i << std::endl;
+
+				//if (i == 0)
+				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleNakedPelvisSkin00_00.blp");
+				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_00.blp");
+				//	textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_01.blp");
+				//else if (i == 1)
+				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceLower00_00.blp");
+				//	textures[i] = video.textures.add("Character\\human\\Hair00_01.blp");
+				//else if (i == 2)
+				////	textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceUpper00_00.blp");
+				//	textures[i] = video.textures.add("character\\human\\male\\Cape_Mail_A_01Golden.blp");
+
+				//if (i == 0)
+				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\NightElfMaleEyeGlow.blp");
+				//	textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleSkin00_01.blp");
+				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_01.blp");
+				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_02.blp");
+				//else if (i == 1)
+				//	textures[i] = video.textures.add("Character\\Scourge\\Hair00_01.blp");
+				//else if (i == 2)
+				//	textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceLower00_01.blp");
+				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceUpper00_01.blp");
+
+				textures[i] = video.textures.add("creature\\dragon\\dragononyxia3.blp");
+				//textures[i] = video.textures.add("creature\\drake\\drakeskin3.blp");
+				//textures[i] = video.textures.add("Creature\\Cow\\cow.blp");
+				//textures[i] = video.textures.add("creature\\druidbear\\druidbearskin.blp");
+				//textures[i] = video.textures.add("creature\\diablo\\DiabloFunSizedSkin.blp");
+				//textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
+				//textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
+				//textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
 			}
 		}
 	}

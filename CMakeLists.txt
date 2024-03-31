@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.20)
 project(wowmapview)
 #set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD 11)
@@ -7,12 +7,12 @@ if(WIN32)
 endif()
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
-
 if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 	message(STATUS "Using Linux port")
 	add_definitions(-D_LINUX)
 	add_definitions(-D_LINUX32)
+	
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
 endif()
 
 add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp)
@@ -105,15 +105,33 @@ target_link_libraries(libmpq PRIVATE
 
 #find_package(ZLIB REQUIRED)
 #include_directories(${SDL_INCLUDE_DIR})
-find_package(OpenGL REQUIRED)
-
-target_link_libraries(wowmapview PRIVATE
+if (NOT MSVC)
+	find_package(OpenGL REQUIRED)
+	
+	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
         #SDL
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
         zlib
         libmpq)
+	
+else()
+	
+	target_link_options(wowmapview PRIVATE
+        "/MACHINE:X86"
+    )
+	target_link_libraries(wowmapview PRIVATE
+        #ZLIB::ZLIB
+        #SDL
+		OpenGL32.lib
+		GLu32.lib
+        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
+        ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+        zlib
+        libmpq)
+endif()
+
 target_include_directories(wowmapview PRIVATE
         ${SDL_INCLUDE_DIR}
         zlib

@@ -134,6 +134,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (expansion > 0)
+        std::cout << "Expansion > 0" << std::endl;
+	std::cout << "usePatch: " << usePatch << std::endl;
+    gamePath = "C:\\Users\\jonas\\OneDrive\\Documents\\Games\\wow_classic";
 
     if (override_game_path || gamePath != "./")
     {
