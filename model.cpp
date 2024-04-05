@@ -15,11 +15,41 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 	{
 		gLog("Loading model %s\n", name);
 		//name = "Spells\\Blizzard_Impact_Base.mdx";
+		//name = "spells\\PyroBlast_Missile.mdx";
+		//name = "spells\\Frostbolt.mdx"; // So cool
+		//name = "spells\\Fireball_Missile_High.mdx";
+
+		//name = "spells\\FlameBreath180.mdx";
+		//name = "spells\\RainOfFire_Missile.mdx"; 
+		//name = "spells\\RainOfFIre_Impact_Base.mdx";
+		//name = "spells\\FireStrike_Missile_Low.mdx";
+		//name = "spells\\Arcane_Missile_Lvl4.mdx";
+		//name = "spells\\Arcane_Missile.mdx";
+		//name = "spells\\WaterBolt_Missile_Low.mdx";
+		//name = "spells\\Torch_Missile.mdx";
+		//name = "spells\\Shock_Missile.mdx"; // Cool
+		//name = "spells\\LightningStreak_Missile.mdx";
+		//name = "spells\\LightningBolt_Missile.mdx";
+		//name = "spells\\Ice_Missile_Uber.mdx";
+		//name = "spells\\Ice_Missile_High.mdx";
+		//name = "spells\\Holy_Missile_Uber.mdx";
+		//name = "spells\\FireBolt_Missile_Low.mdx"; // Instead of fireball???
+		//name = "spells\\Boulder_Missile.mdx";
+		//name = "spells\\BoulderGiant_Missile.mdx";
+		//name = "spells\\FireNova_Area.mdx";
+		//name = "spells\\Fire_PreCast_High_Hand.mdx";
+		//name = "spells\\Fire_PreCast_Low_Hand.mdx";
+		//name = "spells\\Fire_PreCast_Med_Hand.mdx";
+		//name = "spells\\Fire_PreCast_Uber_Hand.mdx";
+		//name = "spells\\Ice_Precast_High_Base.mdx";
+		//name = "spells\\Onyxia_Impact_Base.mdx"; // HUGE beam
+		//name = "spells\\Frost_Nova_area.mdx";
+		//name = "spells\\LightningShield_Impact_Base.mdx";
 
 		//name = "character\\human\\male\\humanmale.mdx";
 		//name = "character\\scourge\\male\\scourgemale.mdx";
 
-		name = "creature\\dragon\\dragononyxia.mdx";
+		//name = "creature\\dragon\\dragononyxia.mdx";
 		//name = "creature\\drake\\drake.mdx";
 		//name = "creature\\Cow\\cow.mdx";
 		//name = "creature\\druidbear\\druidbear.mdx";
@@ -27,6 +57,7 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 		//name = "creature\\voidwalker\\voidwalker.mdx";
 		//name = "creature\\panda\\pandacub.mdx";
 		//name = "creature\\rabbit\\rabbit.mdx";
+		name = "creature\\ragnaros\\ragnaros.mdx";
 	}
 
 	// replace .MDX with .M2
@@ -325,7 +356,7 @@ void Model::initCommon(MPQFile &f)
 				//	textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceLower00_01.blp");
 				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceUpper00_01.blp");
 
-				textures[i] = video.textures.add("creature\\dragon\\dragononyxia3.blp");
+				//textures[i] = video.textures.add("creature\\dragon\\dragononyxia3.blp");
 				//textures[i] = video.textures.add("creature\\drake\\drakeskin3.blp");
 				//textures[i] = video.textures.add("Creature\\Cow\\cow.blp");
 				//textures[i] = video.textures.add("creature\\druidbear\\druidbearskin.blp");
@@ -333,6 +364,10 @@ void Model::initCommon(MPQFile &f)
 				//textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
 				//textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
 				//textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
+				if (i == 0)
+					textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
+				else if (i == 1)
+					textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
 			}
 		}
 	}
