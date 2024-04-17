@@ -8,14 +8,15 @@ int globalTime = 0;
 Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(forceAnim)
 {
 	// Test (see models south of pvpzone01)
-	if (name == "World\\Kalimdor\\Winterspring\\Passivedoodads\\Trees\\Newwinterspringmidtree02.Mdx"
-		|| name == "World\\Generic\\Orc\\Passive Doodads\\Braziers\\Mediumbrazier01.Mdx"
-		|| name == "World\\Generic\\Ogre\\Passive Doodads\\Torches\\Ogrewalltorchblue.Mdx"
-		|| name == "World\\Generic\\Human\\Passive Doodads\\Outposts\\Generaloutpost07.Mdx")
+	//if (name == "World\\Kalimdor\\Winterspring\\Passivedoodads\\Trees\\Newwinterspringmidtree02.Mdx"
+	//	|| name == "World\\Generic\\Orc\\Passive Doodads\\Braziers\\Mediumbrazier01.Mdx"
+	//	|| name == "World\\Generic\\Ogre\\Passive Doodads\\Torches\\Ogrewalltorchblue.Mdx"
+	//	|| name == "World\\Generic\\Human\\Passive Doodads\\Outposts\\Generaloutpost07.Mdx")
+	if (name == "World\\Generic\\Human\\Passive Doodads\\Outposts\\Generaloutpost07.Mdx")
 	{
 		gLog("Loading model %s\n", name);
 		//name = "Spells\\Blizzard_Impact_Base.mdx";
-		//name = "spells\\PyroBlast_Missile.mdx";
+		name = "spells\\PyroBlast_Missile.mdx";
 		//name = "spells\\Frostbolt.mdx"; // So cool
 		//name = "spells\\Fireball_Missile_High.mdx";
 
@@ -59,6 +60,7 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 		//name = "creature\\rabbit\\rabbit.mdx";
 		name = "creature\\ragnaros\\ragnaros.mdx";
 	}
+	this->modelPath = name;
 
 	// replace .MDX with .M2
 	char tempname[256];
@@ -364,6 +366,7 @@ void Model::initCommon(MPQFile &f)
 				//textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
 				//textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
 				//textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
+
 				if (i == 0)
 					textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
 				else if (i == 1)
@@ -1254,9 +1257,19 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
     f.read(&d1, 4);
 	f.read(ff,12);
 	pos = Vec3D(ff[0],ff[1],ff[2]);
+	if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	{
+		std::cout << "MODEL: " << m->modelPath << std::endl;
+		std::cout << "POS: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+		pos.x += 100.0f;
+	}
 	f.read(ff,12);
 	dir = Vec3D(ff[0],ff[1],ff[2]);
 	f.read(&scale,4);
+	if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	{
+		scale /= 8;
+	}
 	// scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
 	sc = scale / 1024.0f;
 }
@@ -1290,8 +1303,36 @@ void ModelInstance::draw()
 	glPushMatrix();
 	glTranslatef(pos.x, pos.y, pos.z);
 
-	glRotatef(dir.y - 90.0f, 0, 1, 0);
-	glRotatef(-dir.x, 0, 0, 1);
+	if (model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	//if (model->modelPath == "spells\\PyroBlast_Missile.mdx")
+	{
+		//pos = gWorld->camera;
+
+		Vec3D newdir = gWorld->lookat - gWorld->camera;
+		newdir.normalize();
+		float distanceInFrontOfCamera = 20.0;
+		Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+		pos = newpos;
+
+		float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+		// Normalize to ensure it falls between 0 and 360
+		yawDegrees = fmod(yawDegrees, 360.0f);
+		if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+		yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+		// Assuming model faces east by default, adjust to face north
+		yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+		dir.y = yawDegrees;
+
+		//dir.y += 1.0f; // Continuosly rotate
+		//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+		//std::cout << "newdir: " << newdir.x << ", " << newdir.y << ", " << newdir.z << std::endl;
+	}
+
+	//glRotatef(dir.y - 90.0f, 0, 1, 0);
+	//glRotatef(-dir.x, 0, 0, 1);
+
+	glRotatef(dir.y, 0, 1, 0);
+	glRotatef(dir.x, 1, 0, 0);
 	glRotatef(dir.z, 1, 0, 0);
 
 	glScalef(sc,sc,sc);

@@ -174,6 +174,8 @@ public:
 	bool animcalc;
 	int anim, animtime;
 
+	std::string modelPath;
+
 	Model(std::string name, bool forceAnim=false);
 	~Model();
 	void draw();

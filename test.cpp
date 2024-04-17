@@ -267,6 +267,7 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_F4) {
 			hud = !hud;
 		}
+		hud = true;
 		if (e->keysym.sym == SDLK_F6) {
 			world->drawwmo = !world->drawwmo;
 		}

@@ -80,7 +80,8 @@ int main(int argc, char *argv[])
     int xres = 1024;
     int yres = 768;
 
-    bool usePatch = true;
+    //bool usePatch = true;
+    bool usePatch = false;
 
     const char *override_game_path = NULL;
     int maxFps = 60;
