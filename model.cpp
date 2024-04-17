@@ -55,10 +55,10 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 		//name = "creature\\Cow\\cow.mdx";
 		//name = "creature\\druidbear\\druidbear.mdx";
 		//name = "creature\\diablo\\DiabloFunSized.mdx";
-		name = "creature\\voidwalker\\voidwalker.mdx";
+		//name = "creature\\voidwalker\\voidwalker.mdx";
 		//name = "creature\\panda\\pandacub.mdx";
 		//name = "creature\\rabbit\\rabbit.mdx";
-		//name = "creature\\ragnaros\\ragnaros.mdx";
+		name = "creature\\ragnaros\\ragnaros.mdx";
 	}
 	this->modelPath = name;
 
@@ -100,8 +100,8 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 	animtime = 0;
 	anim = 0;
 	//if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx")
-	////if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-	//	anim = 1;
+	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+		anim = 1;
 
 	colors = 0;
 	lights = 0;
@@ -367,14 +367,14 @@ void Model::initCommon(MPQFile &f)
 				//textures[i] = video.textures.add("Creature\\Cow\\cow.blp");
 				//textures[i] = video.textures.add("creature\\druidbear\\druidbearskin.blp");
 				//textures[i] = video.textures.add("creature\\diablo\\DiabloFunSizedSkin.blp");
-				textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
+				//textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
 				//textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
 				//textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
 
-				//if (i == 0)
-				//	textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
-				//else if (i == 1)
-				//	textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
+				if (i == 0)
+					textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
+				else if (i == 1)
+					textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
 			}
 		}
 	}
@@ -655,8 +655,8 @@ void Model::initAnimated(MPQFile &f)
 	}
 
 	anims = new ModelAnimation[header.nAnimations];
-	if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx")
-	//if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	//if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx")
+	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
 		for (int i = 0; i < header.nAnimations; ++i)
 			std::cout << "Animation index: " << i << std::endl;
 
@@ -679,8 +679,12 @@ void Model::calcBones(int anim, int time)
 
 void Model::animate(int anim)
 {
+	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	{
+		//std::cout << "Rag anim: " << anim << std::endl;
+		anim = 2;
+	}
 	ModelAnimation &a = anims[anim];
-	//if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
 
 	int t = globalTime; //(int)(gWorld->animtime /* / a.playSpeed*/);
 	int tmax = (a.timeEnd-a.timeStart);
@@ -1313,8 +1317,8 @@ void ModelInstance::draw()
 	glPushMatrix();
 	glTranslatef(pos.x, pos.y, pos.z);
 
-	//if (model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-	if (model->modelPath == "creature\\voidwalker\\voidwalker.mdx")
+	if (model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	//if (model->modelPath == "creature\\voidwalker\\voidwalker.mdx")
 	//if (model->modelPath == "spells\\PyroBlast_Missile.mdx")
 	{
 		//pos = gWorld->camera;
