@@ -1,6 +1,8 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#define USE_OLD_CHAR 0
+
 #include "wowmapview.h"
 #include "maptile.h"
 #include "wmo.h"
@@ -83,8 +85,31 @@ public:
 
 	/// Get the tile on wich the camera currently is on
 	unsigned int getAreaID();
-};
 
+	//std::string playerModelPath = "spells\\PyroBlast_Missile.mdx";
+	//std::string playerModelPath = "spells\\Frostbolt.mdx";
+	//std::string playerModelPath = "character\\human\\male\\humanmale.mdx";
+	//std::string playerModelPath = "character\\scourge\\male\\scourgemale.mdx";
+
+	//std::string playerModelPath = "creature\\dragon\\dragononyxia.mdx";
+	std::string playerModelPath = "creature\\drake\\drake.mdx";
+	//std::string playerModelPath = "creature\\Cow\\cow.mdx";
+	//std::string playerModelPath = "creature\\druidbear\\druidbear.mdx";
+	//std::string playerModelPath = "creature\\diablo\\DiabloFunSized.mdx";
+	//std::string playerModelPath = "creature\\voidwalker\\voidwalker.mdx";
+	//std::string playerModelPath = "creature\\panda\\pandacub.mdx";
+	//std::string playerModelPath = "creature\\rabbit\\rabbit.mdx";
+	//std::string playerModelPath = "creature\\SkeletonNaked\\SkeletonNaked.mdx";
+	//std::string playerModelPath = "creature\\ragnaros\\ragnaros.mdx";
+
+#if !USE_OLD_CHAR
+	void createPlayer(MPQFile& f);
+	void createPlayerTwo(MPQFile& f);
+	Model* player;
+	Model* playertwo;
+	std::vector<ModelInstance> playermodelis;
+#endif
+};
 
 extern World *gWorld;
 

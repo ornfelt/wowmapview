@@ -5,8 +5,23 @@
 
 int globalTime = 0;
 
+bool Model::containsCreaturePath(const std::string& str) {
+	if (str.find("creature\\") != std::string::npos || str.find("creature/") != std::string::npos) {
+		return true;
+	}
+	return false;
+}
+
+bool Model::containsSpellPath(const std::string& str) {
+	if (str.find("spells\\") != std::string::npos || str.find("spells/") != std::string::npos) {
+		return true;
+	}
+	return false;
+}
+
 Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(forceAnim)
 {
+#if USE_OLD_CHAR
 	// Test (see models south of pvpzone01)
 	//if (name == "World\\Kalimdor\\Winterspring\\Passivedoodads\\Trees\\Newwinterspringmidtree02.Mdx"
 	//	|| name == "World\\Generic\\Orc\\Passive Doodads\\Braziers\\Mediumbrazier01.Mdx"
@@ -49,7 +64,6 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 
 		//name = "character\\human\\male\\humanmale.mdx";
 		//name = "character\\scourge\\male\\scourgemale.mdx";
-
 		//name = "creature\\dragon\\dragononyxia.mdx";
 		//name = "creature\\drake\\drake.mdx";
 		//name = "creature\\Cow\\cow.mdx";
@@ -58,9 +72,18 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 		//name = "creature\\voidwalker\\voidwalker.mdx";
 		//name = "creature\\panda\\pandacub.mdx";
 		//name = "creature\\rabbit\\rabbit.mdx";
-		name = "creature\\ragnaros\\ragnaros.mdx";
+		//name = "creature\\ragnaros\\ragnaros.mdx";
+		name = "creature\\SkeletonNaked\\SkeletonNaked.mdx";
 	}
+#endif
 	this->modelPath = name;
+	this->isUnit = this->containsCreaturePath(name);
+	this->isSpell = this->containsSpellPath(name);
+
+	if (this->isUnit)
+		std::cout << "isUnit! path / name: " << name << std::endl;
+	else if (this->isSpell)
+		std::cout << "isSpell! path / name: " << name << std::endl;
 
 	// replace .MDX with .M2
 	char tempname[256];
@@ -99,9 +122,8 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 	globalSequences = 0;
 	animtime = 0;
 	anim = 0;
-	//if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx")
-	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-		anim = 1;
+	//if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	//	anim = 1;
 
 	colors = 0;
 	lights = 0;
@@ -334,47 +356,79 @@ void Model::initCommon(MPQFile &f)
 				std::string path(texname);
 				fixname(path);
 				textures[i] = video.textures.add(texname);
-			} else {
+			}
+			else {
 				// special texture - only on characters and such...
-                //textures[i] = 0;
+				textures[i] = 0;
 
 				std::cout << "Loading char/creature texture: " << i << std::endl;
 
-				//if (i == 0)
-				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleNakedPelvisSkin00_00.blp");
-				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_00.blp");
-				//	textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_01.blp");
-				//else if (i == 1)
-				//	//textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceLower00_00.blp");
-				//	textures[i] = video.textures.add("Character\\human\\Hair00_01.blp");
-				//else if (i == 2)
-				////	textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceUpper00_00.blp");
-				//	textures[i] = video.textures.add("character\\human\\male\\Cape_Mail_A_01Golden.blp");
+				if (this->modelPath == "character\\human\\male\\humanmale.mdx") {
+					if (i == 0)
+						//textures[i] = video.textures.add("character\\human\\male\\HumanMaleNakedPelvisSkin00_00.blp");
+						//textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_00.blp");
+						textures[i] = video.textures.add("character\\human\\male\\HumanMaleSkin00_01.blp");
+					else if (i == 1)
+						//textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceLower00_00.blp");
+						textures[i] = video.textures.add("Character\\human\\Hair00_01.blp");
+					else if (i == 2)
+						//	textures[i] = video.textures.add("character\\human\\male\\HumanMaleFaceUpper00_00.blp");
+						textures[i] = video.textures.add("character\\human\\male\\Cape_Mail_A_01Golden.blp");
+				}
 
-				//if (i == 0)
-				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\NightElfMaleEyeGlow.blp");
-				//	textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleSkin00_01.blp");
-				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_01.blp");
-				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_02.blp");
-				//else if (i == 1)
-				//	textures[i] = video.textures.add("Character\\Scourge\\Hair00_01.blp");
-				//else if (i == 2)
-				//	textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceLower00_01.blp");
-				//	//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceUpper00_01.blp");
+				else if (this->modelPath == "character\\human\\male\\humanmale.mdx") {
+					if (i == 0)
+						//textures[i] = video.textures.add("Character\\Scourge\\Male\\NightElfMaleEyeGlow.blp");
+						textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleSkin00_01.blp");
+					//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_01.blp");
+					//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleNakedPelvisSkin00_02.blp");
+					else if (i == 1)
+						textures[i] = video.textures.add("Character\\Scourge\\Hair00_01.blp");
+					else if (i == 2)
+						textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceLower00_01.blp");
+					//textures[i] = video.textures.add("Character\\Scourge\\Male\\ScourgeMaleFaceUpper00_01.blp");
+				}
 
-				//textures[i] = video.textures.add("creature\\dragon\\dragononyxia3.blp");
-				//textures[i] = video.textures.add("creature\\drake\\drakeskin3.blp");
-				//textures[i] = video.textures.add("Creature\\Cow\\cow.blp");
-				//textures[i] = video.textures.add("creature\\druidbear\\druidbearskin.blp");
-				//textures[i] = video.textures.add("creature\\diablo\\DiabloFunSizedSkin.blp");
-				//textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
-				//textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
-				//textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
+				else if (this->modelPath == "creature\\dragon\\dragononyxia.mdx") {
+					textures[i] = video.textures.add("creature\\dragon\\dragononyxia3.blp");
+				}
+				else if (this->modelPath == "creature\\drake\\drake.mdx") {
+					textures[i] = video.textures.add("creature\\drake\\drakeskin3.blp");
+				}
+				else if (this->modelPath == "creature\\Cow\\cow.mdx") {
+					textures[i] = video.textures.add("Creature\\Cow\\cow.blp");
+				}
+				else if (this->modelPath == "creature\\druidbear\\druidbear.mdx") {
+					textures[i] = video.textures.add("creature\\druidbear\\druidbearskin.blp");
+				}
+				else if (this->modelPath == "creature\\diablo\\DiabloFunSized.mdx") {
+					textures[i] = video.textures.add("creature\\diablo\\DiabloFunSizedSkin.blp");
+				}
+				else if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx") {
+					textures[i] = video.textures.add("creature\\voidwalker\\voidwalker.blp");
+				}
+				else if (this->modelPath == "creature\\panda\\pandacub.mdx") {
+					textures[i] = video.textures.add("creature\\panda\\pandacubskin.blp");
+				}
+				else if (this->modelPath == "creature\\rabbit\\rabbit.mdx") {
+					textures[i] = video.textures.add("creature\\rabbit\\rabbitskinbrown.blp");
+				}
 
-				if (i == 0)
-					textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
-				else if (i == 1)
-					textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
+				else if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx") {
+					if (i == 0)
+						textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
+					else if (i == 1)
+						textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
+				}
+
+				else if (this->modelPath == "creature\\SkeletonNaked\\SkeletonNaked.mdx") {
+					textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_White.blp");
+					//textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_Yellow.blp");
+					//textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_Blue.blp");
+					//textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_Green.blp");
+					//textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_Red.blp");
+					//textures[i] = video.textures.add("creature\\SkeletonNaked\\SkeletonNakedSkin_Black.blp");
+				}
 			}
 		}
 	}
@@ -655,8 +709,7 @@ void Model::initAnimated(MPQFile &f)
 	}
 
 	anims = new ModelAnimation[header.nAnimations];
-	//if (this->modelPath == "creature\\voidwalker\\voidwalker.mdx")
-	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	if (this->isUnit || this->isSpell)
 		for (int i = 0; i < header.nAnimations; ++i)
 			std::cout << "Animation index: " << i << std::endl;
 
@@ -679,11 +732,19 @@ void Model::calcBones(int anim, int time)
 
 void Model::animate(int anim)
 {
-	if (this->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	if (this->isUnit || this->isSpell)
 	{
-		//std::cout << "Rag anim: " << anim << std::endl;
-		anim = 2;
+		anim = 0; // idle
+		//anim = 1; // idle
+		//anim = 4/5; // being hit
+		//anim = 11; // Dying cool
+		//anim = 12; // cool spawn
+		//anim = 2/3; // Attacking
+		//std::cout << "anim: " << anim << std::endl;
+
+		//anim = 32; // Jump skeleton
 	}
+
 	ModelAnimation &a = anims[anim];
 
 	int t = globalTime; //(int)(gWorld->animtime /* / a.playSpeed*/);
@@ -1185,6 +1246,11 @@ void Bone::calcMatrix(Bone *allbones, int anim, int time)
 
 void Model::draw()
 {
+#if !USE_OLD_CHAR
+	if (this->isUnit || this->isSpell)
+		animate(0);
+#endif
+
 	if (!ok) return;
 
 	if (!animated) {
@@ -1272,18 +1338,23 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
     f.read(&d1, 4);
 	f.read(ff,12);
 	pos = Vec3D(ff[0],ff[1],ff[2]);
-	if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	if (m->isUnit || m->isSpell)
 	{
 		std::cout << "MODEL: " << m->modelPath << std::endl;
 		std::cout << "POS: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+		std::cout << "Scale: " << scale << std::endl;
+		scale = 1000;
+		//scale = 10000;
 	}
 	f.read(ff,12);
 	dir = Vec3D(ff[0],ff[1],ff[2]);
 	f.read(&scale,4);
-	if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-	{
-		scale /= 8;
-	}
+
+	//if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+	//	scale /= 8;
+	//else if (m->modelPath == "creature\\dragon\\dragononyxia.mdx")
+	//	scale /= 3;
+
 	// scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
 	sc = scale / 1024.0f;
 }
@@ -1305,27 +1376,28 @@ void ModelInstance::init2(Model *m, MPQFile &f)
 	lcol = Vec3D(((d1&0xff0000)>>16) / 255.0f, ((d1&0x00ff00)>>8) / 255.0f, (d1&0x0000ff) / 255.0f);
 }
 
-
-
 void ModelInstance::draw()
 {
-	//if ((pos - gWorld->camera).lengthSquared() > (gWorld->modeldrawdistance2+(model->rad*model->rad*sc))) return;
-	float dist = (pos - gWorld->camera).length() - model->rad;
-	if (dist > gWorld->modeldrawdistance) return;
-	if (!gWorld->frustum.intersectsSphere(pos, model->rad*sc)) return;
+	if (!this->model->isUnit && !this->model->isSpell)
+	{
+		//if ((pos - gWorld->camera).lengthSquared() > (gWorld->modeldrawdistance2+(model->rad*model->rad*sc))) return;
+		float dist = (pos - gWorld->camera).length() - model->rad;
+		if (dist > gWorld->modeldrawdistance) return;
+		if (!gWorld->frustum.intersectsSphere(pos, model->rad * sc)) return;
+	}
 
 	glPushMatrix();
 	glTranslatef(pos.x, pos.y, pos.z);
 
-	if (model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-	//if (model->modelPath == "creature\\voidwalker\\voidwalker.mdx")
-	//if (model->modelPath == "spells\\PyroBlast_Missile.mdx")
+	if (this->model->isUnit || this->model->isSpell)
 	{
 		//pos = gWorld->camera;
 
 		Vec3D newdir = gWorld->lookat - gWorld->camera;
 		newdir.normalize();
 		float distanceInFrontOfCamera = 20.0;
+		if (this->model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+			distanceInFrontOfCamera += 100.0;
 		Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
 		pos = newpos;
 
@@ -1334,22 +1406,27 @@ void ModelInstance::draw()
 		yawDegrees = fmod(yawDegrees, 360.0f);
 		if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
 		yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+
 		// Assuming model faces east by default, adjust to face north
 		yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
 		dir.y = yawDegrees;
 
 		//dir.y += 1.0f; // Continuosly rotate
 		//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
-		//std::cout << "newdir: " << newdir.x << ", " << newdir.y << ", " << newdir.z << std::endl;
+		if (!this->model->isSpell) {
+			glRotatef(dir.y, 0, 1, 0);
+			glRotatef(dir.x, 1, 0, 0);
+		}
+		else {
+			glRotatef(dir.y - 180.0f, 0, 1, 0);
+			glRotatef(-dir.x + 90.0f, 0, 0, 1);
+		}
+	} else {
+		glRotatef(dir.y - 90.0f, 0, 1, 0);
+		glRotatef(-dir.x, 0, 0, 1);
 	}
 
-	//glRotatef(dir.y - 90.0f, 0, 1, 0);
-	//glRotatef(-dir.x, 0, 0, 1);
-
-	glRotatef(dir.y, 0, 1, 0);
-	glRotatef(dir.x, 1, 0, 0);
 	glRotatef(dir.z, 1, 0, 0);
-
 	glScalef(sc,sc,sc);
 
 	model->draw();

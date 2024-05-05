@@ -161,6 +161,9 @@ class Model: public ManagedItem {
 	void lightsOn(GLuint lbase);
 	void lightsOff(GLuint lbase);
 
+	bool containsCreaturePath(const std::string& str);
+	bool containsSpellPath(const std::string& str);
+
 public:
 	ModelCamera cam;
 	Bone *bones;
@@ -175,6 +178,8 @@ public:
 	int anim, animtime;
 
 	std::string modelPath;
+	bool isUnit;
+	bool isSpell;
 
 	Model(std::string name, bool forceAnim=false);
 	~Model();

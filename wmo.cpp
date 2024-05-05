@@ -121,7 +121,10 @@ WMO::WMO(std::string name): ManagedItem(name)
 
 					gWorld->modelmanager.add(path);
 					models.push_back(path);
+					//std::cout << "Adding model to modelmanager: " << path << std::endl;
 				}
+				//gWorld->modelmanager.add(std::string("creature\\SkeletonNaked\\SkeletonNaked.mdx"));
+				//models.push_back(std::string("creature\\SkeletonNaked\\SkeletonNaked.mdx"));
 				f.seekRelative((int)size);
 			}
 		}
@@ -142,7 +145,6 @@ WMO::WMO(std::string name): ManagedItem(name)
 				mi.init2(m,f);
 				modelis.push_back(mi);
 			}
-
 		}
 		else if (!strcmp(fourcc,"MOSB")) {
 			if (size>4) {

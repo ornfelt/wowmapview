@@ -27,6 +27,24 @@ World::World(const char* name):basename(name)
 	//initDisplay();
 }
 
+#if !USE_OLD_CHAR
+void World::createPlayer(MPQFile& f)
+{
+	std::cout << "Create player called" << std::endl;
+    //player = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
+    player = new Model(playerModelPath, true);
+	ModelInstance inst(player, f);
+	playermodelis.push_back(inst);
+}
+
+void World::createPlayerTwo(MPQFile& f)
+{
+	std::cout << "Create playertwo called" << std::endl;
+    playertwo = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
+	ModelInstance inst(playertwo, f);
+	playermodelis.push_back(inst);
+}
+#endif
 
 void World::init()
 {
@@ -86,6 +104,10 @@ void World::init()
 		}
 		f.seek((int)nextpos);
 	}
+#if !USE_OLD_CHAR
+	createPlayer(f);
+	createPlayerTwo(f);
+#endif
 	f.close();
 
 	mapstrip = 0;
@@ -895,7 +917,12 @@ void World::draw()
 			loading = true;
 		}
 	}
-
+#if !USE_OLD_CHAR
+	//player->cam.setup(globalTime);
+	//player->draw();
+	playermodelis[0].draw();
+	playermodelis[1].draw();
+#endif
 }
 
 
@@ -913,6 +940,12 @@ void World::tick(float dt)
 		dt -= 0.1f;
 	}
 	modelmanager.updateEmitters(dt);
+	//player->updateEmitters(dt);
+#if !USE_OLD_CHAR
+	playermodelis[0].model->updateEmitters(dt);
+	playermodelis[1].model->updateEmitters(dt);
+	//playermodelis[0].model->updateEmitters(0.1f);
+#endif
 }
 
 unsigned int World::getAreaID()
