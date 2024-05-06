@@ -41,6 +41,7 @@ void World::createPlayerTwo(MPQFile& f)
 {
 	std::cout << "Create playertwo called" << std::endl;
     playertwo = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
+	playertwo->isNpc = true;
 	ModelInstance inst(playertwo, f);
 	playermodelis.push_back(inst);
 }

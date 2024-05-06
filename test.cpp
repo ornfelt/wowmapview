@@ -167,9 +167,13 @@ void Test::display(float t, float dt)
 			//f16->print(5, 60, "%02d:%02d", hh,mm);
 			f16->print(video.xres - 50, 0, "%02d:%02d", hh,mm);
 
+			//f16->print(5, video.yres-22, "(%.0f, %.0f, %.0f)", 
+			//	-(world->camera.x - ZEROPOINT), 
+			//	-(world->camera.z - ZEROPOINT),
+			//	world->camera.y);
 			f16->print(5, video.yres-22, "(%.0f, %.0f, %.0f)", 
-				-(world->camera.x - ZEROPOINT), 
 				-(world->camera.z - ZEROPOINT),
+				-(world->camera.x - ZEROPOINT), 
 				world->camera.y);
 
 		}

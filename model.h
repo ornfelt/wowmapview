@@ -180,6 +180,7 @@ public:
 	std::string modelPath;
 	bool isUnit;
 	bool isSpell;
+	bool isNpc = false;
 
 	Model(std::string name, bool forceAnim=false);
 	~Model();

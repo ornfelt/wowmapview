@@ -1342,6 +1342,20 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
 	{
 		std::cout << "MODEL: " << m->modelPath << std::endl;
 		std::cout << "POS: " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
+		if (m->isNpc)
+		{
+			// Setting a coordinate based on wow x, y, z
+			double printedX = 717.929;
+			double printedY = -475.351;
+			double printedZ = 75.12;
+			double newPosX = -printedY + ZEROPOINT;
+			double newPosY = printedZ;
+			double newPosZ = -printedX + ZEROPOINT;
+			//std::cout << "Recovered cam pos: " << gWorld->camera.x << ", " << gWorld->camera.y << ", " << gWorld->camera.z << std::endl;
+			pos.x = newPosX;
+			pos.y = newPosY;
+			pos.z = newPosZ;
+		}
 		std::cout << "Scale: " << scale << std::endl;
 		scale = 1000;
 		//scale = 10000;
@@ -1393,13 +1407,28 @@ void ModelInstance::draw()
 	{
 		//pos = gWorld->camera;
 
+		//std::cout << "cam pos: " << -(gWorld->camera.z - ZEROPOINT) << ", " << - (gWorld->camera.x - ZEROPOINT) << ", " << gWorld->camera.y << std::endl;
 		Vec3D newdir = gWorld->lookat - gWorld->camera;
 		newdir.normalize();
 		float distanceInFrontOfCamera = 20.0;
-		if (this->model->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-			distanceInFrontOfCamera += 100.0;
-		Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-		pos = newpos;
+		if (this->model->isNpc)
+		{
+			// Setting a coordinate based on wow x, y, z
+			//double printedX = 717.929;
+			//double printedY = -475.351;
+			//double printedZ = 75.12;
+			//double newPosX = -printedY + ZEROPOINT;
+			//double newPosY = printedZ;
+			//double newPosZ = -printedX + ZEROPOINT;
+			////std::cout << "Recovered cam pos: " << gWorld->camera.x << ", " << gWorld->camera.y << ", " << gWorld->camera.z << std::endl;
+			//pos.x = newPosX;
+			//pos.y = newPosY;
+			//pos.z = newPosZ;
+		}
+		else {
+			Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+			pos = newpos;
+		}
 
 		float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
 		// Normalize to ensure it falls between 0 and 360
