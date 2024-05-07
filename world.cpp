@@ -13,7 +13,11 @@ World::World(const char* name):basename(name)
 {
 	//::gWorld = this;
 
-	gLog("\nLoading world %s\n", name);
+	auto it = mapNameToId.find(basename);
+	if (it != mapNameToId.end()) {
+		mapId = it->second;
+	}
+	gLog("\nLoading world %s with ID %d\n", name, mapId);
 
 	for (int i=0; i<MAPTILECACHESIZE; i++) maptilecache[i] = 0;
 
@@ -41,6 +45,7 @@ void World::createPlayerTwo(MPQFile& f)
 {
 	std::cout << "Create playertwo called" << std::endl;
     playertwo = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
+    //playertwo = new Model(std::string("creature\\SkeletonNaked\\SkeletonNaked.mdx"), true);
 	playertwo->isNpc = true;
 	ModelInstance inst(playertwo, f);
 	playermodelis.push_back(inst);

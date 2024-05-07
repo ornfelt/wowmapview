@@ -1411,37 +1411,156 @@ void ModelInstance::draw()
 		Vec3D newdir = gWorld->lookat - gWorld->camera;
 		newdir.normalize();
 		float distanceInFrontOfCamera = 20.0;
+
 		if (this->model->isNpc)
 		{
-			// Setting a coordinate based on wow x, y, z
-			//double printedX = 717.929;
-			//double printedY = -475.351;
-			//double printedZ = 75.12;
-			//double newPosX = -printedY + ZEROPOINT;
-			//double newPosY = printedZ;
-			//double newPosZ = -printedX + ZEROPOINT;
-			////std::cout << "Recovered cam pos: " << gWorld->camera.x << ", " << gWorld->camera.y << ", " << gWorld->camera.z << std::endl;
-			//pos.x = newPosX;
-			//pos.y = newPosY;
-			//pos.z = newPosZ;
+			//if (currentTargetIndex >= currentPath.size()) return;
+			//if (currentTargetIndex < currentPath.size()) {
+			//	const Point& target = currentPath[currentTargetIndex];
+			//	double transformedTargetX = -target.y + ZEROPOINT;
+			//	double transformedTargetY = target.z;
+			//	double transformedTargetZ = -target.x + ZEROPOINT;
+
+			//	double dx = transformedTargetX - pos.x;
+			//	double dy = transformedTargetY - pos.y;
+			//	double dz = transformedTargetZ - pos.z;
+			//	double distance = sqrt(dx * dx + dy * dy + dz * dz);
+			//	std::cout << "distance: " << distance << std::endl;
+
+			//	if (distance < moveSpeed) {
+			//		// If NPC is close enough to the target, snap directly to the target position
+			//		pos.x = transformedTargetX;
+			//		pos.y = transformedTargetY;
+			//		pos.z = transformedTargetZ;
+			//		std::cout << "node reached! " << currentTargetIndex << std::endl;
+			//		currentTargetIndex++; // Move to the next target
+			//		std::cout << "new node: " << currentTargetIndex << std::endl;
+			//	}
+			//	else {
+			//		// Move towards the target
+			//		pos.x += (dx / distance) * moveSpeed;
+			//		pos.y += (dy / distance) * moveSpeed;
+			//		pos.z += (dz / distance) * moveSpeed;
+			//	}
+
+			//	float yawDegrees = atan2(dx, dz) * (360.0f / PI);
+			//	dir.y = yawDegrees;	newdir = pos;
+			//}
+
+
+			//if (currentTargetIndex < currentPath.size()) {
+			//	const Point& target = currentPath[currentTargetIndex];
+			//	// Set the coordinate based on wow x, y, z
+			//	double transformedTargetX = -target.y + ZEROPOINT;
+			//	double transformedTargetY = target.z;
+			//	double transformedTargetZ = -target.x + ZEROPOINT;
+			//	Vec3D targetPos(transformedTargetX, transformedTargetY, transformedTargetZ);
+			//	newdir = targetPos - pos;
+			//	// Compute the Euclidean distance using the differences
+			//	double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
+			//	if (distance > 0) {
+			//		newdir.normalize();
+			//	}
+
+			//	//std::cout << "distance: " << distance << std::endl;
+
+			//	if (distance < moveSpeed) {
+			//		pos.x = transformedTargetX;
+			//		pos.y = transformedTargetY;
+			//		pos.z = transformedTargetZ;
+			//		std::cout << "node reached! " << currentTargetIndex << std::endl;
+			//		std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
+			//		currentTargetIndex++;
+			//		//std::cout << "new node: " << currentTargetIndex << std::endl;
+			//	}
+			//	else {
+			//		// Move towards the target
+			//		pos.x += newdir.x * moveSpeed;
+			//		pos.y += newdir.y * moveSpeed;
+			//		pos.z += newdir.z * moveSpeed;
+			//	}
+
+			//	float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+			//	// Normalize to ensure it falls between 0 and 360
+			//	yawDegrees = fmod(yawDegrees, 360.0f);
+			//	if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+			//	yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+
+			//	// Assuming model faces east by default, adjust to face north
+			//	yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+			//	dir.y = yawDegrees;
+			//}
+
+			if (currentTargetIndex < currentPath.size()) {
+				const Point& target = currentPath[currentTargetIndex];
+				double transformedPosX = -(pos.z - ZEROPOINT);
+				double transformedPosY = -(pos.x - ZEROPOINT);
+				double transformedPosZ = pos.y;
+
+				Vec3D targetPos(target.x, target.y, target.z);
+				std::cout << "targetpos: " << targetPos.x << ", " << targetPos.y << ", " << targetPos.z << std::endl;
+				std::cout << "target: " << target.x << ", " << target.y << ", " << target.z << std::endl;
+				Vec3D myPos(transformedPosX, transformedPosY, transformedPosZ);
+				newdir = targetPos - myPos;
+
+				// Compute the Euclidean distance using the differences
+				double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
+				if (distance > 0) {
+					newdir.normalize();
+				}
+
+				std::cout << "distance: " << distance << std::endl;
+
+				if (distance < moveSpeed) {
+					pos.x = target.x;
+					pos.y = target.y;
+					pos.z = target.z;
+					std::cout << "node reached! " << currentTargetIndex << std::endl;
+					std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
+					currentTargetIndex++;
+					//std::cout << "new node: " << currentTargetIndex << std::endl;
+				}
+				else {
+					// Move towards the target
+					pos.x += newdir.x * moveSpeed;
+					pos.y += newdir.y * moveSpeed;
+					pos.z += newdir.z * moveSpeed;
+				}
+
+				pos.x = -pos.y + ZEROPOINT;
+				pos.y = pos.z;
+				pos.z = -pos.x + ZEROPOINT;
+
+				float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+				// Normalize to ensure it falls between 0 and 360
+				yawDegrees = fmod(yawDegrees, 360.0f);
+				if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+				yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+
+				// Assuming model faces east by default, adjust to face north
+				yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+				dir.y = yawDegrees;
+			}
+			
 		}
 		else {
 			Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
 			pos = newpos;
+
+			float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+			// Normalize to ensure it falls between 0 and 360
+			yawDegrees = fmod(yawDegrees, 360.0f);
+			if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+			yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+
+			// Assuming model faces east by default, adjust to face north
+			yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+			dir.y = yawDegrees;
+
+			//dir.y += 1.0f; // Continuosly rotate
+			//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
 		}
 
-		float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-		// Normalize to ensure it falls between 0 and 360
-		yawDegrees = fmod(yawDegrees, 360.0f);
-		if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-		yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
-
-		// Assuming model faces east by default, adjust to face north
-		yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-		dir.y = yawDegrees;
-
-		//dir.y += 1.0f; // Continuosly rotate
-		//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
 		if (!this->model->isSpell) {
 			glRotatef(dir.y, 0, 1, 0);
 			glRotatef(dir.x, 1, 0, 0);

@@ -10,10 +10,69 @@
 #include "sky.h"
 
 #include <string>
+#include <unordered_map>
 
 #define MAPTILECACHESIZE 16
 
 const float detail_size = 8.0f;
+
+const std::unordered_map<std::string, int> mapNameToId = {
+    {"Azeroth", 0},
+    {"Kalimdor", 1},
+    {"PVPZone01", 30},
+    {"shadowfang", 33},
+    {"deadminesinstance", 36},
+    {"PVPZone02", 37},
+    {"razorfenkraulinstance", 47},
+    {"emeralddream", 169},
+    {"tanarisinstance", 209},
+    {"schoolofnecromancy", 289},
+    {"zul'gurub", 309},
+    {"blackwinglair", 469},
+    {"pvpzone03", 489},
+    {"ahnqiraj", 509},
+    {"pvpzone04", 529},
+    {"expansion01", 530},
+    {"ahnqirajtemple", 531},
+    {"hellfirerampart", 543},
+    {"pvpzone05", 559},
+    {"netherstormbg", 566},
+    {"Northrend", 571},
+    {"azjol_uppercity", 601},
+    {"gundrak", 604},
+    {"northrendbg", 607},
+    {"dalaranprison", 608},
+    {"DeathKnightStart", 609},
+    {"orgrimmararena", 618},
+    {"nexusraid", 616},
+    {"dalaranarena", 617},
+    {"wintergraspraid", 624},
+    {"icecrowncitadel5man", 632},
+    {"hillsbradpast", 560},
+    {"bladesedgearena", 562},
+    {"blacktemple", 564},
+    {"zulaman", 568},
+    {"utgardepinnacle", 575},
+    {"nexus80", 578},
+    {"sunwellplateau", 580},
+    {"sunwell5manfix", 585},
+    {"stratholmecot", 595},
+    {"draktheronkeep", 600},
+    {"ulduar80", 602},
+    {"ulduarraid", 603},
+    {"chamberofaspectsblack", 615},
+    {"azjol_lowercity", 619},
+    {"isleofconquest", 628},
+    {"icecrowncitadel", 631},
+    {"argenttournamentraid", 649},
+    {"argenttournamentdungeon", 650},
+    {"quarryoftears", 658},
+    {"ulduar70", 599},
+    {"pvplordaeron", 572},
+    {"valgarde70", 574},
+    {"stormwind", 723},
+    {"chamberofaspectsred", 724}
+};
 
 class World {
 
@@ -24,6 +83,7 @@ class World {
 public:
 
 	std::string basename;
+	int mapId;
 
 	bool maps[64][64];
 	GLuint lowrestiles[64][64];
