@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.10)
+project(Tests VERSION 1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+file(GLOB SOURCE_FILES "*.cpp")
+file(GLOB HEADER_FILES "*.h")
+
+add_executable(Tests ${SOURCE_FILES} ${HEADER_FILES})
+
+target_compile_options(Tests PRIVATE
+    $<$<CONFIG:DEBUG>:-O0 -g>
+    $<$<CONFIG:RELEASE>:-O3>
+)
+target_compile_definitions(Tests PRIVATE
+    $<$<CONFIG:DEBUG>:DEBUG>
+    $<$<CONFIG:RELEASE>:NDEBUG>
+    $<$<PLATFORM_ID:Windows>:WIN64;_CONSOLE;_LIB;USE_STANDARD_MALLOC;PREPARED_SLN;_WINDOWS;_WIN32;_CRT_SECURE_NO_WARNINGS;DT_POLYREF64>
+)

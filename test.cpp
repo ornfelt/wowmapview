@@ -344,7 +344,7 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 				}
 			}
 
-			fprintf(bf, "%s %f %f %f  %f %f  %s\n", world->basename.c_str(), world->camera.x, world->camera.y, world->camera.z, ah, av, areaName.c_str());
+			//fprintf(bf, "%s %f %f %f  %f %f  %s\n", world->basename.c_str(), world->camera.x, world->camera.y, world->camera.z, ah, av, areaName.c_str());
 			fclose(bf);
 		}
 

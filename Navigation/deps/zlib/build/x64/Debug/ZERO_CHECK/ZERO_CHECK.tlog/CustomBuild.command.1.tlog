@@ -1,0 +1,10 @@
+^C:\USERS\JONAS\CODE2\C++\MY_CPLUSPLUS\NAVIGATION\PATHING\DEPS\ZLIB\BUILD\CMAKEFILES\2E52ADD6A6DBE24619B0CD3DE24425CD\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/jonas/Code2/C++/my_cplusplus/Navigation/Pathing/deps/zlib -BC:/Users/jonas/Code2/C++/my_cplusplus/Navigation/Pathing/deps/zlib/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/jonas/Code2/C++/my_cplusplus/Navigation/Pathing/deps/zlib/build/Project.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

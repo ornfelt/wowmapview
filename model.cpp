@@ -1464,9 +1464,11 @@ void ModelInstance::draw()
 
 				//std::cout << "distance: " << distance << std::endl;
 
+				bool updateAngle = true;
 				if (distance < moveSpeed) {
 				//if (moveSpeed > 5) {
 					//moveSpeed = 0.1;
+					updateAngle = false;
 					pos.x = transformedTargetX;
 					pos.y = transformedTargetY;
 					pos.z = transformedTargetZ;
@@ -1483,15 +1485,19 @@ void ModelInstance::draw()
 					//moveSpeed += 0.1;
 				}
 
-				float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-				// Normalize to ensure it falls between 0 and 360
-				yawDegrees = fmod(yawDegrees, 360.0f);
-				if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-				yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+				if (updateAngle) {
+					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+					// Normalize to ensure it falls between 0 and 360
+					yawDegrees = fmod(yawDegrees, 360.0f);
+					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
 
-				// Assuming model faces east by default, adjust to face north
-				yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-				dir.y = yawDegrees;
+					// Assuming model faces east by default, adjust to face north
+					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+					dir.y = yawDegrees;
+				}
+
+				dir.x = 210.0f;
 			}
 		}
 		else {
@@ -1507,6 +1513,8 @@ void ModelInstance::draw()
 			// Assuming model faces east by default, adjust to face north
 			yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
 			dir.y = yawDegrees;
+
+			dir.x = 210.0f;
 
 			//dir.y += 1.0f; // Continuosly rotate
 			//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;

@@ -1,0 +1,17 @@
+﻿  Building Custom Rule C:/Users/jonas/Code2/C++/my_cplusplus/Navigation/Pathing/deps/zlib/CMakeLists.txt
+  adler32.c
+  compress.c
+  crc32.c
+  deflate.c
+C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\deflate.c(1915,13): warning C4244: '=': conversion from 'ush' to 'uchf', possible loss of data
+C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\deflate.c(2040,13): warning C4244: '=': conversion from 'ush' to 'uchf', possible loss of data
+C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\deflate.c(2150,13): warning C4244: '=': conversion from 'ush' to 'uchf', possible loss of data
+  infback.c
+  inffast.c
+  inflate.c
+  inftrees.c
+  trees.c
+  uncompr.c
+  zutil.c
+  Generating Code...
+  zlib.vcxproj -> C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\build\Debug\zlib.lib

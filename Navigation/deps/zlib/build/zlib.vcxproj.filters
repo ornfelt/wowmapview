@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\adler32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\compress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\crc32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\deflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\infback.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\inffast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\inflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\inftrees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\trees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\uncompr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\zutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jonas\Code2\C++\my_cplusplus\Navigation\Pathing\deps\zlib\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{DCEEDCD7-3060-32E7-A185-140F3FD1D4C5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

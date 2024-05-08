@@ -2,6 +2,7 @@
 /Runtime/
 /bin/
 /build/
+/build_old/
 
 # Prerequisites
 *.d

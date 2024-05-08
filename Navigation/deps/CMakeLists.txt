@@ -1,0 +1,5 @@
+add_subdirectory(fmt)
+add_subdirectory(threads)
+add_subdirectory(zlib)
+add_subdirectory(g3dlite)
+add_subdirectory(recastnavigation)

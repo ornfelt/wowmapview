@@ -17,7 +17,8 @@ WMO::WMO(std::string name): ManagedItem(name)
 	gLog("Loading WMO %s\n", name.c_str());
 
 	char fourcc[5];
-	size_t size;
+	//size_t size;
+	uint32_t size;
 	float ff[3];
 
 	char *ddnames;
@@ -528,7 +529,8 @@ void WMOGroup::initDisplayList()
 
 	gf.seek(0x58); // first chunk
 	char fourcc[5];
-	size_t size;
+	//size_t size;
+	uint32_t size;
 
 	unsigned int *cv;
 	hascv = false;

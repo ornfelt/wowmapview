@@ -430,7 +430,8 @@ void World::initWMOs()
 	MPQFile f(fn);
 
 	char fourcc[5];
-	size_t size;
+	//size_t size;
+	uint32_t size;
 
 	while (!f.isEof()) {
 		f.read(fourcc,4);

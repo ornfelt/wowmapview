@@ -25,6 +25,13 @@
 #include "menu.h"
 #include "areadb.h"
 
+FILE _iob[] = {*stdin, *stdout, *stderr};
+
+extern "C" FILE * __cdecl __iob_func(void)
+{
+  return _iob;
+}
+
 int fullscreen = 0;
 
 #ifdef _WIN32
@@ -49,8 +56,12 @@ AreaDB gAreaDB;
 
 void initFonts()
 {
+    //ftex = loadTGA("C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.tga",false);
     ftex = loadTGA("arial.tga",false);
 
+    //f16 = new Font(ftex, 256, 256, 16, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
+    //f24 = new Font(ftex, 256, 256, 24, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
+    //f32 = new Font(ftex, 256, 256, 32, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
     f16 = new Font(ftex, 256, 256, 16, "arial.info");
     f24 = new Font(ftex, 256, 256, 24, "arial.info");
     f32 = new Font(ftex, 256, 256, 32, "arial.info");

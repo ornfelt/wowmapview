@@ -15,6 +15,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
 endif()
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
+
 add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp)
 if(WIN32)
     #set(ZLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/zlib/")
@@ -23,6 +25,7 @@ if(WIN32)
     #set(SDL_LIBRARY "${CMAKE_SOURCE_DIR}/SDL/lib/")
     set(SDL_LIBRARY "SDL")
     #set(SDL_MAIN_LIBRARY "${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib")
+	
 endif()
 #target_include_directories(wowmapview PUBLIC "D:/Soft/web-scrap/vcpkg/installed/x86-windows/include")
 #[[file(GLOB zlibfiles zlib/*.c libmpq/*.h *.h)
@@ -71,7 +74,7 @@ install(TARGETS zlib
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
 
 # For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
-find_package(SDL REQUIRED)
+#find_package(SDL REQUIRED)
 
 #[[add_library(sdl)
 set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
@@ -103,6 +106,8 @@ target_include_directories(libmpq PRIVATE
 target_link_libraries(libmpq PRIVATE
         zlib)
 
+#add_subdirectory(./Navigation ${CMAKE_BINARY_DIR}/Navigation)
+
 #find_package(ZLIB REQUIRED)
 #include_directories(${SDL_INCLUDE_DIR})
 if (NOT MSVC)
@@ -114,13 +119,16 @@ if (NOT MSVC)
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
         zlib
-        libmpq)
+        libmpq
+		#Navigation
+		)
 	
 else()
 	
-	target_link_options(wowmapview PRIVATE
-        "/MACHINE:X86"
-    )
+	#target_link_options(wowmapview PRIVATE
+    #    "/MACHINE:X86"
+    #)
+	link_directories(${CMAKE_SOURCE_DIR}/SDL/lib)
 	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
         #SDL
@@ -188,6 +196,7 @@ if(LINUX)
         zlib
         libmpq
         #mpq_shared
+		#Navigation
     )
 endif()
 
