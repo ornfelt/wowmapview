@@ -4,8 +4,8 @@ project(Navigation VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/src/cmake/macros")
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/macros")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/macros")
 include(GroupSources)
 
 add_subdirectory(deps)
@@ -34,7 +34,10 @@ else()
     # Include all cpp files except Pathing.cpp
     foreach(FILE ${ALL_CPP_FILES})
         if(NOT FILE MATCHES "Pathing\\.cpp$")
-            list(APPEND SOURCE_FILES ${FILE})
+            # Skip DllMain as well since static library...
+            if(NOT FILE MATCHES "DllMain\\.cpp$")
+                list(APPEND SOURCE_FILES ${FILE})
+            endif()
         endif()
     endforeach()
     #add_library(Navigation SHARED ${SOURCE_FILES} ${HEADER_FILES})
@@ -46,7 +49,8 @@ endif()
 #add_executable(Navigation ${SOURCE_FILES} ${HEADER_FILES})
 
 # MSVC Compiler settings
-include(${CMAKE_SOURCE_DIR}/src/cmake/macros/CheckPlatform.cmake)
+#include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/macros/CheckPlatform.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/macros/CheckPlatform.cmake)
 
 target_compile_options(Navigation PRIVATE
     $<$<CONFIG:DEBUG>:-O0 -g>
@@ -63,12 +67,12 @@ if(UNIX AND NOT APPLE)
     target_compile_definitions(Navigation PRIVATE DT_POLYREF64)
 endif()
 
-target_include_directories(Navigation PRIVATE
-    "${CMAKE_SOURCE_DIR}/deps/fmt/include"
-    "${CMAKE_SOURCE_DIR}/deps/g3dlite/include"
-    "${CMAKE_SOURCE_DIR}/deps/recastnavigation/Detour/Include"
-    "${CMAKE_SOURCE_DIR}/deps/recastnavigation/Recast/Include"
-    "${CMAKE_SOURCE_DIR}/deps/zlib"
+target_include_directories(Navigation PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/fmt/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/g3dlite/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/recastnavigation/Detour/Include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/recastnavigation/Recast/Include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib"
 )
 
 target_link_libraries(Navigation
@@ -81,22 +85,22 @@ target_link_libraries(Navigation
 )
 
 if(WIN32)
-	set(ZLIB_LIB_DEBUG "${CMAKE_SOURCE_DIR}/deps/zlib.lib")
-	set(ZLIB_LIB_RELEASE "${CMAKE_SOURCE_DIR}/deps/zlib.lib")
+	set(ZLIB_LIB_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib.lib")
+	set(ZLIB_LIB_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib.lib")
 
 	#add_custom_command(TARGET Navigation POST_BUILD
-	#	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
+	#	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
 	#	COMMAND ${CMAKE_COMMAND} -E copy_if_different 
 	#		"$<$<CONFIG:DEBUG>:${ZLIB_LIB_DEBUG}>$<$<CONFIG:RELEASE>:${ZLIB_LIB_RELEASE}>" 
-	#		"${CMAKE_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
+	#		"${CMAKE_CURRENT_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
 	#	COMMENT "Copying zlib.lib to build directory"
 	#)
 	add_custom_command(
     TARGET Navigation PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different 
         "$<$<CONFIG:DEBUG>:${ZLIB_LIB_DEBUG}>$<$<CONFIG:RELEASE>:${ZLIB_LIB_RELEASE}>"
-        "${CMAKE_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
+        "${CMAKE_CURRENT_SOURCE_DIR}/build/deps/zlib/$<CONFIG>"
     COMMENT "Copying zlib.lib to build directory before build"
 	)
 

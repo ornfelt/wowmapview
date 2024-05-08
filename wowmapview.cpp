@@ -3,6 +3,7 @@
 #pragma comment(lib,"glu32.lib")
 #pragma comment(lib,"SDL.lib")
 #pragma comment(lib,"SDLmain.lib")
+#pragma comment(lib, "legacy_stdio_definitions.lib")
 
 //#pragma comment(lib,"SFmpq.lib")
 
@@ -56,15 +57,15 @@ AreaDB gAreaDB;
 
 void initFonts()
 {
-    //ftex = loadTGA("C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.tga",false);
-    ftex = loadTGA("arial.tga",false);
+    //ftex = loadTGA("arial.tga",false);
+    //f16 = new Font(ftex, 256, 256, 16, "arial.info");
+    //f24 = new Font(ftex, 256, 256, 24, "arial.info");
+    //f32 = new Font(ftex, 256, 256, 32, "arial.info");
 
-    //f16 = new Font(ftex, 256, 256, 16, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    //f24 = new Font(ftex, 256, 256, 24, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    //f32 = new Font(ftex, 256, 256, 32, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    f16 = new Font(ftex, 256, 256, 16, "arial.info");
-    f24 = new Font(ftex, 256, 256, 24, "arial.info");
-    f32 = new Font(ftex, 256, 256, 32, "arial.info");
+    ftex = loadTGA("C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.tga",false);
+    f16 = new Font(ftex, 256, 256, 16, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
+    f24 = new Font(ftex, 256, 256, 24, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
+    f32 = new Font(ftex, 256, 256, 32, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
 }
 
 void deleteFonts()

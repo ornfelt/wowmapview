@@ -3,6 +3,7 @@
 /bin/
 /build/
 /build_old/
+/build_older/
 
 # Prerequisites
 *.d

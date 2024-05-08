@@ -1448,7 +1448,7 @@ void ModelInstance::draw()
 			//}
 
 
-			if (currentTargetIndex < currentPath.size()) {
+			if (currentTargetIndex < currentPath.size() && gWorld->mapId == 30) {
 				const Point& target = currentPath[currentTargetIndex];
 				// Set the coordinate based on wow x, y, z
 				double transformedTargetX = -target.y + ZEROPOINT;
@@ -1497,7 +1497,10 @@ void ModelInstance::draw()
 					dir.y = yawDegrees;
 				}
 
+#ifdef _DEBUG
+				// WHAT?!
 				dir.x = 210.0f;
+#endif
 			}
 		}
 		else {
@@ -1514,7 +1517,10 @@ void ModelInstance::draw()
 			yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
 			dir.y = yawDegrees;
 
+#ifdef _DEBUG
+			// WHAT?!
 			dir.x = 210.0f;
+#endif
 
 			//dir.y += 1.0f; // Continuosly rotate
 			//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;

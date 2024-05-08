@@ -155,9 +155,9 @@ public:
     }
 
     // signed as in 2e complement
-    ByteBuffer& operator<<(int8 value)
+    ByteBuffer& operator<<(acore_int8 value)
     {
-        append<int8>(value);
+        append<acore_int8>(value);
         return *this;
     }
 
@@ -244,9 +244,9 @@ public:
     }
 
     //signed as in 2e complement
-    ByteBuffer& operator>>(int8& value)
+    ByteBuffer& operator>>(acore_int8& value)
     {
-        value = read<int8>();
+        value = read<acore_int8>();
         return *this;
     }
 

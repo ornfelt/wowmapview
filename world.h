@@ -169,6 +169,8 @@ public:
 	Model* playertwo;
 	std::vector<ModelInstance> playermodelis;
 #endif
+
+	void CalculatePath();
 };
 
 extern World *gWorld;

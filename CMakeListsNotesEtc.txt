@@ -16,9 +16,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 endif()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
-file(GLOB HEADER_FILES "*.h")
 
-add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp ${HEADER_FILES})
+add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp)
 if(WIN32)
     #set(ZLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/zlib/")
     #set(LIBMPQ_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libmpq")
@@ -63,14 +62,13 @@ string(REGEX REPLACE ".*#define[ \t]+ZLIB_VERSION[ \t]+\"([-0-9A-Za-z.]+)\".*"
         "\\1" ZLIB_FULL_VERSION ${_zlib_h_contents})
 #set(ZLIB_FULL_VERSION ${ZLIB_FULL_VERSION} PARENT_SCOPE)
 
-#add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-add_library(zliblocal STATIC ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-#set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-#set_target_properties(zlib PROPERTIES SOVERSION 1)
+add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+set_target_properties(zlib PROPERTIES SOVERSION 1)
 # Creates zlib1.dll when building shared library version
 #set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
 
-install(TARGETS zliblocal
+install(TARGETS zlib
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
@@ -106,9 +104,9 @@ add_library(libmpq STATIC
 target_include_directories(libmpq PRIVATE
         zlib)
 target_link_libraries(libmpq PRIVATE
-        zliblocal)
+        zlib)
 
-add_subdirectory(./Navigation ${CMAKE_BINARY_DIR}/Navigation)
+#add_subdirectory(./Navigation ${CMAKE_BINARY_DIR}/Navigation)
 
 #find_package(ZLIB REQUIRED)
 #include_directories(${SDL_INCLUDE_DIR})
@@ -120,12 +118,13 @@ if (NOT MSVC)
         #SDL
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
-        zliblocal
+        zlib
         libmpq
-		Navigation
+		#Navigation
 		)
 	
 else()
+	
 	#target_link_options(wowmapview PRIVATE
     #    "/MACHINE:X86"
     #)
@@ -137,31 +136,67 @@ else()
 		GLu32.lib
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
         ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
-        zliblocal
-        libmpq
-        Navigation
-        )
+        zlib
+        libmpq)
 endif()
 
 target_include_directories(wowmapview PRIVATE
         ${SDL_INCLUDE_DIR}
         zlib
         #[[${ZLIB_INCLUDE_DIRS}]]
-        libmpq
-        Navigation)
+        libmpq)
+
+#include_directories(${OPENGL_INCLUDE_DIR})
+#include_directories(${ZLIB_INCLUDE_DIR})
+#set(LIBMPQ_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libmpq")
+
+#add_dependencies(wowmapview SDL::SDL)
+
+# #file(GLOB zlibfiles zlib/*.c libmpq/*.h *.h)
+# 
+# #add_library(zlib STATIC
+# #        ${zlibfiles}
+# #        )
+# 
+# #target_include_directories(wowmapview PUBLIC ${ZLIB_INCLUDE_DIR})
+# #target_include_directories(wowmapview PUBLIC ${LIBMPQ_INCLUDE_DIR})
+# #target_include_directories(wowmapview PUBLIC ${SDL_INCLUDE_DIR})
+# 
+# #target_link_libraries(wowmapview PRIVATE SDL)
+# #target_link_libraries(wowmapview
+# #        ${SDL_LIBRARY}
+# #        ${SDL_MAIN_LIBRARY})
+# 
+# #target_link_libraries(wowmapview PUBLIC ${SDL_MAIN_LIBRARY})
+
 
 # Linux
 if(LINUX)
+    # OpenGL
+    #include_directories(${OPENGL_INCLUDE_DIR})
+    # 
+    # # zlib (Consider using find_package(ZLIB REQUIRED) if zlib is installed on the system)
+    # #file(GLOB zlibfiles zlib/*.c)
+    # #add_library(zlib STATIC ${zlibfiles})
+    # target_include_directories(zlib PRIVATE zlib)
+    # 
+    # # libmpq
+    # #file(GLOB mpqfiles libmpq/*.cpp libmpq/*.h *.h)
+    # #add_library(libmpq STATIC ${mpqfiles})
+    # target_include_directories(libmpq PRIVATE zlib)
+    # #target_link_libraries(libmpq PRIVATE zlib)
+    #
+
     # Link libraries
     target_link_libraries(wowmapview PRIVATE
         ${SDL_LIBRARY}
         ${OPENGL_LIBRARIES}
         SDL
         GL
-        zliblocal
+        zlib
         libmpq
         #mpq_shared
-		Navigation
+		#Navigation
     )
 endif()
 

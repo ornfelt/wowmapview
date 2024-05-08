@@ -2,7 +2,7 @@
 #define _MAPDEFINES_H
 
 #include "Define.h"
-#include "DetourNavMesh.h"
+#include <DetourNavMesh.h>
 
 #define MAX_NUMBER_OF_GRIDS      64
 #define SIZE_OF_GRIDS            533.3333f

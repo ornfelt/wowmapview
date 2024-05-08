@@ -1,12 +1,81 @@
 #include "world.h"
 
+#include <Map.h>
+#include <MapMgr.h>
+#include <Unit.h>
+#include <Navigation.h>
+
 #include <cassert>
 
 using namespace std;
 
-
-
 World *gWorld=0;
+
+
+static bool gridIsLoaded = false;
+
+Map* GetMapInstance(int mapId)
+{
+    static Map* instance = new Map(mapId, 0, 0);
+    //static Map* instance = new Map(mapId, mapId, mapId);
+	if (instance->GetId() != mapId)
+		instance = new Map(mapId, 0, 0);
+
+    return instance;
+}
+
+//void World::CalculatePath(Unit *_owner)
+void World::CalculatePath()
+{
+	Unit *_owner = new Unit();
+	std::cout << "\nTesting CalculatePath!\n";
+	int mapId = 1;
+
+	float startX = -614.7f;
+	float startY = -4335.4f;
+	float startZ = 40.4f;
+
+	float destX = -590.2f;
+	float destY = -4206.1f;
+	float destZ = 38.7;
+
+	// This can be done if we want to skip vmaps initialization (not needed for calculatepath)
+	// Then the GetMapInstance etc. below can be removed as well...
+	//MMAP::MMapMgr* mmmgr = MMAP::MMapFactory::createOrGetMMapMgr();
+	//std::vector<uint32> mapIds = { 0, 1 };
+	//mmmgr->InitializeThreadUnsafe(mapIds);
+	//InitializeMapsForContinent(mmmgr, mapId);
+
+	// --- This part can be skipped if we comment out the code in NormalizePath in PathGenerator.cpp...
+	Map* map = GetMapInstance(mapId);
+    map->SetId(mapId);
+	if (map && !gridIsLoaded)
+	{
+        std::cout << ">> Loading All Grids For Map " << mapId << std::endl;
+		map->LoadAllCells();
+	}
+    _owner->SetMap(map);
+	// ---
+
+	//PathGenerator path(_owner, 1, 1);
+	//PathGenerator path(_owner);
+	PathGenerator path(_owner, mapId, mapId);
+	bool result = path.CalculatePath(startX, startY, startZ, destX, destY, destZ, false);
+
+	// Results
+	Movement::PointsArray myPath = path.GetPath();
+	size_t pathSize = myPath.size();
+	if (pathSize > 2)
+		std::cout << "Success!" << std::endl;
+
+	std::cout << "PATH len: " << pathSize << std::endl;
+	for (int i = 0; i < pathSize; ++i) {
+		std::cout << "Point " << i + 1 << ": "
+			<< "X=" << myPath[i].x << ", "
+			<< "Y=" << myPath[i].y << ", "
+			<< "Z=" << myPath[i].z << std::endl;
+	}
+}
 
 
 World::World(const char* name):basename(name)
@@ -29,6 +98,10 @@ World::World(const char* name):basename(name)
 
 	// don't load map objects while still on the menu screen
 	//initDisplay();
+
+
+	// Navigation stuff
+	//this->CalculatePath();
 }
 
 #if !USE_OLD_CHAR

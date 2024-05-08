@@ -42,8 +42,8 @@ template<typename T> void EndianConvert(T*);         // will generate link error
 template<typename T> void EndianConvertReverse(T*);  // will generate link error
 
 inline void EndianConvert(uint8&) { }
-inline void EndianConvert( int8&) { }
+inline void EndianConvert( acore_int8&) { }
 inline void EndianConvertReverse(uint8&) { }
-inline void EndianConvertReverse( int8&) { }
+inline void EndianConvertReverse( acore_int8&) { }
 
 #endif
