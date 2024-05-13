@@ -164,7 +164,7 @@ public:
 
 #if !USE_OLD_CHAR
 	void createPlayer(MPQFile& f);
-	void createPlayerTwo(MPQFile& f);
+	void createPlayerTwo(MPQFile& f, std::string modelPath);
 	Model* player;
 	Model* playertwo;
 	std::vector<ModelInstance> playermodelis;

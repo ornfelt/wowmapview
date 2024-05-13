@@ -234,8 +234,8 @@ public:
 	//static const std::array<Point, 24> path;
     size_t currentTargetIndex = 0;
     //Point pos;
-    //double moveSpeed = 0.1;
-    double moveSpeed = 0.4;
+    double moveSpeed = 0.15;
+    //double moveSpeed = 0.4;
 
 	uint32_t currentNodeId;
 	Vec3D currentNode;

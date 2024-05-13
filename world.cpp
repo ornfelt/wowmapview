@@ -25,8 +25,6 @@ Map* GetMapInstance(int mapId)
     return instance;
 }
 
-//void World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
-//void World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
 std::vector<Vec3D> World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
 {
 	Map* map = GetMapInstance(mapId);
@@ -34,22 +32,21 @@ std::vector<Vec3D> World::CalculatePath(float startX, float startY, float startZ
 	PathGenerator path(_owner, mapId, mapId);
 	bool result = path.CalculatePath(startX, startY, startZ, destX, destY, destZ, false);
 
-	// Results
 	Movement::PointsArray myPath = path.GetPath();
 	size_t pathSize = myPath.size();
-	if (pathSize > 2)
-		std::cout << "Success!" << std::endl;
+	if (pathSize < 3)
+		std::cout << "Failed to get path!" << std::endl;
 
 	std::vector<Vec3D> vec3dPath;
 	vec3dPath.reserve(pathSize);
 
-	std::cout << "PATH len: " << pathSize << std::endl;
+	//std::cout << "PATH len: " << pathSize << std::endl;
 	for (int i = 0; i < pathSize; ++i) {
 		vec3dPath.push_back(Vec3D(myPath[i].x, myPath[i].y, myPath[i].z));
-		std::cout << "Point " << i + 1 << ": "
-			<< "X=" << myPath[i].x << ", "
-			<< "Y=" << myPath[i].y << ", "
-			<< "Z=" << myPath[i].z << std::endl;
+		//std::cout << "Point " << i + 1 << ": "
+		//	<< "X=" << myPath[i].x << ", "
+		//	<< "Y=" << myPath[i].y << ", "
+		//	<< "Z=" << myPath[i].z << std::endl;
 	}
 
 	return vec3dPath;
@@ -136,11 +133,10 @@ void World::createPlayer(MPQFile& f)
 	playermodelis.push_back(inst);
 }
 
-void World::createPlayerTwo(MPQFile& f)
+void World::createPlayerTwo(MPQFile& f, std::string modelPath)
 {
 	std::cout << "Create playertwo called" << std::endl;
-    playertwo = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
-    //playertwo = new Model(std::string("creature\\SkeletonNaked\\SkeletonNaked.mdx"), true);
+    playertwo = new Model(std::string(modelPath), true);
 	playertwo->isNpc = true;
 	playertwo->masterPos = playermodelis[playermodelis.size() - 1].pos;
 	ModelInstance inst(playertwo, f);
@@ -208,7 +204,20 @@ void World::init()
 	}
 #if !USE_OLD_CHAR
 	createPlayer(f);
-	createPlayerTwo(f);
+	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
+	createPlayerTwo(f, "creature\\SkeletonNaked\\SkeletonNaked.mdx");
+	createPlayerTwo(f, "spells\\PyroBlast_Missile.mdx");
+	//createPlayerTwo(f, "spells\\Frostbolt.mdx");
+	//createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
+	//createPlayerTwo(f, "creature\\Cow\\cow.mdx");
+	//createPlayerTwo(f, "creature\\druidbear\\druidbear.mdx");
+	//createPlayerTwo(f, "creature\\diablo\\DiabloFunSized.mdx");
+	//createPlayerTwo(f, "creature\\voidwalker\\voidwalker.mdx");
+	//createPlayerTwo(f, "creature\\panda\\pandacub.mdx");
+	//createPlayerTwo(f, "creature\\rabbit\\rabbit.mdx");
+	//for (int i = 0; i < 5; ++i) {
+	//	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
+	//}
 #endif
 	f.close();
 
@@ -1023,8 +1032,11 @@ void World::draw()
 #if !USE_OLD_CHAR
 	//player->cam.setup(globalTime);
 	//player->draw();
-	playermodelis[0].draw();
-	playermodelis[1].draw();
+	for (auto& playermodel : playermodelis) {
+		playermodel.draw();
+	}
+	//playermodelis[0].draw();
+	//playermodelis[1].draw();
 #endif
 }
 
@@ -1045,8 +1057,11 @@ void World::tick(float dt)
 	modelmanager.updateEmitters(dt);
 	//player->updateEmitters(dt);
 #if !USE_OLD_CHAR
-	playermodelis[0].model->updateEmitters(dt);
-	playermodelis[1].model->updateEmitters(dt);
+	//playermodelis[0].model->updateEmitters(dt);
+	//playermodelis[1].model->updateEmitters(dt);
+	for (auto& playermodel : playermodelis) {
+		playermodel.model->updateEmitters(dt);
+	}
 	//playermodelis[0].model->updateEmitters(0.1f);
 #endif
 }

@@ -1518,6 +1518,7 @@ void ModelInstance::draw()
 				// WHAT?!
 				dir.x = 210.0f;
 #endif
+			dir.x = 0.0f;
 			} else {
 				currentTargetIndex = 0;
 				Vec3D newNode = gWorld->GetRandomNode(currentNodeId, *this);
@@ -1543,6 +1544,8 @@ void ModelInstance::draw()
 			// WHAT?!
 			dir.x = 210.0f;
 #endif
+			dir.x = 0.0f;
+			//std::cout << "dir.x:: " << dir.x << std::endl;
 
 			//dir.y += 1.0f; // Continuosly rotate
 			//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
