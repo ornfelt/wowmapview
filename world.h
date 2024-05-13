@@ -171,6 +171,7 @@ public:
 #endif
 
 	void CalculatePath();
+	void GetClosestNode(double posX, double posY, double posZ);
 };
 
 extern World *gWorld;

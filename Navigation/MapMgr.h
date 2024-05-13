@@ -123,11 +123,11 @@ public:
     void RegisterInstanceId(uint32 instanceId);
     uint32 GenerateInstanceId();
 
-    template<typename Worker>
-    void DoForAllMaps(Worker&& worker);
+    //template<typename Worker>
+    //void DoForAllMaps(Worker&& worker);
 
-    template<typename Worker>
-    void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
+    //template<typename Worker>
+    //void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
 
 private:
     typedef std::unordered_map<uint32, Map*> MapMapType;
@@ -147,24 +147,24 @@ private:
     uint32 _nextInstanceId;
 };
 
-template<typename Worker>
-void MapMgr::DoForAllMaps(Worker&& worker)
-{
-    std::lock_guard<std::mutex> guard(Lock);
-
-    for (auto& mapPair : i_maps)
-    {
-        Map* map = mapPair.second;
-        if (MapInstanced* mapInstanced = map->ToMapInstanced())
-        {
-            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
-            for (auto& instancePair : instances)
-                worker(instancePair.second);
-        }
-        else
-            worker(map);
-    }
-}
+//template<typename Worker>
+//void MapMgr::DoForAllMaps(Worker&& worker)
+//{
+//    std::lock_guard<std::mutex> guard(Lock);
+//
+//    for (auto& mapPair : i_maps)
+//    {
+//        Map* map = mapPair.second;
+//        if (MapInstanced* mapInstanced = map->ToMapInstanced())
+//        {
+//            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
+//            for (auto& instancePair : instances)
+//                worker(instancePair.second);
+//        }
+//        else
+//            worker(map);
+//    }
+//}
 
 #define sMapMgr MapMgr::instance()
 

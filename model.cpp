@@ -1476,6 +1476,7 @@ void ModelInstance::draw()
 					std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
 					currentTargetIndex++;
 					//std::cout << "new node: " << currentTargetIndex << std::endl;
+					gWorld->GetClosestNode(target.x, target.y, target.z);
 				}
 				else {
 					// Move towards the target

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(wowmapview)
-#set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 11)
 if(WIN32)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 endif()
@@ -18,7 +18,7 @@ endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
 file(GLOB HEADER_FILES "*.h")
 
-add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp ${HEADER_FILES})
+add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum.cpp liquid.cpp maptile.cpp menu.cpp model.cpp mpq_libmpq.cpp particle.cpp shaders.cpp sky.cpp test.cpp video.cpp wmo.cpp world.cpp NodeManager.cpp ${HEADER_FILES})
 if(WIN32)
     #set(ZLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/zlib/")
     #set(LIBMPQ_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libmpq")
@@ -123,13 +123,19 @@ if (NOT MSVC)
         zliblocal
         libmpq
 		Navigation
+		libmysql
 		)
 	
 else()
 	#target_link_options(wowmapview PRIVATE
     #    "/MACHINE:X86"
     #)
-	link_directories(${CMAKE_SOURCE_DIR}/SDL/lib)
+	
+	#link_directories(
+	#	${CMAKE_SOURCE_DIR}/SDL/lib
+	#	"C:/Program Files/MySQL/MySQL Server 8.0/lib"
+	#)
+	
 	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
         #SDL
@@ -140,6 +146,7 @@ else()
         zliblocal
         libmpq
         Navigation
+		"C:/Program Files/MySQL/MySQL Server 8.0/lib/libmysql.lib"
         )
 endif()
 
@@ -148,7 +155,9 @@ target_include_directories(wowmapview PRIVATE
         zlib
         #[[${ZLIB_INCLUDE_DIRS}]]
         libmpq
-        Navigation)
+        Navigation
+		"C:/Program Files/MySQL/MySQL Server 8.0/include"
+		)
 
 # Linux
 if(LINUX)
@@ -162,6 +171,7 @@ if(LINUX)
         libmpq
         #mpq_shared
 		Navigation
+		libmysql
     )
 endif()
 

@@ -1,4 +1,5 @@
 #include "world.h"
+#include "NodeManager.h"
 
 #include <Map.h>
 #include <MapMgr.h>
@@ -29,6 +30,7 @@ void World::CalculatePath()
 {
 	Unit *_owner = new Unit();
 	std::cout << "\nTesting CalculatePath!\n";
+	int mapId = 1;
 
 	float startX = -614.7f;
 	float startY = -4335.4f;
@@ -65,6 +67,19 @@ void World::CalculatePath()
 	}
 }
 
+void World::GetClosestNode(double posX, double posY, double posZ)
+{
+    try {
+        NodeManager* manager = NodeManager::getInstance();
+        manager->loadNodes();
+
+		Node closestNode = manager->getClosestNode(mapId, posX, posY, posZ);
+        std::cout << "Closest Node to (" << posX << ", " << posY << ", " << posZ
+                  << ") on map ID " << mapId << " is Node ID: " << closestNode.id << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+}
 
 World::World(const char* name):basename(name)
 {
@@ -89,7 +104,7 @@ World::World(const char* name):basename(name)
 
 
 	// Navigation stuff
-	//this->CalculatePath();
+	this->CalculatePath();
 }
 
 #if !USE_OLD_CHAR
