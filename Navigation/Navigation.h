@@ -31,7 +31,7 @@ public:
 
     //Navigation(const Unit* owner, unsigned int startMap, unsigned int endMap);
 	//XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool smoothPath, int* length);
-	XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool smoothPath, int* length, float hoverHeight=0.5f, float objectSize=1.0f, float collisionHeight=5.0f);
+	XYZ* CalculatePath(unsigned int mapId, XYZ start, XYZ end, bool smoothPath, int* length, float hoverHeight=0.5f, float objectSize=3.0f, float collisionHeight=5.0f);
 	void FreePathArr(XYZ* pathArr);
 	//XYZ* MoveForward(uint32 mapId, float startX, float startY, float startZ, float angle);
 	XYZ* MoveForward(uint32 mapId, float startX, float startY, float startZ, float angle, float hoverHeight=0.5f, float objectSize=1.0f, float collisionHeight=5.0f, float dist=1.0f);

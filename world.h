@@ -170,8 +170,11 @@ public:
 	std::vector<ModelInstance> playermodelis;
 #endif
 
-	void CalculatePath();
-	void GetClosestNode(double posX, double posY, double posZ);
+	//void CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ);
+	std::vector<Vec3D> CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ);
+	void InitNavigation();
+	Vec3D GetClosestNode(double posX, double posY, double posZ, ModelInstance& modelInstance);
+	Vec3D GetRandomNode(uint32_t nodeId, ModelInstance& modelInstance);
 };
 
 extern World *gWorld;

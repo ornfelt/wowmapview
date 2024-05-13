@@ -12,8 +12,8 @@ using namespace std;
 
 World *gWorld=0;
 
-
 static bool gridIsLoaded = false;
+static Unit* _owner;
 
 Map* GetMapInstance(int mapId)
 {
@@ -25,29 +25,11 @@ Map* GetMapInstance(int mapId)
     return instance;
 }
 
-//void World::CalculatePath(Unit *_owner)
-void World::CalculatePath()
+//void World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
+//void World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
+std::vector<Vec3D> World::CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ)
 {
-	Unit *_owner = new Unit();
-	std::cout << "\nTesting CalculatePath!\n";
-	int mapId = 1;
-
-	float startX = -614.7f;
-	float startY = -4335.4f;
-	float startZ = 40.4f;
-
-	float destX = -590.2f;
-	float destY = -4206.1f;
-	float destZ = 38.7;
-
 	Map* map = GetMapInstance(mapId);
-    map->SetId(mapId);
-	if (map && !gridIsLoaded)
-	{
-        std::cout << ">> Loading All Grids For Map " << mapId << std::endl;
-		map->LoadAllCells();
-	}
-    _owner->SetMap(map);
 
 	PathGenerator path(_owner, mapId, mapId);
 	bool result = path.CalculatePath(startX, startY, startZ, destX, destY, destZ, false);
@@ -58,27 +40,65 @@ void World::CalculatePath()
 	if (pathSize > 2)
 		std::cout << "Success!" << std::endl;
 
+	std::vector<Vec3D> vec3dPath;
+	vec3dPath.reserve(pathSize);
+
 	std::cout << "PATH len: " << pathSize << std::endl;
 	for (int i = 0; i < pathSize; ++i) {
+		vec3dPath.push_back(Vec3D(myPath[i].x, myPath[i].y, myPath[i].z));
 		std::cout << "Point " << i + 1 << ": "
 			<< "X=" << myPath[i].x << ", "
 			<< "Y=" << myPath[i].y << ", "
 			<< "Z=" << myPath[i].z << std::endl;
 	}
+
+	return vec3dPath;
 }
 
-void World::GetClosestNode(double posX, double posY, double posZ)
+void World::InitNavigation()
+{
+	_owner = new Unit();
+	Map* map = GetMapInstance(mapId);
+    map->SetId(mapId);
+	if (map && !gridIsLoaded)
+	{
+        std::cout << ">> Loading All Grids For Map " << mapId << std::endl;
+		map->LoadAllCells();
+	}
+    _owner->SetMap(map);
+}
+
+//void World::GetClosestNode(double posX, double posY, double posZ)
+Vec3D World::GetClosestNode(double posX, double posY, double posZ, ModelInstance& modelInstance)
 {
     try {
         NodeManager* manager = NodeManager::getInstance();
         manager->loadNodes();
 
 		Node closestNode = manager->getClosestNode(mapId, posX, posY, posZ);
-        std::cout << "Closest Node to (" << posX << ", " << posY << ", " << posZ
-                  << ") on map ID " << mapId << " is Node ID: " << closestNode.id << std::endl;
+        //std::cout << "Closest Node to (" << posX << ", " << posY << ", " << posZ
+        //          << ") on map ID " << mapId << " is Node ID: " << closestNode.id << std::endl;
+		std::cout << closestNode.toString() << std::endl;
+		modelInstance.currentNodeId = closestNode.id;
+		return Vec3D(closestNode.x, closestNode.y, closestNode.z);
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
     }
+	return NULL;
+}
+
+Vec3D World::GetRandomNode(uint32_t nodeId, ModelInstance& modelInstance)
+{
+    try {
+        NodeManager* manager = NodeManager::getInstance();
+		Node* newNode = manager->getRandomLinkedNode(nodeId);
+		std::cout << "New random node: " << newNode->toString() << std::endl;
+		modelInstance.currentNodeId = newNode->id;
+		return Vec3D(newNode->x, newNode->y, newNode->z);
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+	return NULL;
 }
 
 World::World(const char* name):basename(name)
@@ -102,9 +122,8 @@ World::World(const char* name):basename(name)
 	// don't load map objects while still on the menu screen
 	//initDisplay();
 
-
 	// Navigation stuff
-	this->CalculatePath();
+	this->InitNavigation();
 }
 
 #if !USE_OLD_CHAR
@@ -123,6 +142,7 @@ void World::createPlayerTwo(MPQFile& f)
     playertwo = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
     //playertwo = new Model(std::string("creature\\SkeletonNaked\\SkeletonNaked.mdx"), true);
 	playertwo->isNpc = true;
+	playertwo->masterPos = playermodelis[playermodelis.size() - 1].pos;
 	ModelInstance inst(playertwo, f);
 	playermodelis.push_back(inst);
 }

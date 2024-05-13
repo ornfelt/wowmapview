@@ -112,6 +112,7 @@ Node* NodeManager::getRandomLinkedNode(int nodeId) {
         return nullptr;
     }
 
+    // TODO: Favorize non-visited nodes...
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, links.size() - 1);

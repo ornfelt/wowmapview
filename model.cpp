@@ -1348,9 +1348,11 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
 			double printedX = 717.929;
 			double printedY = -475.351;
 			double printedZ = 75.12;
+
 			double newPosX = -printedY + ZEROPOINT;
 			double newPosY = printedZ;
 			double newPosZ = -printedX + ZEROPOINT;
+
 			//std::cout << "Recovered cam pos: " << gWorld->camera.x << ", " << gWorld->camera.y << ", " << gWorld->camera.z << std::endl;
 			pos.x = newPosX;
 			pos.y = newPosY;
@@ -1364,8 +1366,8 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
 	dir = Vec3D(ff[0],ff[1],ff[2]);
 	f.read(&scale,4);
 
-	//if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
-	//	scale /= 8;
+	if (m->modelPath == "creature\\ragnaros\\ragnaros.mdx")
+		scale /= 8;
 	//else if (m->modelPath == "creature\\dragon\\dragononyxia.mdx")
 	//	scale /= 3;
 
@@ -1407,7 +1409,7 @@ void ModelInstance::draw()
 	{
 		//pos = gWorld->camera;
 
-		//std::cout << "cam pos: " << -(gWorld->camera.z - ZEROPOINT) << ", " << - (gWorld->camera.x - ZEROPOINT) << ", " << gWorld->camera.y << std::endl;
+		//std::cout << "cam pos: " << -(gWorld->camera.z - ZEROPOINT) << ", " << -(gWorld->camera.x - ZEROPOINT) << ", " << gWorld->camera.y << std::endl;
 		Vec3D newdir = gWorld->lookat - gWorld->camera;
 		newdir.normalize();
 		float distanceInFrontOfCamera = 20.0;
@@ -1447,9 +1449,24 @@ void ModelInstance::draw()
 			//	dir.y = yawDegrees;	newdir = pos;
 			//}
 
+			if (currentNode.x == 0.0f) {
+				std::cout << "No current node set! Setting closest node based on player camera..." << std::endl;
+				currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
+				pos.x = -currentNode.y + ZEROPOINT;
+				pos.y = currentNode.z;
+				pos.z = -currentNode.x + ZEROPOINT;
+			}
 
-			if (currentTargetIndex < currentPath.size() && gWorld->mapId == 30) {
-				const Point& target = currentPath[currentTargetIndex];
+			if (currentPath.empty()) {
+				Vec3D newNode = gWorld->GetRandomNode(currentNodeId, *this);
+				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
+				currentNode = newNode;
+			}
+
+			if (currentTargetIndex < currentPath.size()) {
+				//const Point& target = currentPath[currentTargetIndex];
+				const Vec3D& target = currentPath[currentTargetIndex];
+
 				// Set the coordinate based on wow x, y, z
 				double transformedTargetX = -target.y + ZEROPOINT;
 				double transformedTargetY = target.z;
@@ -1472,11 +1489,10 @@ void ModelInstance::draw()
 					pos.x = transformedTargetX;
 					pos.y = transformedTargetY;
 					pos.z = transformedTargetZ;
-					std::cout << "node reached! " << currentTargetIndex << std::endl;
-					std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
+					//std::cout << "node reached! " << currentTargetIndex << std::endl;
+					//std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
 					currentTargetIndex++;
 					//std::cout << "new node: " << currentTargetIndex << std::endl;
-					gWorld->GetClosestNode(target.x, target.y, target.z);
 				}
 				else {
 					// Move towards the target
@@ -1502,6 +1518,11 @@ void ModelInstance::draw()
 				// WHAT?!
 				dir.x = 210.0f;
 #endif
+			} else {
+				currentTargetIndex = 0;
+				Vec3D newNode = gWorld->GetRandomNode(currentNodeId, *this);
+				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
+				currentNode = newNode;
 			}
 		}
 		else {
