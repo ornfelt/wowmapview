@@ -59,6 +59,7 @@ void Test::tick(float t, float dt)
 	rotate(0,0, &dir.x,&dir.y, av*PI/180.0f);
     rotate(0,0, &dir.x,&dir.z, ah*PI/180.0f);
 
+	// TODO: use MoveForward...
 	if (moving != 0) world->camera += dir * dt * movespd * moving;
 	if (strafing != 0) {
 		Vec3D right = dir % Vec3D(0,1,0);
@@ -252,9 +253,9 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		}
 
 		// toggles
-		if (e->keysym.sym == SDLK_t) {
-			world->thirdperson = !world->thirdperson;
-		}
+		//if (e->keysym.sym == SDLK_t) {
+		//	world->thirdperson = !world->thirdperson;
+		//}
 		if (e->keysym.sym == SDLK_l) {
 			world->lighting = !world->lighting;
 		}
@@ -346,6 +347,18 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 
 			//fprintf(bf, "%s %f %f %f  %f %f  %s\n", world->basename.c_str(), world->camera.x, world->camera.y, world->camera.z, ah, av, areaName.c_str());
 			fclose(bf);
+		}
+
+		// Teleport to playertwo
+		if (e->keysym.sym == SDLK_0) {
+			world->playermodelis[0].teleToTarget = true;
+		}
+		if (e->keysym.sym == SDLK_t) {
+			world->playermodelis[0].targetIndex = (world->playermodelis[0].targetIndex + 1) % world->playermodelis.size();
+			if (world->playermodelis[0].targetIndex == 0) // Don't pick player as target
+				world->playermodelis[0].targetIndex = 1;
+			world->playermodelis[0].target = &world->playermodelis[world->playermodelis[0].targetIndex];
+			std::cout << "New target index: " << world->playermodelis[0].targetIndex << std::endl;
 		}
 
 	} else {

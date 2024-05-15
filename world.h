@@ -169,6 +169,7 @@ public:
 	Model* playertwo;
 	std::vector<Model*> playermodels;
 	std::vector<ModelInstance> playermodelis;
+	bool teleToTarget;
 #endif
 
 	//void CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ);

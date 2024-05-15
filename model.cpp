@@ -709,9 +709,9 @@ void Model::initAnimated(MPQFile &f)
 	}
 
 	anims = new ModelAnimation[header.nAnimations];
-	if (this->isUnit || this->isSpell)
-		for (int i = 0; i < header.nAnimations; ++i)
-			std::cout << "Animation index: " << i << std::endl;
+	//if (this->isUnit || this->isSpell)
+	//	for (int i = 0; i < header.nAnimations; ++i)
+	//		std::cout << "Animation index: " << i << std::endl;
 
 	memcpy(anims, f.getBuffer() + header.ofsAnimations, header.nAnimations * sizeof(ModelAnimation));
 
@@ -1370,6 +1370,8 @@ ModelInstance::ModelInstance(Model *m, MPQFile &f) : model (m)
 		scale /= 8;
 	//else if (m->modelPath == "creature\\dragon\\dragononyxia.mdx")
 	//	scale /= 3;
+	else if (m->modelPath == "spells\\PyroBlast_Missile.mdx")
+		scale *= 5;
 
 	// scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
 	sc = scale / 1024.0f;
@@ -1450,7 +1452,7 @@ void ModelInstance::draw()
 			//}
 
 			if (currentNode.x == 0.0f) {
-				std::cout << "No current node set! Setting closest node based on player camera..." << std::endl;
+				//std::cout << "No current node set! Setting closest node based on player pos..." << std::endl;
 				currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
 				pos.x = -currentNode.y + ZEROPOINT;
 				pos.y = currentNode.z;
@@ -1525,30 +1527,38 @@ void ModelInstance::draw()
 				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
 				currentNode = newNode;
 			}
-		}
-		else {
-			Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-			pos = newpos;
+		} else if (!this->model->isSpell) {
+			if (this->teleToTarget) {
+				if (this->target->model->isSpell) {
+					this->target->pos = pos;
+				}
+				pos = this->target->pos;
+				gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
+				this->teleToTarget = false;
+			} else {
+				Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+				pos = newpos;
 
-			float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-			// Normalize to ensure it falls between 0 and 360
-			yawDegrees = fmod(yawDegrees, 360.0f);
-			if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-			yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+				float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+				// Normalize to ensure it falls between 0 and 360
+				yawDegrees = fmod(yawDegrees, 360.0f);
+				if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+				yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
 
-			// Assuming model faces east by default, adjust to face north
-			yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-			dir.y = yawDegrees;
+				// Assuming model faces east by default, adjust to face north
+				yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+				dir.y = yawDegrees;
 
 #ifdef _DEBUG
-			// WHAT?!
-			dir.x = 210.0f;
+				// WHAT?!
+				dir.x = 210.0f;
 #endif
-			dir.x = 0.0f;
-			//std::cout << "dir.x:: " << dir.x << std::endl;
+				dir.x = 0.0f;
+				//std::cout << "dir.x:: " << dir.x << std::endl;
 
-			//dir.y += 1.0f; // Continuosly rotate
-			//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+				//dir.y += 1.0f; // Continuosly rotate
+				//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+			}
 		}
 
 		if (!this->model->isSpell) {

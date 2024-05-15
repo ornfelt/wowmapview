@@ -75,7 +75,7 @@ Vec3D World::GetClosestNode(double posX, double posY, double posZ, ModelInstance
 		Node closestNode = manager->getClosestNode(mapId, posX, posY, posZ);
         //std::cout << "Closest Node to (" << posX << ", " << posY << ", " << posZ
         //          << ") on map ID " << mapId << " is Node ID: " << closestNode.id << std::endl;
-		std::cout << closestNode.toString() << std::endl;
+		//std::cout << closestNode.toString() << std::endl;
 		modelInstance.currentNodeId = closestNode.id;
 		return Vec3D(closestNode.x, closestNode.y, closestNode.z);
     } catch (const std::exception& e) {
@@ -89,7 +89,7 @@ Vec3D World::GetRandomNode(uint32_t nodeId, ModelInstance& modelInstance)
     try {
         NodeManager* manager = NodeManager::getInstance();
 		Node* newNode = manager->getRandomLinkedNode(nodeId);
-		std::cout << "New random node: " << newNode->toString() << std::endl;
+		//std::cout << "New random node: " << newNode->toString() << std::endl;
 		modelInstance.currentNodeId = newNode->id;
 		return Vec3D(newNode->x, newNode->y, newNode->z);
     } catch (const std::exception& e) {
@@ -130,6 +130,7 @@ void World::createPlayer(MPQFile& f)
     //player = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"), true);
     player = new Model(playerModelPath, true);
 	ModelInstance inst(player, f);
+	playermodels.push_back(player);
 	playermodelis.push_back(inst);
 }
 
@@ -137,9 +138,11 @@ void World::createPlayerTwo(MPQFile& f, std::string modelPath)
 {
 	std::cout << "Create playertwo called" << std::endl;
     playertwo = new Model(std::string(modelPath), true);
-	playertwo->isNpc = true;
+	if (!playertwo->isSpell)
+		playertwo->isNpc = true;
 	playertwo->masterPos = playermodelis[playermodelis.size() - 1].pos;
 	ModelInstance inst(playertwo, f);
+	playermodels.push_back(playertwo);
 	playermodelis.push_back(inst);
 }
 #endif
@@ -207,8 +210,8 @@ void World::init()
 	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
 	createPlayerTwo(f, "creature\\SkeletonNaked\\SkeletonNaked.mdx");
 	createPlayerTwo(f, "spells\\PyroBlast_Missile.mdx");
-	//createPlayerTwo(f, "spells\\Frostbolt.mdx");
-	//createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
+	createPlayerTwo(f, "spells\\Frostbolt.mdx");
+	createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
 	//createPlayerTwo(f, "creature\\Cow\\cow.mdx");
 	//createPlayerTwo(f, "creature\\druidbear\\druidbear.mdx");
 	//createPlayerTwo(f, "creature\\diablo\\DiabloFunSized.mdx");
@@ -218,6 +221,7 @@ void World::init()
 	//for (int i = 0; i < 5; ++i) {
 	//	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
 	//}
+	playermodelis[0].target = &playermodelis[1];
 #endif
 	f.close();
 

@@ -189,7 +189,6 @@ public:
 	bool isSpell;
 	bool isNpc = false;
 	Vec3D masterPos;
-
 };
 
 class ModelManager: public SimpleManager {
@@ -321,7 +320,9 @@ public:
 	//	{ 465.159, -437.463, 33.7328},
 	//	{ 463.128, -438.201, 33.5102}
 	//};
-
+	ModelInstance* target;
+	bool teleToTarget = false;
+	uint32_t targetIndex = 1;
 };
 
 #endif
