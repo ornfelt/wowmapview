@@ -1453,14 +1453,15 @@ void ModelInstance::draw()
 
 			if (currentNode.x == 0.0f) {
 				//std::cout << "No current node set! Setting closest node based on player pos..." << std::endl;
-				currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
+				//currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
+				currentNode = gWorld->GetRandomNode(*this);
 				pos.x = -currentNode.y + ZEROPOINT;
 				pos.y = currentNode.z;
 				pos.z = -currentNode.x + ZEROPOINT;
 			}
 
 			if (currentPath.empty()) {
-				Vec3D newNode = gWorld->GetRandomNode(currentNodeId, *this);
+				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
 				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
 				currentNode = newNode;
 			}
@@ -1523,7 +1524,7 @@ void ModelInstance::draw()
 			dir.x = 0.0f;
 			} else {
 				currentTargetIndex = 0;
-				Vec3D newNode = gWorld->GetRandomNode(currentNodeId, *this);
+				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
 				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
 				currentNode = newNode;
 			}

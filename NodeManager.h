@@ -38,6 +38,7 @@ public:
     void loadNodes();
     Node getClosestNode(double x, double y, double z);
     Node getClosestNode(uint32_t mapId, double x, double y, double z);
+    Node getRandomNode(uint32_t mapId);
     Node* getRandomLinkedNode(int nodeId);
     Node* getRandomLinkedNodeOld(int nodeId);
 };

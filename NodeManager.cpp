@@ -90,55 +90,79 @@ Node NodeManager::getClosestNode(uint32_t mapId, double x, double y, double z) {
     });
 }
 
-Node* NodeManager::getRandomLinkedNode(int nodeId) {
-    auto it = std::find_if(nodes.begin(), nodes.end(), [nodeId](const Node& node) {
-        return node.id == nodeId;
-    });
-
-    if (it == nodes.end() || it->links.empty()) {
-        std::cerr << "Node not found or no links available" << std::endl;
-        return nullptr;
+Node NodeManager::getRandomNode(uint32_t mapId) {
+    if (nodes.empty()) {
+        throw std::runtime_error("Nodes are not loaded yet.");
     }
 
-    std::vector<std::string> links;
-    std::istringstream iss(it->links);
-    std::string link;
-    while (std::getline(iss, link, ' ')) {
-        links.push_back(link);
+    // Filter nodes by mapId
+    std::vector<Node> filteredNodes;
+    std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(filteredNodes),
+                 [mapId](const Node& node) { return node.mapId == mapId; });
+
+    if (filteredNodes.empty()) {
+        throw std::runtime_error("No nodes available with the specified mapId.");
     }
 
-    if (links.empty()) {
-        std::cerr << "No valid links found" << std::endl;
-        return nullptr;
-    }
-
-    // Filter links to get unvisited ones first
-    std::vector<std::string> unvisitedLinks;
-    std::copy_if(links.begin(), links.end(), std::back_inserter(unvisitedLinks), [this](const std::string& id) {
-        return this->visitedNodes.find(std::stoi(id)) == this->visitedNodes.end();
-    });
-
+    // Randomly select one node from filtered nodes
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis;
-    int linkedId;
+    std::uniform_int_distribution<> dist(0, filteredNodes.size() - 1);
+    int randomIndex = dist(gen);
 
-    // If there are unvisited nodes, prefer them
-    if (!unvisitedLinks.empty()) {
-        dis = std::uniform_int_distribution<>(0, unvisitedLinks.size() - 1);
-        linkedId = std::stoi(unvisitedLinks[dis(gen)]);
-    } else {
-        // If all are visited, pick any random link
-        dis = std::uniform_int_distribution<>(0, links.size() - 1);
-        linkedId = std::stoi(links[dis(gen)]);
-    }
+    return filteredNodes[randomIndex];
+}
 
-    // Mark this node as visited
-    this->visitedNodes.insert(linkedId);
+Node* NodeManager::getRandomLinkedNode(int nodeId) {
+	auto it = std::find_if(nodes.begin(), nodes.end(), [nodeId](const Node& node) {
+		return node.id == nodeId;
+		});
 
-    return &(*std::find_if(nodes.begin(), nodes.end(), [linkedId](const Node& node) {
-        return node.id == linkedId;
-    }));
+	if (it == nodes.end() || it->links.empty()) {
+		std::cerr << "Node not found or no links available" << std::endl;
+		return nullptr;
+	}
+
+	std::vector<std::string> links;
+	std::istringstream iss(it->links);
+	std::string link;
+	while (std::getline(iss, link, ' ')) {
+		links.push_back(link);
+	}
+
+	if (links.empty()) {
+		std::cerr << "No valid links found" << std::endl;
+		return nullptr;
+	}
+
+	// Filter links to get unvisited ones first
+	std::vector<std::string> unvisitedLinks;
+	std::copy_if(links.begin(), links.end(), std::back_inserter(unvisitedLinks), [this](const std::string& id) {
+		return this->visitedNodes.find(std::stoi(id)) == this->visitedNodes.end();
+		});
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis;
+	int linkedId;
+
+	// If there are unvisited nodes, prefer them
+	if (!unvisitedLinks.empty()) {
+		dis = std::uniform_int_distribution<>(0, unvisitedLinks.size() - 1);
+		linkedId = std::stoi(unvisitedLinks[dis(gen)]);
+	}
+	else {
+		// If all are visited, pick any random link
+		dis = std::uniform_int_distribution<>(0, links.size() - 1);
+		linkedId = std::stoi(links[dis(gen)]);
+	}
+
+	// Mark this node as visited
+	this->visitedNodes.insert(linkedId);
+
+	return &(*std::find_if(nodes.begin(), nodes.end(), [linkedId](const Node& node) {
+		return node.id == linkedId;
+		}));
 }
 
 //Node* NodeManager::getRandomLinkedNode(int nodeId) {

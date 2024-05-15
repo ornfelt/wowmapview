@@ -84,7 +84,22 @@ Vec3D World::GetClosestNode(double posX, double posY, double posZ, ModelInstance
 	return NULL;
 }
 
-Vec3D World::GetRandomNode(uint32_t nodeId, ModelInstance& modelInstance)
+Vec3D World::GetRandomNode(ModelInstance& modelInstance)
+{
+    try {
+        NodeManager* manager = NodeManager::getInstance();
+        manager->loadNodes();
+		Node newNode = manager->getRandomNode(mapId);
+		//std::cout << "New random node: " << newNode->toString() << std::endl;
+		modelInstance.currentNodeId = newNode.id;
+		return Vec3D(newNode.x, newNode.y, newNode.z);
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+	return NULL;
+}
+
+Vec3D World::GetRandomLinkedNode(uint32_t nodeId, ModelInstance& modelInstance)
 {
     try {
         NodeManager* manager = NodeManager::getInstance();

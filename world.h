@@ -176,7 +176,8 @@ public:
 	std::vector<Vec3D> CalculatePath(float startX, float startY, float startZ, float destX, float destY, float destZ);
 	void InitNavigation();
 	Vec3D GetClosestNode(double posX, double posY, double posZ, ModelInstance& modelInstance);
-	Vec3D GetRandomNode(uint32_t nodeId, ModelInstance& modelInstance);
+	Vec3D GetRandomNode(ModelInstance& modelInstance);
+	Vec3D GetRandomLinkedNode(uint32_t nodeId, ModelInstance& modelInstance);
 };
 
 extern World *gWorld;
