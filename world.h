@@ -167,6 +167,7 @@ public:
 	void createPlayerTwo(MPQFile& f, std::string modelPath);
 	Model* player;
 	Model* playertwo;
+	std::vector<Model*> playermodels;
 	std::vector<ModelInstance> playermodelis;
 #endif
 
