@@ -320,8 +320,12 @@ public:
 	//	{ 465.159, -437.463, 33.7328},
 	//	{ 463.128, -438.201, 33.5102}
 	//};
-	ModelInstance* target;
+	bool isCasting = false;
 	bool teleToTarget = false;
+	bool isHidden = false;
+	bool isWandering = false;
+	ModelInstance* target;
+	ModelInstance* chosenSpell;
 	uint32_t targetIndex = 1;
 };
 

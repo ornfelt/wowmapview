@@ -207,6 +207,7 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		// movement
 		if (e->keysym.sym == SDLK_w) {
 			moving = 1.0f;
+			world->playermodelis[0].isWandering = false;
 		}
 		if (e->keysym.sym == SDLK_s) {
 			moving = -1.0f;
@@ -355,10 +356,46 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		}
 		if (e->keysym.sym == SDLK_t) {
 			world->playermodelis[0].targetIndex = (world->playermodelis[0].targetIndex + 1) % world->playermodelis.size();
-			if (world->playermodelis[0].targetIndex == 0) // Don't pick player as target
+			if (world->playermodelis[0].targetIndex == 0 && world->playermodelis.size() > 1) // Don't pick player as target
 				world->playermodelis[0].targetIndex = 1;
 			world->playermodelis[0].target = &world->playermodelis[world->playermodelis[0].targetIndex];
 			std::cout << "New target index: " << world->playermodelis[0].targetIndex << std::endl;
+		}
+
+		if (e->keysym.sym == SDLK_1) {
+			world->playermodelis[0].chosenSpell = &world->spellmodelis[0];
+			if (world->playermodelis[0].chosenSpell) {
+				world->playermodelis[0].chosenSpell->isHidden = false;
+				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			}
+		}
+		if (e->keysym.sym == SDLK_2) {
+			world->playermodelis[0].chosenSpell = &world->spellmodelis[1];
+			if (world->playermodelis[0].chosenSpell) {
+				world->playermodelis[0].chosenSpell->isHidden = false;
+				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			}
+		}
+		if (e->keysym.sym == SDLK_3) {
+			world->playermodelis[0].chosenSpell = &world->spellmodelis[2];
+			if (world->playermodelis[0].chosenSpell) {
+				world->playermodelis[0].chosenSpell->isHidden = false;
+				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			}
+		}
+		if (e->keysym.sym == SDLK_4) {
+			world->playermodelis[0].chosenSpell = &world->spellmodelis[3];
+			if (world->playermodelis[0].chosenSpell) {
+				world->playermodelis[0].chosenSpell->isHidden = false;
+				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			}
+		}
+		if (e->keysym.sym == SDLK_y) {
+			world->playermodelis[0].isWandering = true;
 		}
 
 	} else {

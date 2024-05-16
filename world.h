@@ -169,6 +169,7 @@ public:
 	Model* playertwo;
 	std::vector<Model*> playermodels;
 	std::vector<ModelInstance> playermodelis;
+	std::vector<ModelInstance> spellmodelis;
 	bool teleToTarget;
 #endif
 

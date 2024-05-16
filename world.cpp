@@ -153,12 +153,17 @@ void World::createPlayerTwo(MPQFile& f, std::string modelPath)
 {
 	std::cout << "Create playertwo called" << std::endl;
     playertwo = new Model(std::string(modelPath), true);
-	if (!playertwo->isSpell)
-		playertwo->isNpc = true;
 	playertwo->masterPos = playermodelis[playermodelis.size() - 1].pos;
 	ModelInstance inst(playertwo, f);
 	playermodels.push_back(playertwo);
-	playermodelis.push_back(inst);
+	if (!playertwo->isSpell) {
+		playermodelis.push_back(inst);
+		playertwo->isNpc = true;
+	}
+	else {
+		spellmodelis.push_back(inst);
+		inst.isHidden = true;
+	}
 }
 #endif
 
@@ -224,9 +229,16 @@ void World::init()
 	createPlayer(f);
 	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
 	createPlayerTwo(f, "creature\\SkeletonNaked\\SkeletonNaked.mdx");
+
 	createPlayerTwo(f, "spells\\PyroBlast_Missile.mdx");
 	createPlayerTwo(f, "spells\\Frostbolt.mdx");
-	createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
+	createPlayerTwo(f, "spells\\Ice_Missile_Uber.mdx");
+	createPlayerTwo(f, "spells\\LightningBolt_Missile.mdx");
+	//createPlayerTwo(f, "spells\\Frost_Nova_area.mdx"); // nova
+	//createPlayerTwo(f, "spells\\Frost_Nova_state.mdx"); // Beneath stuck unit
+	//createPlayerTwo(f, "spells\\Ice_Precast_High_Hand.mdx"); // Frostbolt precast?
+
+	//createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
 	//createPlayerTwo(f, "creature\\Cow\\cow.mdx");
 	//createPlayerTwo(f, "creature\\druidbear\\druidbear.mdx");
 	//createPlayerTwo(f, "creature\\diablo\\DiabloFunSized.mdx");
@@ -237,6 +249,7 @@ void World::init()
 	//	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
 	//}
 	playermodelis[0].target = &playermodelis[1];
+	playermodelis[0].chosenSpell = &spellmodelis[0];
 #endif
 	f.close();
 
@@ -1053,6 +1066,10 @@ void World::draw()
 	//player->draw();
 	for (auto& playermodel : playermodelis) {
 		playermodel.draw();
+	}
+	for (auto& spellmodel : spellmodelis) {
+		if (!spellmodel.isHidden)
+			spellmodel.draw();
 	}
 	//playermodelis[0].draw();
 	//playermodelis[1].draw();
