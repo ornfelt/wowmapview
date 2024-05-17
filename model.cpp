@@ -1533,44 +1533,6 @@ void ModelInstance::draw()
 				currentNode = newNode;
 			}
 		} else if (!this->model->isSpell) {
-			// Casting
-			if (this->isCasting) {
-				// Move spell towards target
-				Vec3D targetPos(this->target->pos.x, this->target->pos.y+2.0f, this->target->pos.z);
-				Vec3D spelldir = targetPos - this->chosenSpell->pos;
-				// Compute the Euclidean distance using the differences
-				double spelldistance = sqrt(spelldir.x * spelldir.x + spelldir.y * spelldir.y + spelldir.z * spelldir.z);
-				if (spelldistance > 0) {
-					spelldir.normalize();
-				}
-
-				bool updateSpellAngle = true;
-				if (spelldistance < moveSpeed*3) {
-					updateSpellAngle = false;
-					this->chosenSpell->pos.x = targetPos.x;
-					this->chosenSpell->pos.y = targetPos.y+2.0f;
-					this->chosenSpell->pos.z = targetPos.z;
-					this->isCasting = false;
-					this->chosenSpell->isHidden = true;
-				}
-				else {
-					// Move towards the target
-					this->chosenSpell->pos.x += spelldir.x * moveSpeed*3;
-					this->chosenSpell->pos.y += spelldir.y * moveSpeed*3;
-					this->chosenSpell->pos.z += spelldir.z * moveSpeed*3;
-				}
-
-				// Fix this (maybe needs update further down where angle is handled for the spell)...
-				if (updateSpellAngle) {
-					float yawDegrees = atan2(spelldir.x, spelldir.z) * 180.0f / PI;
-					yawDegrees = fmod(yawDegrees, 360.0f);
-					if (yawDegrees < 0) yawDegrees += 360.0f;
-					yawDegrees += 180.0f;
-					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-					dir.y = yawDegrees;
-				}
-			}
-
 			if (this->teleToTarget) {
 				pos = this->target->pos;
 				gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
@@ -1598,6 +1560,45 @@ void ModelInstance::draw()
 
 				//dir.y += 1.0f; // Continuosly rotate
 				//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+			}
+		}
+		else if (this->model->isSpell) {
+			// Casting
+			if (this->isCasting) {
+				// Move spell towards target
+				Vec3D targetPos(this->target->pos.x, this->target->pos.y+2.0f, this->target->pos.z);
+				Vec3D spelldir = targetPos - pos;
+				// Compute the Euclidean distance using the differences
+				double spelldistance = sqrt(spelldir.x * spelldir.x + spelldir.y * spelldir.y + spelldir.z * spelldir.z);
+				if (spelldistance > 0) {
+					spelldir.normalize();
+				}
+
+				bool updateSpellAngle = true;
+				if (spelldistance < moveSpeed*3) {
+					updateSpellAngle = false;
+					pos.x = targetPos.x;
+					pos.y = targetPos.y+2.0f;
+					pos.z = targetPos.z;
+					this->isCasting = false;
+					this->isHidden = true;
+				}
+				else {
+					// Move towards the target
+					pos.x += spelldir.x * moveSpeed*3;
+					pos.y += spelldir.y * moveSpeed*3;
+					pos.z += spelldir.z * moveSpeed*3;
+				}
+
+				// Fix this (maybe needs update further down where angle is handled for the spell)...
+				if (updateSpellAngle) {
+					float yawDegrees = atan2(spelldir.x, spelldir.z) * 180.0f / PI;
+					yawDegrees = fmod(yawDegrees, 360.0f);
+					if (yawDegrees < 0) yawDegrees += 360.0f;
+					yawDegrees += 180.0f;
+					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+					dir.y = yawDegrees;
+				}
 			}
 		}
 

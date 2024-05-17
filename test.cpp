@@ -364,33 +364,37 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 
 		if (e->keysym.sym == SDLK_1) {
 			world->playermodelis[0].chosenSpell = &world->spellmodelis[0];
-			if (world->playermodelis[0].chosenSpell) {
+			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
 				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->isCasting = true;
+				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
 				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_2) {
 			world->playermodelis[0].chosenSpell = &world->spellmodelis[1];
-			if (world->playermodelis[0].chosenSpell) {
+			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
 				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->isCasting = true;
+				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
 				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_3) {
 			world->playermodelis[0].chosenSpell = &world->spellmodelis[2];
-			if (world->playermodelis[0].chosenSpell) {
+			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
 				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->isCasting = true;
+				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
 				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_4) {
 			world->playermodelis[0].chosenSpell = &world->spellmodelis[3];
-			if (world->playermodelis[0].chosenSpell) {
+			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
 				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].isCasting = true;
+				world->playermodelis[0].chosenSpell->isCasting = true;
+				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
 				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
 			}
 		}
