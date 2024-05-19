@@ -113,6 +113,14 @@ Vec3D World::GetRandomLinkedNode(uint32_t nodeId, ModelInstance& modelInstance)
 	return NULL;
 }
 
+Vec3D World::MoveForward(float startX, float startY, float startZ, float angle, float dist)
+{
+	Navigation* navigation = Navigation::GetInstance();
+	XYZ* moveForwardPos = navigation->MoveForward(mapId, startX, startY, startZ, angle, 0.5f, 3.0f, 5.0f, dist);
+	Vec3D returnPos = Vec3D(moveForwardPos->X, moveForwardPos->Y, moveForwardPos->Z);
+	return returnPos;
+}
+
 World::World(const char* name):basename(name)
 {
 	//::gWorld = this;
@@ -238,12 +246,12 @@ void World::init()
 	//createPlayerTwo(f, "spells\\Frost_Nova_state.mdx"); // Beneath stuck unit
 	//createPlayerTwo(f, "spells\\Ice_Precast_High_Hand.mdx"); // Frostbolt precast?
 
-	//createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
-	//createPlayerTwo(f, "creature\\Cow\\cow.mdx");
-	//createPlayerTwo(f, "creature\\druidbear\\druidbear.mdx");
-	//createPlayerTwo(f, "creature\\diablo\\DiabloFunSized.mdx");
-	//createPlayerTwo(f, "creature\\voidwalker\\voidwalker.mdx");
-	//createPlayerTwo(f, "creature\\panda\\pandacub.mdx");
+	createPlayerTwo(f, "creature\\dragon\\dragononyxia.mdx");
+	createPlayerTwo(f, "creature\\Cow\\cow.mdx");
+	createPlayerTwo(f, "creature\\druidbear\\druidbear.mdx");
+	createPlayerTwo(f, "creature\\diablo\\DiabloFunSized.mdx");
+	createPlayerTwo(f, "creature\\voidwalker\\voidwalker.mdx");
+	createPlayerTwo(f, "creature\\panda\\pandacub.mdx");
 	//createPlayerTwo(f, "creature\\rabbit\\rabbit.mdx");
 	//for (int i = 0; i < 5; ++i) {
 	//	createPlayerTwo(f, "creature\\ragnaros\\ragnaros.mdx");
@@ -848,7 +856,8 @@ void World::draw()
 
 	if (thirdperson) {
 		Vec3D l = (lookat-camera).normalize();
-		Vec3D nc = camera + Vec3D(0,300,0);
+		//Vec3D nc = camera + Vec3D(0,300,0);
+		Vec3D nc = camera + Vec3D(0,20,0);
 		Vec3D rt = (Vec3D(0,1,0) % l).normalize();
 		Vec3D up = (l % rt).normalize();
 		float fl = 256.0f;

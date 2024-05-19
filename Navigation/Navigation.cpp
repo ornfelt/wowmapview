@@ -13,12 +13,13 @@ Unit* Navigation::GetUnitInstance() {
     return instance;
 }
 
-//Navigation* Navigation::GetInstance() {
-//	if (s_singletonInstance == nullptr) {
-//		s_singletonInstance = new Navigation();  // Create a new instance if one does not exist
-//	}
-//	return s_singletonInstance;  // Return the existing or new instance
-//}
+static Navigation* s_singletonInstance; ///< Singleton instance of the Navigation class.
+Navigation* Navigation::GetInstance() {
+	if (s_singletonInstance == nullptr) {
+		s_singletonInstance = new Navigation();  // Create a new instance if one does not exist
+	}
+	return s_singletonInstance;  // Return the existing or new instance
+}
 
 void Navigation::InitializeMapsForContinent(MMAP::MMapMgr* manager, unsigned int mapId) {
     for (auto& p : std::filesystem::directory_iterator("C:\\local\\acore\\mmaps\\")) {

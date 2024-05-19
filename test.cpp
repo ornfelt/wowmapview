@@ -22,7 +22,8 @@ Test::Test(World *w, float ah0, float av0): world(w), ah(ah0), av(av0)
 {
 	moving = strafing = updown = 0;
 
-	mousedir = -1.0f;
+	//mousedir = -1.0f;
+	mousedir = 0;
 
 	movespd = SPEED;
 
@@ -59,21 +60,107 @@ void Test::tick(float t, float dt)
 	rotate(0,0, &dir.x,&dir.y, av*PI/180.0f);
     rotate(0,0, &dir.x,&dir.z, ah*PI/180.0f);
 
-	// TODO: use MoveForward...
-	if (moving != 0) world->camera += dir * dt * movespd * moving;
-	if (strafing != 0) {
-		Vec3D right = dir % Vec3D(0,1,0);
-		right.normalize();
-		world->camera += right * dt * movespd * strafing;
+	if (world->playermodelis[0].usePhysics && moving > 0) {
+		// Position
+		//float myAngle = atan2(world->playermodelis[0].dir.y, world->playermodelis[0].dir.x) * 180.0f / PI;
+		float myAngle = (world->playermodelis[0].dir.y * (PI / 180.0f)) + PI / 2 + PI;
+		//std::cout << "Calculated angle: " << myAngle << " degrees" << std::endl;
+
+		Vec3D newPos = world->MoveForward(-(world->playermodelis[0].pos.z - ZEROPOINT), -(world->playermodelis[0].pos.x - ZEROPOINT), world->playermodelis[0].pos.y, myAngle, 0.5f);
+		float newPosX = -newPos.y + ZEROPOINT;
+		float newPosY = newPos.z;
+		float newPosZ = -newPos.x + ZEROPOINT;
+
+		Vec3D targetPos(newPosX, newPosY, newPosZ);
+		Vec3D newdir = targetPos - world->playermodelis[0].pos;
+		double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
+		if (distance < 0.001) {
+			std::cout << "Can't move! Distance: " << distance << std::endl;
+		}
+		else {
+			float moveSpeed = 1.0;
+			// Move towards
+			//world->playermodelis[0].pos.x += newdir.x * moveSpeed;
+			//world->playermodelis[0].pos.y += newdir.y * moveSpeed;
+			//world->playermodelis[0].pos.z += newdir.z * moveSpeed;
+			world->playermodelis[0].pos.x = newPosX;
+			world->playermodelis[0].pos.y = newPosY;
+			world->playermodelis[0].pos.z = newPosZ;
+
+			// Camera
+			//world->camera = world->playermodelis[0].pos;
+			////Vec3D newcampos = gWorld->camera - cameranewdir * distanceBehindCamera;
+			//newdir.y = 0.0f;
+			//Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+			//newcampos.y += distanceBehindCamera/2;
+			//world->lookat = world->playermodelis[0].pos;
+			//world->camera = newcampos;
+
+			world->camera = world->playermodelis[0].pos;
+			float rotationAngle = -(world->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+			Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+			newdir.y = 0.0f;
+			Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+			newcampos.y += distanceBehindCamera/2;
+			world->lookat = world->playermodelis[0].pos;
+			world->camera = newcampos;
+
+			//world->lookat = world->camera + newdir;
+			//world->camera = world->playermodelis[0].pos - (newdir * 20.0f);
+			//world->camera = world->playermodelis[0].pos;
+			//world->camera.y += 20.0f;
+		}
 	}
-	if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
-	world->lookat = world->camera + dir;
+	else if (!world->playermodelis[0].usePhysics && !world->playermodelis[0].isWandering) {
+		if (moving != 0) world->camera += dir * dt * movespd * moving;
+		if (strafing != 0) {
+			Vec3D right = dir % Vec3D(0, 1, 0);
+			right.normalize();
+			world->camera += right * dt * movespd * strafing;
+		}
+		if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
+		world->lookat = world->camera + dir;
+	}
+	if (world->playermodelis[0].usePhysics) {
+		if (strafing != 0) {
+			// Kinda cool effect
+			////Vec3D right = dir % Vec3D(0, 1, 0);
+			//Vec3D right = dir % Vec3D(1, 1, 0);
+			//right.normalize();
+			////world->playermodelis[0].dir += right * dt * movespd * strafing;
+			//world->camera += right * dt * movespd * strafing;
+
+			//world->lookat.x -= strafing;
+			//world->lookat = world->playermodelis[0].pos;
+			world->playermodelis[0].dir.y -= strafing;
+
+			world->camera = world->playermodelis[0].pos;
+			float rotationAngle = -(world->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+			Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+			newdir.y = 0.0f;
+			Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+			newcampos.y += distanceBehindCamera/2;
+			world->lookat = world->playermodelis[0].pos;
+			world->camera = newcampos;
+
+			//Vec3D newcampos = gWorld->camera - (world->playermodelis[0].dir * 40.0f);
+			//newcampos.y += 20.0f;
+			//world->lookat = world->playermodelis[0].pos;
+			//world->camera = newcampos;
+		}
+		//if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
+		if (strafing == 0 && mousedir) {
+			std::cout << "MOUSEDIR: " << mousedir << std::endl;
+			world->lookat = world->camera + dir;
+		}
+	}
 
 	world->time += (world->modelmanager.v * /*360.0f*/ 90.0f * dt);
 	world->animtime += dt * 1000.0f;
 	globalTime = (int)world->animtime;
 
 	world->tick(dt);
+	mousedir = 0;
 }
 
 void Test::display(float t, float dt)
@@ -208,6 +295,8 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_w) {
 			moving = 1.0f;
 			world->playermodelis[0].isWandering = false;
+			world->playermodelis[0].currentPath = std::vector<Vec3D>();
+			world->playermodelis[0].currentNode.x = 0.0f;
 		}
 		if (e->keysym.sym == SDLK_s) {
 			moving = -1.0f;
@@ -402,6 +491,27 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 			world->playermodelis[0].isWandering = true;
 		}
 
+		if (e->keysym.sym == SDLK_8) {
+			world->playermodelis[0].usePhysics = !world->playermodelis[0].usePhysics;
+			//world->thirdperson = !world->thirdperson;
+			if (world->playermodelis[0].usePhysics) {
+				Vec3D currentNode = gWorld->GetClosestNode(-(world->playermodelis[0].pos.z - ZEROPOINT), -(world->playermodelis[0].pos.x - ZEROPOINT), world->playermodelis[0].pos.y, world->playermodelis[0]);
+				std::cout << "New closest node! " << currentNode.x << ", " << currentNode.y << ", " << currentNode.z << std::endl;
+
+				float newPosX = -currentNode.y + ZEROPOINT;
+				float newPosY = currentNode.z;
+				float newPosZ = -currentNode.x + ZEROPOINT;
+				Vec3D targetPos(newPosX, newPosY, newPosZ);
+				Vec3D newdir = targetPos - world->playermodelis[0].pos;
+
+				world->playermodelis[0].pos.x = newPosX;
+				world->playermodelis[0].pos.y = newPosY;
+				world->playermodelis[0].pos.z = newPosZ;
+				world->camera = world->playermodelis[0].pos;
+				//world->camera = world->playermodelis[0].pos - (world->lookat * 20.0f);
+			}
+		}
+
 	} else {
 		// key UP
 
@@ -432,6 +542,7 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 void Test::mousemove(SDL_MouseMotionEvent *e)
 {
 	if (look || fullscreen) {
+		mousedir = -1.0f;
 		ah += e->xrel / XSENS;
 		av += mousedir * e->yrel / YSENS;
 		if (av < -80) av = -80;

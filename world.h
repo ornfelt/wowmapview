@@ -179,6 +179,7 @@ public:
 	Vec3D GetClosestNode(double posX, double posY, double posZ, ModelInstance& modelInstance);
 	Vec3D GetRandomNode(ModelInstance& modelInstance);
 	Vec3D GetRandomLinkedNode(uint32_t nodeId, ModelInstance& modelInstance);
+	Vec3D MoveForward(float startX, float startY, float startZ, float angle, float dist);
 };
 
 extern World *gWorld;

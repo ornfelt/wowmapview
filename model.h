@@ -324,6 +324,7 @@ public:
 	bool teleToTarget = false;
 	bool isHidden = false;
 	bool isWandering = false;
+	bool usePhysics = false;
 	ModelInstance* target;
 	ModelInstance* chosenSpell;
 	uint32_t targetIndex = 1;

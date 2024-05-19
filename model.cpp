@@ -1523,8 +1523,24 @@ void ModelInstance::draw()
 #endif
 			dir.x = 0.0f;
 
-			if (this->isWandering)
-				gWorld->camera = this->pos - (newdir * distanceInFrontOfCamera);
+			if (this->isWandering) {
+				float distanceBehindCamera = 20.0;
+				////gWorld->camera = this->pos - (newdir * distanceInFrontOfCamera);
+				//gWorld->camera = this->pos;
+				//Vec3D cameranewdir = gWorld->lookat - gWorld->camera;
+				//cameranewdir.normalize();
+				//Vec3D newcampos = gWorld->camera - cameranewdir * distanceBehindCamera;
+				//gWorld->camera = newcampos;
+
+				gWorld->camera = gWorld->playermodelis[0].pos;
+				float rotationAngle = -(gWorld->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+				Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+				newdir.y = 0.0f;
+				Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+				newcampos.y += distanceBehindCamera / 2;
+				gWorld->lookat = gWorld->playermodelis[0].pos;
+				gWorld->camera = newcampos;
+			}
 
 			} else {
 				currentTargetIndex = 0;
@@ -1538,35 +1554,37 @@ void ModelInstance::draw()
 				gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
 				this->teleToTarget = false;
 			} else {
-				Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-				pos = newpos;
+				if (!this->isWandering && !this->usePhysics) {
+					Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+					pos = newpos;
 
-				float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-				// Normalize to ensure it falls between 0 and 360
-				yawDegrees = fmod(yawDegrees, 360.0f);
-				if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-				yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+					// Normalize to ensure it falls between 0 and 360
+					yawDegrees = fmod(yawDegrees, 360.0f);
+					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
 
-				// Assuming model faces east by default, adjust to face north
-				yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-				dir.y = yawDegrees;
+					// Assuming model faces east by default, adjust to face north
+					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+					dir.y = yawDegrees;
 
 #ifdef _DEBUG
-				// WHAT?!
-				dir.x = 210.0f;
+					// WHAT?!
+					dir.x = 210.0f;
 #endif
-				dir.x = 0.0f;
-				//std::cout << "dir.x:: " << dir.x << std::endl;
+					dir.x = 0.0f;
+					//std::cout << "dir.x:: " << dir.x << std::endl;
 
-				//dir.y += 1.0f; // Continuosly rotate
-				//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+					//dir.y += 1.0f; // Continuosly rotate
+					//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+				}
 			}
 		}
 		else if (this->model->isSpell) {
 			// Casting
 			if (this->isCasting) {
 				// Move spell towards target
-				Vec3D targetPos(this->target->pos.x, this->target->pos.y+2.0f, this->target->pos.z);
+				Vec3D targetPos(this->target->pos.x, this->target->pos.y+1.0f, this->target->pos.z);
 				Vec3D spelldir = targetPos - pos;
 				// Compute the Euclidean distance using the differences
 				double spelldistance = sqrt(spelldir.x * spelldir.x + spelldir.y * spelldir.y + spelldir.z * spelldir.z);
@@ -1578,7 +1596,7 @@ void ModelInstance::draw()
 				if (spelldistance < moveSpeed*3) {
 					updateSpellAngle = false;
 					pos.x = targetPos.x;
-					pos.y = targetPos.y+2.0f;
+					pos.y = targetPos.y+1.0f;
 					pos.z = targetPos.z;
 					this->isCasting = false;
 					this->isHidden = true;
@@ -1611,11 +1629,11 @@ void ModelInstance::draw()
 			glRotatef(-dir.x + 90.0f, 0, 0, 1);
 		}
 	} else {
-		glRotatef(dir.y - 90.0f, 0, 1, 0);
-		glRotatef(-dir.x, 0, 0, 1);
+		//glRotatef(dir.y - 90.0f, 0, 1, 0);
+		//glRotatef(-dir.x, 0, 0, 1);
 	}
 
-	glRotatef(dir.z, 1, 0, 0);
+	//glRotatef(dir.z, 1, 0, 0);
 	glScalef(sc,sc,sc);
 
 	model->draw();

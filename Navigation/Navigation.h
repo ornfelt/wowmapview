@@ -25,6 +25,12 @@ public:
 
 class Navigation {
 public:
+	Navigation() {
+	}
+
+	~Navigation() {
+	}
+
 	static Navigation* GetInstance();
 	void Initialize();
 	void Release();
@@ -37,7 +43,6 @@ public:
 	XYZ* MoveForward(uint32 mapId, float startX, float startY, float startZ, float angle, float hoverHeight=0.5f, float objectSize=1.0f, float collisionHeight=5.0f, float dist=1.0f);
 
 private:
-	static Navigation* s_singletonInstance; ///< Singleton instance of the Navigation class.
 	XYZ* currentPath; ///< Current calculated path.
 
 	void InitializeMapsForContinent(MMAP::MMapMgr* manager, unsigned int mapId);

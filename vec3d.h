@@ -113,6 +113,19 @@ public:
 		return (float*)this;
 	}
 
+	// Cross product
+	Vec3D cross(const Vec3D& v) const {
+		return Vec3D(
+			y * v.z - z * v.y,
+			z * v.x - x * v.z,
+			x * v.y - y * v.x
+		);
+	}
+
+	Vec3D operator-() const {
+        return Vec3D(-x, -y, -z);
+    }
+
 };
 
 

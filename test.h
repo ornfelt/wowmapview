@@ -18,6 +18,7 @@ class Test :public AppState
 
 	World *world;
 
+	float distanceBehindCamera = 40.0f;
 
 public:
 
@@ -31,7 +32,6 @@ public:
 	void keypressed(SDL_KeyboardEvent *e);
 	void mousemove(SDL_MouseMotionEvent *e);
 	void mouseclick(SDL_MouseButtonEvent *e);
-
 
 };
 
