@@ -130,8 +130,6 @@ void Test::tick(float t, float dt)
 			////world->playermodelis[0].dir += right * dt * movespd * strafing;
 			//world->camera += right * dt * movespd * strafing;
 
-			//world->lookat.x -= strafing;
-			//world->lookat = world->playermodelis[0].pos;
 			world->playermodelis[0].dir.y -= strafing;
 
 			world->camera = world->playermodelis[0].pos;
@@ -150,7 +148,6 @@ void Test::tick(float t, float dt)
 		}
 		//if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
 		if (strafing == 0 && mousedir) {
-			std::cout << "MOUSEDIR: " << mousedir << std::endl;
 			world->lookat = world->camera + dir;
 		}
 	}

@@ -1524,14 +1524,7 @@ void ModelInstance::draw()
 			dir.x = 0.0f;
 
 			if (this->isWandering) {
-				float distanceBehindCamera = 20.0;
-				////gWorld->camera = this->pos - (newdir * distanceInFrontOfCamera);
-				//gWorld->camera = this->pos;
-				//Vec3D cameranewdir = gWorld->lookat - gWorld->camera;
-				//cameranewdir.normalize();
-				//Vec3D newcampos = gWorld->camera - cameranewdir * distanceBehindCamera;
-				//gWorld->camera = newcampos;
-
+				float distanceBehindCamera = 20.0f;
 				gWorld->camera = gWorld->playermodelis[0].pos;
 				float rotationAngle = -(gWorld->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
 				Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
