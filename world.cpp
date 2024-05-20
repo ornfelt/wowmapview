@@ -169,8 +169,8 @@ void World::createPlayerTwo(MPQFile& f, std::string modelPath)
 		playertwo->isNpc = true;
 	}
 	else {
-		spellmodelis.push_back(inst);
 		inst.isHidden = true;
+		spellmodelis.push_back(inst);
 	}
 }
 #endif

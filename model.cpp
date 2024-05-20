@@ -30,7 +30,7 @@ Model::Model(std::string name, bool forceAnim) : ManagedItem(name), forceAnim(fo
 	if (name == "World\\Generic\\Human\\Passive Doodads\\Outposts\\Generaloutpost07.Mdx")
 	{
 		gLog("Loading model %s\n", name);
-		//name = "Spells\\Blizzard_Impact_Base.mdx";
+		//name = "spells\\Blizzard_Impact_Base.mdx";
 		//name = "spells\\PyroBlast_Missile.mdx";
 		//name = "spells\\Frostbolt.mdx"; // So cool
 		//name = "spells\\Fireball_Missile_High.mdx";
@@ -1524,7 +1524,7 @@ void ModelInstance::draw()
 			dir.x = 0.0f;
 
 			if (this->isWandering) {
-				float distanceBehindCamera = 20.0f;
+				float distanceBehindCamera = 40.0f;
 				gWorld->camera = gWorld->playermodelis[0].pos;
 				float rotationAngle = -(gWorld->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
 				Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
@@ -1560,6 +1560,7 @@ void ModelInstance::draw()
 					// Assuming model faces east by default, adjust to face north
 					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
 					dir.y = yawDegrees;
+					//dir = newpos;
 
 #ifdef _DEBUG
 					// WHAT?!
@@ -1609,17 +1610,19 @@ void ModelInstance::draw()
 					yawDegrees += 180.0f;
 					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
 					dir.y = yawDegrees;
+					//dir = targetPos;
 				}
 			}
 		}
 
-		if (!this->model->isSpell) {
-			glRotatef(dir.y, 0, 1, 0);
-			glRotatef(dir.x, 1, 0, 0);
-		}
-		else {
+		if (this->model->isSpell && this->model->modelPath == "spells\\Frostbolt.mdx") {
+			//std::cout << "Spell model: " << this->model->modelPath << std::endl;
 			glRotatef(dir.y - 180.0f, 0, 1, 0);
 			glRotatef(-dir.x + 90.0f, 0, 0, 1);
+		}
+		else {
+			glRotatef(dir.y, 0, 1, 0);
+			glRotatef(dir.x, 1, 0, 0);
 		}
 	} else {
 		//glRotatef(dir.y - 90.0f, 0, 1, 0);
