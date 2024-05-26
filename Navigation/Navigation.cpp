@@ -22,8 +22,11 @@ Navigation* Navigation::GetInstance() {
 }
 
 void Navigation::InitializeMapsForContinent(MMAP::MMapMgr* manager, unsigned int mapId) {
-    //for (auto& p : std::filesystem::directory_iterator("C:\\local\\acore\\mmaps\\")) {
+#ifdef _WIN32
+    for (auto& p : std::filesystem::directory_iterator("C:\\local\\acore\\mmaps\\")) {
+#else
     for (auto& p : std::filesystem::directory_iterator("/home/jonas/acore/bin/mmaps/")) {
+#endif
         std::string path = p.path().string();
         std::string extension = path.substr(path.find_last_of(".") + 1);
         if (extension == "mmtile") {

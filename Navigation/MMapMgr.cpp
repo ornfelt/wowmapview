@@ -78,8 +78,11 @@ namespace MMAP
         // load and init dtNavMesh - read parameters from file
         //std::string fileName = Acore::StringFormat(MAP_FILE_NAME_FORMAT, sConfigMgr->GetOption<std::string>("DataDir", ".").c_str(), mapId);
         //std::string fileName = Acore::StringFormat(MAP_FILE_NAME_FORMAT, std::string(".").c_str(), mapId);
-        //std::string fileName = Acore::StringFormat(MAP_FILE_NAME_FORMAT, std::string("C:\\local\\acore").c_str(), mapId);
+#ifdef _WIN32
+        std::string fileName = Acore::StringFormat(MAP_FILE_NAME_FORMAT, std::string("C:\\local\\acore").c_str(), mapId);
+#else
         std::string fileName = Acore::StringFormat(MAP_FILE_NAME_FORMAT, std::string("/home/jonas/acore/bin").c_str(), mapId);
+#endif
 
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
@@ -143,8 +146,11 @@ namespace MMAP
         // TODO?
         //std::string fileName = Acore::StringFormat(TILE_FILE_NAME_FORMAT, sConfigMgr->GetOption<std::string>("DataDir", ".").c_str(), mapId, x, y);
         //std::string fileName = Acore::StringFormat(TILE_FILE_NAME_FORMAT, std::string(".").c_str(), mapId, x, y);
-        //std::string fileName = Acore::StringFormat(TILE_FILE_NAME_FORMAT, std::string("C:\\local\\acore").c_str(), mapId, x, y);
+#ifdef _WIN32
+        std::string fileName = Acore::StringFormat(TILE_FILE_NAME_FORMAT, std::string("C:\\local\\acore").c_str(), mapId, x, y);
+#else
         std::string fileName = Acore::StringFormat(TILE_FILE_NAME_FORMAT, std::string("/home/jonas/acore/bin").c_str(), mapId, x, y);
+#endif
 
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)

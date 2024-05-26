@@ -151,8 +151,11 @@ void Map::LoadVMap(int gx, int gy)
 {
     // x and y are swapped !!
     //int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapMgr()->loadMap((sWorld->GetDataPath() + "vmaps").c_str(), GetId(), gx, gy);
-    //int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapMgr()->loadMap(std::string("C:\\local\\acore\\vmaps").c_str(), GetId(), gx, gy);
+#ifdef _WIN32
+    int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapMgr()->loadMap(std::string("C:\\local\\acore\\vmaps").c_str(), GetId(), gx, gy);
+#else
     int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapMgr()->loadMap(std::string("/home/jonas/acore/bin/vmaps").c_str(), GetId(), gx, gy);
+#endif
     switch (vmapLoadResult)
     {
         case VMAP::VMAP_LOAD_RESULT_OK:
@@ -213,13 +216,19 @@ void Map::LoadMap(int gx, int gy, bool reload)
     // map file name
     char* tmp = nullptr;
     //int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
-    //int len = std::string("C:\\local\\acore\\").length() + strlen("maps/%03u%02u%02u.map") + 1;
+#ifdef _WIN32
+    int len = std::string("C:\\local\\acore\\").length() + strlen("maps/%03u%02u%02u.map") + 1;
+#else
     int len = std::string("/home/jonas/acore/bin/").length() + strlen("maps/%03u%02u%02u.map") + 1;
+#endif
 
     tmp = new char[len];
     //snprintf(tmp, len, (char*)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
-    //snprintf(tmp, len, (char*)(std::string("C:\\local\\acore\\") + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
+#ifdef _WIN32
+    snprintf(tmp, len, (char*)(std::string("C:\\local\\acore\\") + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
+#else
     snprintf(tmp, len, (char*)(std::string("/home/jonas/acore/bin/") + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
+#endif
 
     //LOG_DEBUG("maps", "Loading map {}", tmp);
     // loading data
