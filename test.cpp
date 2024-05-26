@@ -74,10 +74,10 @@ void Test::tick(float t, float dt)
 		Vec3D targetPos(newPosX, newPosY, newPosZ);
 		Vec3D newdir = targetPos - world->playermodelis[0].pos;
 		double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
-		if (distance < 0.001) {
-			std::cout << "Can't move! Distance: " << distance << std::endl;
-		}
-		else {
+		//if (distance < 0.001) {
+		//	std::cout << "Can't move! Distance: " << distance << std::endl;
+		//}
+		//else {
 			float moveSpeed = 1.0;
 			// Move towards
 			//world->playermodelis[0].pos.x += newdir.x * moveSpeed;
@@ -98,18 +98,18 @@ void Test::tick(float t, float dt)
 
 			world->camera = world->playermodelis[0].pos;
 			float rotationAngle = -(world->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
-			Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
-			newdir.y = 0.0f;
-			Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+			Vec3D newmovedir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+			newmovedir.y = 0.0f;
+			Vec3D newcampos = gWorld->camera - (newmovedir * distanceBehindCamera);
 			newcampos.y += distanceBehindCamera/2;
 			world->lookat = world->playermodelis[0].pos;
 			world->camera = newcampos;
 
-			//world->lookat = world->camera + newdir;
-			//world->camera = world->playermodelis[0].pos - (newdir * 20.0f);
+			//world->lookat = world->camera + newmovedir;
+			//world->camera = world->playermodelis[0].pos - (newmovedir * 20.0f);
 			//world->camera = world->playermodelis[0].pos;
 			//world->camera.y += 20.0f;
-		}
+		//}
 	}
 	else if (!world->playermodelis[0].usePhysics && !world->playermodelis[0].isWandering) {
 		if (moving != 0) world->camera += dir * dt * movespd * moving;

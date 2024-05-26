@@ -48,6 +48,7 @@
 #include <linux/limits.h>
 // size_t
 #include <stdlib.h>
+#include <cstdint>
 #define O_BINARY 0
 #endif
 
@@ -136,22 +137,22 @@ extern "C" {
 typedef unsigned int	mpq_buffer[LIBMPQ_TOOLS_BUFSIZE];
 typedef int		(*DECOMPRESS)(char *, int *, char *, int);
 typedef struct {
-	unsigned long	mask;		/* Decompression bit */
+	uint32_t	mask;		/* Decompression bit */
 	DECOMPRESS	decompress;	/* Decompression function */
 } decompress_table;
 
 #pragma pack(push,1)
 /* MPQ file header */
 typedef struct {
-	unsigned long	id;		/* The 0x1A51504D ('MPQ\x1A') signature */
-	unsigned long	offset;		/* Offset of the first file (Relative to MPQ start) */
-	unsigned long	archivesize;	/* Size of MPQ archive */
-	unsigned short	offsetsc;	/* 0000 for SC and BW */
-	unsigned short	blocksize;	/* Size of file block is (0x200 << blockSize) */
-	unsigned long	hashtablepos;	/* File position of hashTable */
-	unsigned long	blocktablepos;	/* File position of blockTable. Each entry has 16 bytes */
-	unsigned long	hashtablesize;	/* Number of entries in hash table */
-	unsigned long	blocktablesize;	/* Number of entries in the block table */
+	uint32_t	id;		/* The 0x1A51504D ('MPQ\x1A') signature */
+	uint32_t	offset;		/* Offset of the first file (Relative to MPQ start) */
+	uint32_t	archivesize;	/* Size of MPQ archive */
+	uint16_t	offsetsc;	/* 0000 for SC and BW */
+	uint16_t	blocksize;	/* Size of file block is (0x200 << blockSize) */
+	uint32_t	hashtablepos;	/* File position of hashTable */
+	uint32_t	blocktablepos;	/* File position of blockTable. Each entry has 16 bytes */
+	uint32_t	hashtablesize;	/* Number of entries in hash table */
+	uint32_t	blocktablesize;	/* Number of entries in the block table */
 } mpq_header;// __attribute__ ((packed)) mpq_header;
 #pragma pack(pop)
 

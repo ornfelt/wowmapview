@@ -26,12 +26,14 @@
 #include "menu.h"
 #include "areadb.h"
 
+#ifdef _WIN32
 FILE _iob[] = {*stdin, *stdout, *stderr};
 
 extern "C" FILE * __cdecl __iob_func(void)
 {
   return _iob;
 }
+#endif
 
 int fullscreen = 0;
 
@@ -57,19 +59,10 @@ AreaDB gAreaDB;
 
 void initFonts()
 {
-    //ftex = loadTGA("arial.tga",false);
-    //f16 = new Font(ftex, 256, 256, 16, "arial.info");
-    //f24 = new Font(ftex, 256, 256, 24, "arial.info");
-    //f32 = new Font(ftex, 256, 256, 32, "arial.info");
-
-    ftex = loadTGA("C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.tga",false);
-    f16 = new Font(ftex, 256, 256, 16, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    f24 = new Font(ftex, 256, 256, 24, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    f32 = new Font(ftex, 256, 256, 32, "C:\\Users\\jonas\\Code2\\Wow\\tools\\wowmapview\\bin\\Debug\\arial.info");
-    //ftex = loadTGA("C:\\Users\\jonas\\OneDrive\\Documents\\Code2\\C++\\wowmapview\\bin\\Release\\arial.tga",false);
-    //f16 = new Font(ftex, 256, 256, 16, "C:\\Users\\jonas\\OneDrive\\Documents\\Code2\\C++\\wowmapview\\bin\\Release\\arial.info");
-    //f24 = new Font(ftex, 256, 256, 24, "C:\\Users\\jonas\\OneDrive\\Documents\\Code2\\C++\\wowmapview\\bin\\Release\\arial.info");
-    //f32 = new Font(ftex, 256, 256, 32, "C:\\Users\\jonas\\OneDrive\\Documents\\Code2\\C++\\wowmapview\\bin\\Release\\arial.info");
+    ftex = loadTGA("arial.tga",false);
+    f16 = new Font(ftex, 256, 256, 16, "arial.info");
+    f24 = new Font(ftex, 256, 256, 24, "arial.info");
+    f32 = new Font(ftex, 256, 256, 32, "arial.info");
 }
 
 void deleteFonts()

@@ -29,6 +29,8 @@
 #include "mpq.h"
 #include "common.h"
 
+//#include <iostream>
+
 /*
  *  This function returns version information.
  *  format: MAJOR.MINOR.PATCH
@@ -78,9 +80,13 @@ int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename) {
         _lseeki64(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
 #else
         lseek64(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
+        //lseek(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
 #endif
 
+        //printf("Attempting to read %zu bytes.\n", sizeof(mpq_header));
 		rb = read(mpq_a->fd, mpq_a->header, sizeof(mpq_header));
+        //if (rb != 60)
+        //    printf("Read %d bytes.\n", rb);
 
 		/* if different number of bytes read, break the loop */
 		if (rb != sizeof(mpq_header)) {
@@ -115,6 +121,7 @@ int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename) {
         _lseeki64(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
 #else
         lseek64(mpq_a->fd, mpq_a->header->offset, SEEK_SET);
+        //lseek(mpq_a->fd, mpq_a->mpqpos, SEEK_SET);
 #endif
     }
 

@@ -6,7 +6,7 @@
 #include <G3D/Ray.h>
 #include <G3D/Table.h>
 
-#include "Errors.h"
+//#include "Errors.h"
 
 template <class Node>
 class NodeArray

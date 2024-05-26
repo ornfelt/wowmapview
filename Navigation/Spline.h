@@ -1,7 +1,7 @@
 #ifndef AC_SPLINE_H
 #define AC_SPLINE_H
 
-#include "Errors.h"
+//#include "Errors.h"
 #include "MovementTypedefs.h"
 #include <G3D/Vector3.h>
 #include <limits>

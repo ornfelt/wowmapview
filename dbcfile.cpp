@@ -10,10 +10,19 @@ DBCFile::DBCFile(const std::string &filename):
 void DBCFile::open()
 {
 	MPQFile f(filename.c_str());
-	char header[4];
+	//char header[4];
+    char header[4] = {0}; // Initialize all elements to zero
 	unsigned int na,nb,es,ss;
 
 	f.read(header,4); // Number of records
+
+    //std::cout << "file: " << filename << std::endl;
+    //std::cout << "Read header: ";
+    //for (int i = 0; i < 4; ++i) {
+    //    std::cout << header[i] << " (" << static_cast<int>(header[i]) << ") ";
+    //}
+    //std::cout << std::endl;
+
 	assert(header[0]=='W' && header[1]=='D' && header[2]=='B' && header[3] == 'C');
 	f.read(&na,4); // Number of records
 	f.read(&nb,4); // Number of fields

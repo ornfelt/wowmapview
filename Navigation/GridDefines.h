@@ -124,10 +124,13 @@ struct CoordPair
 
     CoordPair& normalize()
     {
-        //x_coord = std::min(x_coord, LIMIT - 1);
-        //y_coord = std::min(y_coord, LIMIT - 1);
+#ifdef _WIN32
         x_coord = min(x_coord, LIMIT - 1);
         y_coord = min(y_coord, LIMIT - 1);
+#else
+        x_coord = std::min(x_coord, LIMIT - 1);
+        y_coord = std::min(y_coord, LIMIT - 1);
+#endif
         return *this;
     }
 

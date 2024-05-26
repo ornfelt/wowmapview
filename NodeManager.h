@@ -7,6 +7,7 @@
 //#include <winsock.h>
 #include <mysql.h>
 #include <set>
+#include <cstdint>
 
 class Node {
 public:

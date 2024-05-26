@@ -32,8 +32,8 @@ endif()
 
 # configure uninstaller
 configure_file(
-  "${CMAKE_SOURCE_DIR}/src/cmake/platform/cmake_uninstall.in.cmake"
-  "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
+  "${CMAKE_SOURCE_DIR}/Navigation/src/cmake/platform/cmake_uninstall.in.cmake"
+  "${CMAKE_BINARY_DIR}/Navigation/cmake_uninstall.cmake"
   @ONLY
 )
 message(STATUS "UNIX: Configuring uninstall target")
@@ -46,11 +46,11 @@ message(STATUS "UNIX: Created uninstall target")
 
 message(STATUS "UNIX: Detected compiler: ${CMAKE_C_COMPILER}")
 if(CMAKE_C_COMPILER MATCHES "gcc" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  include(${CMAKE_SOURCE_DIR}/src/cmake/compiler/gcc/settings.cmake)
+    include(${CMAKE_SOURCE_DIR}/Navigation/src/cmake/compiler/gcc/settings.cmake)
 elseif(CMAKE_C_COMPILER MATCHES "icc")
-  include(${CMAKE_SOURCE_DIR}/src/cmake/compiler/icc/settings.cmake)
+  include(${CMAKE_SOURCE_DIR}/Navigation/src/cmake/compiler/icc/settings.cmake)
 elseif(CMAKE_C_COMPILER MATCHES "clang" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-  include(${CMAKE_SOURCE_DIR}/src/cmake/compiler/clang/settings.cmake)
+  include(${CMAKE_SOURCE_DIR}/Navigation/src/cmake/compiler/clang/settings.cmake)
 else()
   target_compile_definitions(acore-compile-option-interface
     INTERFACE

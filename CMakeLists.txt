@@ -9,10 +9,18 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 	message(STATUS "Using Linux port")
-	add_definitions(-D_LINUX)
-	add_definitions(-D_LINUX32)
+    #add_definitions(-D_LINUX)
+    #add_definitions(-D_LINUX32)
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
+    #add_definitions(-D_FILE_OFFSET_BITS=32)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+
+    #add_definitions(-D__SYS_ZLIB)
+	#add_definitions(-D_7ZIP_ST)
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64")
@@ -76,7 +84,7 @@ install(TARGETS zliblocal
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
 
 # For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
-#find_package(SDL REQUIRED)
+find_package(SDL REQUIRED)
 
 #[[add_library(sdl)
 set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
@@ -110,21 +118,29 @@ target_link_libraries(libmpq PRIVATE
 
 add_subdirectory(./Navigation ${CMAKE_BINARY_DIR}/Navigation)
 
+#include(${CMAKE_CURRENT_SOURCE_DIR}/Navigation/src/cmake/macros/FindMySQL.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Navigation/src/cmake/macros")
+
 #find_package(ZLIB REQUIRED)
 #include_directories(${SDL_INCLUDE_DIR})
 if (NOT MSVC)
 	find_package(OpenGL REQUIRED)
+    find_package(MySQL REQUIRED)
+
+    message(STATUS "Linking with MySQL libraries: ${MYSQL_LIBRARY}")
+    #set(MYSQL_LIBRARIES "/usr/lib/libmariadb.so")
 	
 	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
-        #SDL
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+        SDL
+        #${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
+        #${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
         zliblocal
         libmpq
 		Navigation
-		libmysql
+        ${MYSQL_LIBRARY}
 		)
+    include_directories(${MYSQL_INCLUDE_DIR})
 	
 else()
 	#target_link_options(wowmapview PRIVATE
@@ -171,7 +187,7 @@ if(LINUX)
         libmpq
         #mpq_shared
 		Navigation
-		libmysql
+        ${MYSQL_LIBRARIES}
     )
 endif()
 
