@@ -506,6 +506,15 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 				world->playermodelis[0].pos.z = newPosZ;
 				world->camera = world->playermodelis[0].pos;
 				//world->camera = world->playermodelis[0].pos - (world->lookat * 20.0f);
+
+                world->camera = world->playermodelis[0].pos;
+                float rotationAngle = -(world->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+                Vec3D newmovedir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+                newmovedir.y = 0.0f;
+                Vec3D newcampos = gWorld->camera - (newmovedir * distanceBehindCamera);
+                newcampos.y += distanceBehindCamera/2;
+                world->lookat = world->playermodelis[0].pos;
+                world->camera = newcampos;
 			}
 		}
 

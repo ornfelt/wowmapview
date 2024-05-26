@@ -191,18 +191,20 @@ if(LINUX)
     )
 endif()
 
-# Add conf file to dev folder
+add_custom_command(
+        TARGET ${PROJECT_NAME}  POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/fonts/arial.info
+        #${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.info)
+        ${CMAKE_BINARY_DIR}/arial.info)
+add_custom_command(
+        TARGET ${PROJECT_NAME}  POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/fonts/arial.tga
+        #${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.tga)
+        ${CMAKE_BINARY_DIR}/arial.tga)
+
 if(WIN32)
-    add_custom_command(
-            TARGET ${PROJECT_NAME}  POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_SOURCE_DIR}/fonts/arial.info
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.info)
-    add_custom_command(
-            TARGET ${PROJECT_NAME}  POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_SOURCE_DIR}/fonts/arial.tga
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/arial.tga)
     add_custom_command(
             TARGET ${PROJECT_NAME}  POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
