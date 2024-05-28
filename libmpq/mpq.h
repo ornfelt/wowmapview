@@ -51,6 +51,7 @@
 #include <cstdint>
 #define O_BINARY 0
 #endif
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
