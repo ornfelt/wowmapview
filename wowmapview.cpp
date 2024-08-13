@@ -86,14 +86,17 @@ int main(int argc, char *argv[])
 {
     srand((unsigned int)time(0));
 
-    int xres = 1024;
-    int yres = 768;
+    //int xres = 1024;
+    //int yres = 768;
+    int xres = 1280;
+    int yres = 720;
 
     //bool usePatch = true;
     bool usePatch = false;
 
     const char *override_game_path = NULL;
     int maxFps = 60;
+    //int maxFps = 120;
 
     for (int i=1; i<argc; i++) {
         if (!strcmp(argv[i],"-gamepath")) {

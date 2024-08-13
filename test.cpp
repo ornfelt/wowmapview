@@ -1,7 +1,7 @@
 #include "test.h"
 #include "wowmapview.h"
 #include "areadb.h"
-#include "shaders.h"
+//#include "shaders.h"
 
 #include <cmath>
 #include <string>
