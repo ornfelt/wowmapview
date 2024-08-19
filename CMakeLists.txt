@@ -30,9 +30,9 @@ add_executable(wowmapview wowmapview.cpp areadb.cpp dbcfile.cpp font.cpp frustum
 if(WIN32)
     #set(ZLIB_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/zlib/")
     #set(LIBMPQ_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libmpq")
-    set(SDL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/SDL/include")
+    #set(SDL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/SDL/include")
     #set(SDL_LIBRARY "${CMAKE_SOURCE_DIR}/SDL/lib/")
-    set(SDL_LIBRARY "SDL")
+    #set(SDL_LIBRARY "SDL")
     #set(SDL_MAIN_LIBRARY "${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib")
 	
 endif()
@@ -82,17 +82,20 @@ install(TARGETS zliblocal
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+		
+set(CMAKE_PREFIX_PATH "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
+set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6/cmake")
 
 # For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
-find_package(SDL REQUIRED)
+find_package(SDL2 REQUIRED)
 
 #[[add_library(sdl)
-set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
-set_target_properties(SDL::SDL PROPERTIES SOVERSION 1)
+#set_target_properties(SDL::SDL PROPERTIES DEFINE_SYMBOL SDL_DLL)
+#set_target_properties(SDL::SDL PROPERTIES SOVERSION 1)
 # Creates zlib1.dll when building shared library version
-set_target_properties(SDL::SDL PROPERTIES SUFFIX "1.dll")
+#set_target_properties(SDL::SDL PROPERTIES SUFFIX "1.dll")
 
-install(TARGETS sdl
+install(TARGETS sdl2
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )]]
@@ -152,13 +155,34 @@ else()
 	#	"C:/Program Files/MySQL/MySQL Server 8.0/lib"
 	#)
 	
+	
+	include_directories(${SDL2_INCLUDE_DIRS})
+
+	set(BASE_DIR ${CMAKE_SOURCE_DIR})
+	
+	if (NOT SDL2_DIR)
+        if (NOT DEFINED ENV{SDL2_DIR})
+            message(FATAL_ERROR "SDL2_DIR variable is not set")
+        endif()
+        set(SDL2_DIR $ENV{SDL2_DIR})
+    endif()
+	# Very ugly
+	if ("${SDL2_DIR}" MATCHES "/cmake$")
+        string(REGEX REPLACE "/cmake$" "" SDL2_DIR "${SDL2_DIR}")
+    endif()
+    
+    include_directories(${SDL2_DIR}/include ${GLEW_PATH}/include)
+    link_directories(${SDL2_DIR}/lib/x64 ${GLEW_PATH}/lib/Release/x64)
+    
+    set(SDL2_LIBRARIES SDL2 SDL2main)
+	
 	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
         #SDL
 		OpenGL32.lib
 		GLu32.lib
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
-        ${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+        #${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
+        #${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
         zliblocal
         libmpq
         Navigation
@@ -205,11 +229,11 @@ add_custom_command(
         ${CMAKE_BINARY_DIR}/arial.tga)
 
 if(WIN32)
-    add_custom_command(
-            TARGET ${PROJECT_NAME}  POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.dll
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
+    #add_custom_command(
+    #        TARGET ${PROJECT_NAME}  POST_BUILD
+    #        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    #        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.dll
+    #        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
 endif()

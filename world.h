@@ -74,6 +74,46 @@ const std::unordered_map<std::string, int> mapNameToId = {
     {"chamberofaspectsred", 724}
 };
 
+//#ifndef GLGENBUFFERS_DEFINED
+//#define GLGENBUFFERS_DEFINED
+//PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+//#endif
+//
+//#ifndef GLBINDBUFFER_DEFINED
+//#define GLBINDBUFFER_DEFINED
+//PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+//#endif
+//
+//#ifndef GLBUFFERDATA_DEFINED
+//#define GLBUFFERDATA_DEFINED
+//PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+//#endif
+//
+//#ifndef GLMAPBUFFER_DEFINED
+//#define GLMAPBUFFER_DEFINED
+//PFNGLMAPBUFFERPROC glMapBuffer = (PFNGLMAPBUFFERPROC)SDL_GL_GetProcAddress("glMapBuffer");
+//#endif
+//
+//#ifndef GLUNMAPBUFFER_DEFINED
+//#define GLUNMAPBUFFER_DEFINED
+//PFNGLUNMAPBUFFERPROC glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)SDL_GL_GetProcAddress("glUnmapBuffer");
+//#endif
+//
+//#ifndef GLACTIVETEXTURE_DEFINED
+//#define GLACTIVETEXTURE_DEFINED
+//PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+//#endif
+//
+//#ifndef GLDRAWRANGEELEMENTS_DEFINED
+//#define GLDRAWRANGEELEMENTS_DEFINED
+//PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
+//#endif
+//
+//#ifndef GLDELETEBUFFERS_DEFINED
+//#define GLDELETEBUFFERS_DEFINED
+//PFNGLDELETEBUFFERSPROC glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
+//#endif
+
 class World {
 
 	MapTile *maptilecache[MAPTILECACHESIZE];

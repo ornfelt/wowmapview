@@ -8,7 +8,8 @@
 using namespace std;
 
 Menu::Menu()
-{	DBCFile f("DBFilesClient\\Map.dbc");
+{	
+	DBCFile f("DBFilesClient\\Map.dbc");
 	f.open();
 	int y=0;
     int x=5;
@@ -72,8 +73,10 @@ Menu::~Menu()
 
 void Menu::randBackground()
 {
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
 	if (bg) delete bg;
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	char *ui[] = {"MainMenu", "NightElf", "Human", "Dwarf", "Orc", "Tauren", "Scourge"};
 	int dark[] = {0,0,1,1,0,0,0};
@@ -87,7 +90,10 @@ void Menu::randBackground()
     char path[256];
 	sprintf(path, "Interface\\Glues\\Models\\UI_%s\\UI_%s.mdx", randui, randui);
 
-    bg = new Model(path);
+    bg = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"));
+    //bg = new Model(std::string("creature\\dragon\\dragononyxia.mdx"));
+    //bg = new Model(path);
+
 	bg->ind = true;
 	lastbg = randnum;
 }
@@ -360,6 +366,18 @@ void Menu::mouseclick(SDL_MouseButtonEvent *e)
 	//int y = e->y;
 	//unsigned int s = y / 16;
 	//if (s < maps.size()) sel = s;
+
+	// For testing (if click, go to first bookmark)
+	//cmd = CMD_LOAD_WORLD;
+	//setpos = false;
+	//// setup camera, ah, av
+	//ah = bookmarks[0].ah;
+	//av = bookmarks[0].av;
+	//world = new World(bookmarks[0].basename.c_str());
+	//world->camera = bookmarks[0].pos;
+	//cx = (int) (bookmarks[0].pos.x / TILESIZE);
+	//cz = (int) (bookmarks[0].pos.z / TILESIZE);
+	//return;
 
 	if (cmd != 0) return;
 

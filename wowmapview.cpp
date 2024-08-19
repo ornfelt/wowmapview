@@ -1,8 +1,8 @@
 #ifdef _WIN32
 #pragma comment(lib,"OpenGL32.lib")
 #pragma comment(lib,"glu32.lib")
-#pragma comment(lib,"SDL.lib")
-#pragma comment(lib,"SDLmain.lib")
+#pragma comment(lib,"SDL2.lib")
+#pragma comment(lib,"SDL2main.lib")
 #pragma comment(lib, "legacy_stdio_definitions.lib")
 
 //#pragma comment(lib,"SFmpq.lib")
@@ -255,20 +255,20 @@ int main(int argc, char *argv[])
     gAreaDB.open();
 
     video.init(xres,yres,fullscreen!=0);
-    SDL_WM_SetCaption(APP_TITLE,NULL);
+    //SDL_WM_SetCaption(APP_TITLE,NULL);
 
-    if (!(supportVBO && supportMultiTex)) {
-        video.close();
-        const char *msg = "Error: Cannot initialize OpenGL extensions.";
-        gLog("%s\n",msg);
-        gLog("Missing required extensions:\n");
-        if (!supportVBO) gLog("GL_ARB_vertex_buffer_object\n");
-        if (!supportMultiTex) gLog("GL_ARB_multitexture\n");
-#ifdef _WIN32
-        MessageBox(0, msg, 0, MB_OK|MB_ICONEXCLAMATION);
-        exit(1);
-#endif
-    }
+//    if (!(supportVBO && supportMultiTex)) {
+//        video.close();
+//        const char *msg = "Error: Cannot initialize OpenGL extensions.";
+//        gLog("%s\n",msg);
+//        gLog("Missing required extensions:\n");
+//        if (!supportVBO) gLog("GL_ARB_vertex_buffer_object\n");
+//        if (!supportMultiTex) gLog("GL_ARB_multitexture\n");
+//#ifdef _WIN32
+//        MessageBox(0, msg, 0, MB_OK|MB_ICONEXCLAMATION);
+//        exit(1);
+//#endif
+//    }
 
     initFonts();
 
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
             gFPS = fps;
             char buf[32];
             sprintf(buf, APP_TITLE " - %.2f fps",fps);
-            SDL_WM_SetCaption(buf,NULL);
+            //SDL_WM_SetCaption(buf,NULL);
             ft = 0;
             fcount = 0;
         }

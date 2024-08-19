@@ -519,15 +519,28 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 		f.seek((int)nextpos);
 	}
 
+	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+
 	// create vertex buffers
-	glGenBuffersARB(1,&vertices);
-	glGenBuffersARB(1,&normals);
+	//glGenBuffersARB(1,&vertices);
+	//glGenBuffersARB(1,&normals);
 
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*3*sizeof(float), tv, GL_STATIC_DRAW_ARB);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
+	//glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*3*sizeof(float), tv, GL_STATIC_DRAW_ARB);
 
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, normals);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*3*sizeof(float), tn, GL_STATIC_DRAW_ARB);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, normals);
+	//glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*3*sizeof(float), tn, GL_STATIC_DRAW_ARB);
+
+	glGenBuffers(1,&vertices);
+	glGenBuffers(1,&normals);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertices);
+	glBufferData(GL_ARRAY_BUFFER, mapbufsize*3*sizeof(float), tv, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, normals);
+	glBufferData(GL_ARRAY_BUFFER, mapbufsize*3*sizeof(float), tn, GL_STATIC_DRAW);
 
 	if (hasholes) initStrip(holes);
 	/*
@@ -581,8 +594,11 @@ void MapChunk::destroy()
 	glDeleteTextures(1, &shadow);
 
 	// delete VBOs
-	glDeleteBuffersARB(1, &vertices);
-	glDeleteBuffersARB(1, &normals);
+	//glDeleteBuffersARB(1, &vertices);
+	//glDeleteBuffersARB(1, &normals);
+	PFNGLDELETEBUFFERSPROC glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
+	glDeleteBuffers(1, &vertices);
+	glDeleteBuffers(1, &normals);
 
 	if (hasholes) delete[] strip;
 
@@ -591,8 +607,10 @@ void MapChunk::destroy()
 
 void MapChunk::drawPass(int anim)
 {
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (anim) {
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+		//glActiveTextureARB(GL_TEXTURE0_ARB);
+		glActiveTexture(GL_TEXTURE0);
 		glMatrixMode(GL_TEXTURE);
 		glPushMatrix();
 
@@ -613,7 +631,8 @@ void MapChunk::drawPass(int anim)
 	if (anim) {
         glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
-		glActiveTextureARB(GL_TEXTURE1_ARB);
+		//glActiveTextureARB(GL_TEXTURE1_ARB);
+		glActiveTexture(GL_TEXTURE1);
 	}
 }
 
@@ -645,19 +664,26 @@ void MapChunk::draw()
 		}
 	}
 
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+
 	// setup vertex buffers
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vertices);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, normals);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, normals);
+	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glNormalPointer(GL_FLOAT, 0, 0);
 	// ASSUME: texture coordinates set up already
 
 	// first pass: base texture
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	//glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
 
 	drawPass(animated[0]);
@@ -669,11 +695,13 @@ void MapChunk::draw()
 
 	// additional passes: if required
 	for (int i=0; i<nTextures-1; i++) {
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+		//glActiveTextureARB(GL_TEXTURE0_ARB);
+		glActiveTexture(GL_TEXTURE0);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, textures[i+1]);
 		// this time, use blending:
-		glActiveTextureARB(GL_TEXTURE1_ARB);
+		//glActiveTextureARB(GL_TEXTURE1_ARB);
+		glActiveTexture(GL_TEXTURE1);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, alphamaps[i]);
 
@@ -687,7 +715,8 @@ void MapChunk::draw()
 	}
 	
 	// shadow map
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
@@ -695,7 +724,8 @@ void MapChunk::draw()
 	//glColor4f(0,0,0,1);
 	glColor4f(shc.x,shc.y,shc.z,1);
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	//glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, shadow);
 	glEnable(GL_TEXTURE_2D);
 
@@ -739,9 +769,14 @@ void MapChunk::draw()
 
 void MapChunk::drawNoDetail()
 {
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+
+	//glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 
@@ -750,7 +785,8 @@ void MapChunk::drawNoDetail()
 	//glDisable(GL_FOG);
 
 	// low detail version
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vertices);
 	glVertexPointer(3, GL_FLOAT, 0, 0);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDrawElements(GL_TRIANGLE_STRIP, stripsize, GL_UNSIGNED_SHORT, gWorld->mapstrip);
@@ -760,9 +796,11 @@ void MapChunk::drawNoDetail()
 	//glEnable(GL_FOG);
 
 	glEnable(GL_LIGHTING);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	//glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glEnable(GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 }
 

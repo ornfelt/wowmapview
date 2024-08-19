@@ -30,23 +30,31 @@ typedef GLuint TextureID;
 ////////// OPENGL EXTENSIONS
 #if defined(_WIN32) || defined(DEFINE_ARB_MULTITEX)
 // multitexture
-extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
-extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC		glClientActiveTextureARB;
+//extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
+//extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+//extern PFNGLCLIENTACTIVETEXTUREARBPROC		glClientActiveTextureARB;
 #endif
 // compressed textures
-extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
+//extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
 // VBO
-extern PFNGLGENBUFFERSARBPROC glGenBuffersARB;
-extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
-extern PFNGLBUFFERDATAARBPROC glBufferDataARB;
-extern PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB;
-
-extern PFNGLMAPBUFFERARBPROC glMapBufferARB;
-extern PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB;
+//extern PFNGLGENBUFFERSARBPROC glGenBuffersARB;
+//extern PFNGLBINDBUFFERARBPROC glBindBufferARB;
+//extern PFNGLBUFFERDATAARBPROC glBufferDataARB;
+//extern PFNGLDELETEBUFFERSARBPROC glDeleteBuffersARB;
+//
+//extern PFNGLMAPBUFFERARBPROC glMapBufferARB;
+//extern PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB;
 
 #ifdef _WIN32
-extern PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements;
+//extern PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements;
+
+//PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+//PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+//PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+//PFNGLMAPBUFFERPROC glMapBuffer = (PFNGLMAPBUFFERPROC)SDL_GL_GetProcAddress("glMapBuffer");
+//PFNGLUNMAPBUFFERPROC glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)SDL_GL_GetProcAddress("glUnmapBuffer");
+//PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+//PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
 #endif
 
 #define GL_BUFFER_OFFSET(i) ((char *)(0) + (i))
@@ -103,6 +111,7 @@ public:
 	TextureManager textures;
     
 	int xres, yres;
+	SDL_Window* window;
 
 };
 

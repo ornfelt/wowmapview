@@ -2,14 +2,15 @@
 #include "shaders.h"
 #include "mpq.h"
 #include "wowmapview.h"
+#include <GL/glu.h>
 
 /////// EXTENSIONS
 
 #if defined(_WIN32) || defined(DEFINE_ARB_MULTITEX)
 // multitex
-PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
-PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
-PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
+//PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB	= NULL;
+//PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB		= NULL;
+//PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB= NULL;
 #endif
 // compression
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB	= NULL;
@@ -23,7 +24,7 @@ PFNGLMAPBUFFERARBPROC glMapBufferARB = NULL;
 PFNGLUNMAPBUFFERARBPROC glUnmapBufferARB = NULL;
 
 #ifdef _WIN32
-PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
+//PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = NULL;
 #endif
 
 bool supportCompression = false;
@@ -44,27 +45,82 @@ Video::~Video()
 {
 }
 
+//void Video::init(int xres, int yres, bool fullscreen)
+//{
+//	SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
+//	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
+//	if (fullscreen) flags |= SDL_FULLSCREEN;
+//	// 32 bits ffs
+//	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+//	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+//	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+//#ifdef _WIN32
+//	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+//	primary = SDL_SetVideoMode(xres, yres, 32, flags);
+//#else
+//	//nvidia dont support 32bpp on my linux :(
+//	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+//	primary = SDL_SetVideoMode(xres, yres, 24, flags);
+//#endif
+//	if (!primary) {
+//		printf("SDL Error: %s\n",SDL_GetError());
+//		exit(1);
+//	}
+//
+//	initExtensions();
+//    //initShaders();
+//
+//	this->xres = xres;
+//	this->yres = yres;
+//
+//	glViewport(0,0,xres,yres);
+//	glMatrixMode(GL_PROJECTION);
+//	glLoadIdentity();
+//	//gluPerspective(45.0f, (GLfloat)xres/(GLfloat)yres, 0.01f, 1024.0f);
+//	gluPerspective(45.0f, (GLfloat)xres/(GLfloat)yres, 1.0f, 1024.0f);
+//
+//
+//	// hmmm...
+//	glEnableClientState(GL_VERTEX_ARRAY);
+//	glEnableClientState(GL_NORMAL_ARRAY);
+//	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//}
+
 void Video::init(int xres, int yres, bool fullscreen)
 {
-	SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
-	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_ANYFORMAT | SDL_DOUBLEBUF;
-	if (fullscreen) flags |= SDL_FULLSCREEN;
-	// 32 bits ffs
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-#ifdef _WIN32
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-	primary = SDL_SetVideoMode(xres, yres, 32, flags);
-#else
-	//nvidia dont support 32bpp on my linux :(
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	primary = SDL_SetVideoMode(xres, yres, 24, flags);
-#endif
-	if (!primary) {
-		printf("SDL Error: %s\n",SDL_GetError());
-		exit(1);
-	}
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0)
+    {
+        SDL_Log("SDL could not initialize! SDL_Error: %s", SDL_GetError());
+        return;
+    }
+
+    // SDL 2 uses a different approach for creating the window and OpenGL context
+    Uint32 flags = SDL_WINDOW_OPENGL;
+    if (fullscreen) {
+        flags |= SDL_WINDOW_FULLSCREEN;
+    }
+
+    // Create the SDL window
+    window = SDL_CreateWindow("My SDL2 Window",
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          xres, yres, 
+                                          flags);
+
+    if (window == nullptr)
+    {
+        SDL_Log("Window could not be created! SDL_Error: %s", SDL_GetError());
+        return;
+    }
+
+    // Create OpenGL context
+    SDL_GLContext glContext = SDL_GL_CreateContext(window);
+    if (glContext == nullptr)
+    {
+        // Handle error
+        SDL_Log("OpenGL context could not be created! SDL_Error: %s", SDL_GetError());
+        return;
+    }
 
 	initExtensions();
     //initShaders();
@@ -78,12 +134,14 @@ void Video::init(int xres, int yres, bool fullscreen)
 	//gluPerspective(45.0f, (GLfloat)xres/(GLfloat)yres, 0.01f, 1024.0f);
 	gluPerspective(45.0f, (GLfloat)xres/(GLfloat)yres, 1.0f, 1024.0f);
 
-
-	// hmmm...
+    // Additional SDL_GL settings, if needed
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
+
 
 void Video::close()
 {
@@ -103,16 +161,17 @@ bool isExtensionSupported(const char *search)
 void Video::initExtensions()
 {
 #ifdef _WIN32
-    if (isExtensionSupported("GL_ARB_multitexture"))
-    {
-        supportMultiTex = true;
-        glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
-        glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glClientActiveTextureARB");
-        glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
-    } else supportMultiTex = false;
+    //if (isExtensionSupported("GL_ARB_multitexture"))
+    //{
+    //    supportMultiTex = true;
+    //    glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
+    //    glClientActiveTextureARB= (PFNGLCLIENTACTIVETEXTUREARBPROC) SDL_GL_GetProcAddress("glClientActiveTextureARB");
+    //    glMultiTexCoord2fARB	= (PFNGLMULTITEXCOORD2FARBPROC)		SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+    //} else supportMultiTex = false;
 
-    glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC) SDL_GL_GetProcAddress("glDrawRangeElements");
-    supportDrawRangeElements = (glDrawRangeElements != 0);
+    //glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC) SDL_GL_GetProcAddress("glDrawRangeElements");
+    //supportDrawRangeElements = (glDrawRangeElements != 0);
+
 #else
     supportMultiTex = true;
 	supportDrawRangeElements = true;
@@ -157,7 +216,8 @@ void Video::initExtensions()
 
 void Video::flip()
 {
-	SDL_GL_SwapBuffers();
+	//SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window);
 }
 
 void Video::clearScreen()
@@ -171,7 +231,16 @@ void Video::set3D()
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	gluPerspective(45.0f, (GLfloat)xres/(GLfloat)yres, 1.0f, 1024.0f);
+	//GLfloat fovY = 45.0f;
+    //GLfloat aspect = (GLfloat)xres / (GLfloat)yres;
+    //GLfloat nearZ = 1.0f;
+    //GLfloat farZ = 1024.0f;
+    //GLfloat fH = tan(fovY / 360.0f * PI) * nearZ;
+    //GLfloat fW = fH * aspect;
+    //glFrustum(-fW, fW, -fH, fH, nearZ, farZ);
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -412,6 +481,7 @@ GLuint loadTGA(const char *filename, bool mipmaps)
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 		gluBuild2DMipmaps (GL_TEXTURE_2D, bppformat, h.width, h.height, format, GL_UNSIGNED_BYTE, buf2);
+		//glTexImage2D(GL_TEXTURE_2D, 0, bppformat, h.width, h.height, 0, format, GL_UNSIGNED_BYTE, buf2);
 	} else {
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);

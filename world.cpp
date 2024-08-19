@@ -8,6 +8,9 @@
 
 #include <cassert>
 
+#include <GL/glu.h>
+//#include <GL/glew.h>
+
 using namespace std;
 
 World *gWorld=0;
@@ -494,9 +497,16 @@ void initGlobalVBOs()
 			}
 		}
 
-		glGenBuffersARB(1, &detailtexcoords);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, detailtexcoords);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW_ARB);
+		//glGenBuffersARB(1, &detailtexcoords);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, detailtexcoords);
+		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW_ARB);
+
+		PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+		PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+		PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+		glGenBuffers(1, &detailtexcoords);
+		glBindBuffer(GL_ARRAY_BUFFER, detailtexcoords);
+		glBufferData(GL_ARRAY_BUFFER, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW);
 
 		// init texture coordinates for alpha map:
 		vt = temp;
@@ -513,11 +523,16 @@ void initGlobalVBOs()
 			}
 		}
 
-		glGenBuffersARB(1, &alphatexcoords);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, alphatexcoords);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW_ARB);
+		//glGenBuffersARB(1, &alphatexcoords);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, alphatexcoords);
+		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW_ARB);
 
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+		glGenBuffers(1, &alphatexcoords);
+		glBindBuffer(GL_ARRAY_BUFFER, alphatexcoords);
+		glBufferData(GL_ARRAY_BUFFER, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
 		gdetailtexcoords=detailtexcoords;
@@ -832,13 +847,71 @@ void World::setupFog()
 	culldistance2 = culldistance * culldistance;
 }
 
+void lookAt(float eyeX, float eyeY, float eyeZ,
+            float centerX, float centerY, float centerZ,
+            float upX, float upY, float upZ)
+{
+    float forward[3], up[3], side[3];
+    float matrix[16];
+    float length;
+
+    forward[0] = centerX - eyeX;
+    forward[1] = centerY - eyeY;
+    forward[2] = centerZ - eyeZ;
+
+    length = sqrt(forward[0] * forward[0] + forward[1] * forward[1] + forward[2] * forward[2]);
+    forward[0] /= length;
+    forward[1] /= length;
+    forward[2] /= length;
+
+    up[0] = upX;
+    up[1] = upY;
+    up[2] = upZ;
+
+    side[0] = forward[1] * up[2] - forward[2] * up[1];
+    side[1] = forward[2] * up[0] - forward[0] * up[2];
+    side[2] = forward[0] * up[1] - forward[1] * up[0];
+
+    length = sqrt(side[0] * side[0] + side[1] * side[1] + side[2] * side[2]);
+    side[0] /= length;
+    side[1] /= length;
+    side[2] /= length;
+
+    up[0] = side[1] * forward[2] - side[2] * forward[1];
+    up[1] = side[2] * forward[0] - side[0] * forward[2];
+    up[2] = side[0] * forward[1] - side[1] * forward[0];
+
+    matrix[0] = side[0];
+    matrix[4] = side[1];
+    matrix[8] = side[2];
+    matrix[12] = 0.0;
+
+    matrix[1] = up[0];
+    matrix[5] = up[1];
+    matrix[9] = up[2];
+    matrix[13] = 0.0;
+
+    matrix[2] = -forward[0];
+    matrix[6] = -forward[1];
+    matrix[10] = -forward[2];
+    matrix[14] = 0.0;
+
+    matrix[3] = matrix[7] = matrix[11] = 0.0;
+    matrix[15] = 1.0;
+
+    glMultMatrixf(matrix);
+    glTranslatef(-eyeX, -eyeY, -eyeZ);
+}
+
 
 void World::draw()
 {
 	WMOInstance::reset();
 	modelmanager.resetAnim();
 
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	highresdistance2 = highresdistance * highresdistance;
 	mapdrawdistance2 = mapdrawdistance * mapdrawdistance;
@@ -850,6 +923,7 @@ void World::draw()
 	//glMatrixMode(GL_MODELVIEW);
 	//glLoadIdentity();
 	gluLookAt(camera.x,camera.y,camera.z, lookat.x,lookat.y,lookat.z, 0, 1, 0);
+	//lookAt(camera.x,camera.y,camera.z, lookat.x,lookat.y,lookat.z, 0, 1, 0);
 
 	// camera is set up
 	frustum.retrieve();
@@ -864,6 +938,7 @@ void World::draw()
 		Vec3D fp = camera + l * fl;
 		glLoadIdentity();
 		gluLookAt(nc.x,nc.y,nc.z, camera.x,camera.y,camera.z, 1, 0, 0);
+		//lookAt(nc.x,nc.y,nc.z, camera.x,camera.y,camera.z, 1, 0, 0);
 	}
 
 	glDisable(GL_LIGHTING);
@@ -954,17 +1029,24 @@ void World::draw()
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	//PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glClientActiveTexture");
+
+	//glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, detailtexcoords);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, detailtexcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, detailtexcoords);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
+	//glClientActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, alphatexcoords);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, alphatexcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, alphatexcoords);
 	glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	//glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
 	// height map w/ a zillion texture passes
 	if (drawterrain) {
@@ -976,9 +1058,11 @@ void World::draw()
 		}
 	}
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	//glActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_2D);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	//glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTexture(GL_TEXTURE0);
 	glEnable(GL_TEXTURE_2D);
 
 	glDisable(GL_CULL_FACE);
@@ -997,7 +1081,8 @@ void World::draw()
 
 
 	// unbind hardware buffers
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
 
 
 	glEnable(GL_CULL_FACE);

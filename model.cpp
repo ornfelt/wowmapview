@@ -2,6 +2,7 @@
 #include "world.h"
 #include <cassert>
 #include <algorithm>
+#include <GL/glu.h>
 
 int globalTime = 0;
 
@@ -166,11 +167,11 @@ Model::~Model()
 			delete[] anims;
 			delete[] origVertices;
 			if (animBones) delete[] bones;
-			if (!animGeometry) {
-				glDeleteBuffersARB(1, &nbuf);
-			}
-			glDeleteBuffersARB(1, &vbuf);
-			glDeleteBuffersARB(1, &tbuf);
+			//if (!animGeometry) {
+			//	glDeleteBuffersARB(1, &nbuf);
+			//}
+			//glDeleteBuffersARB(1, &vbuf);
+			//glDeleteBuffersARB(1, &tbuf);
 
 			if (animTextures) delete[] texanims;
 			if (colors) delete[] colors;
@@ -624,8 +625,11 @@ void Model::initAnimated(MPQFile &f)
 	origVertices = new ModelVertex[header.nVertices];
 	memcpy(origVertices, f.getBuffer() + header.ofsVertices, header.nVertices * sizeof(ModelVertex));
 
-	glGenBuffersARB(1,&vbuf);
-	glGenBuffersARB(1,&tbuf);
+	//glGenBuffersARB(1,&vbuf);
+	//glGenBuffersARB(1,&tbuf);
+	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	glGenBuffers(1,&vbuf);
+	glGenBuffers(1,&tbuf);
 	const size_t size = header.nVertices * sizeof(float);
 	vbufsize = 3 * size;
 
@@ -652,19 +656,29 @@ void Model::initAnimated(MPQFile &f)
 
 	}
 
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
 	if (!animGeometry) {
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, vbufsize, vertices, GL_STATIC_DRAW_ARB);
-		glGenBuffersARB(1,&nbuf);
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, nbuf);
-		glBufferDataARB(GL_ARRAY_BUFFER_ARB, vbufsize, normals, GL_STATIC_DRAW_ARB);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, vbufsize, vertices, GL_STATIC_DRAW_ARB);
+		//glGenBuffersARB(1,&nbuf);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, nbuf);
+		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, vbufsize, normals, GL_STATIC_DRAW_ARB);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
+		glBufferData(GL_ARRAY_BUFFER, vbufsize, vertices, GL_STATIC_DRAW);
+		glGenBuffers(1,&nbuf);
+		glBindBuffer(GL_ARRAY_BUFFER, nbuf);
+		glBufferData(GL_ARRAY_BUFFER, vbufsize, normals, GL_STATIC_DRAW);
 		delete[] vertices;
 		delete[] normals;
 	}
 	Vec2D *texcoords = new Vec2D[header.nVertices];
 	for (size_t i=0; i<header.nVertices; i++) texcoords[i] = origVertices[i].texcoords;
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, tbuf);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, 2*size, texcoords, GL_STATIC_DRAW_ARB);
+	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, tbuf);
+	//glBufferDataARB(GL_ARRAY_BUFFER_ARB, 2*size, texcoords, GL_STATIC_DRAW_ARB);
+	glBindBuffer(GL_ARRAY_BUFFER, tbuf);
+	glBufferData(GL_ARRAY_BUFFER, 2*size, texcoords, GL_STATIC_DRAW);
 	delete[] texcoords;
 
 	if (animTextures) {
@@ -758,11 +772,18 @@ void Model::animate(int anim)
 		calcBones(anim, t);
 	}
 
-	if (animGeometry) {
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	PFNGLMAPBUFFERPROC glMapBuffer = (PFNGLMAPBUFFERPROC)SDL_GL_GetProcAddress("glMapBuffer");
+	PFNGLUNMAPBUFFERPROC glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)SDL_GL_GetProcAddress("glUnmapBuffer");
 
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
-        glBufferDataARB(GL_ARRAY_BUFFER_ARB, 2*vbufsize, NULL, GL_STREAM_DRAW_ARB);
-		vertices = (Vec3D*)glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY);
+	if (animGeometry) {
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+        //glBufferDataARB(GL_ARRAY_BUFFER_ARB, 2*vbufsize, NULL, GL_STREAM_DRAW_ARB);
+		//vertices = (Vec3D*)glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY);
+		glBindBuffer(GL_ARRAY_BUFFER, vbuf);
+        glBufferData(GL_ARRAY_BUFFER, 2*vbufsize, NULL, GL_STREAM_DRAW);
+		vertices = (Vec3D*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 
 		// transform vertices
 		ModelVertex *ov = origVertices;
@@ -786,7 +807,8 @@ void Model::animate(int anim)
 			vertices[header.nVertices + i] = n.normalize(); // shouldn't these be normal by default?
 		}
 
-        glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+        //glUnmapBufferARB(GL_ARRAY_BUFFER_ARB);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
 
 	}
 
@@ -861,8 +883,10 @@ bool ModelRenderPass::init(Model *m)
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (usetex2) {
-		glActiveTextureARB(GL_TEXTURE1);
+		//glActiveTextureARB(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE1);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 	}
@@ -949,34 +973,43 @@ void ModelRenderPass::deinit()
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 	}
+	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (usetex2) {
 		glDisable(GL_TEXTURE_2D);
-		glActiveTextureARB(GL_TEXTURE0);
+		//glActiveTextureARB(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);
 	}
 	//glColor4f(1,1,1,1); //???
 }
 
 void Model::drawModel()
 {
-	// assume these client states are enabled: GL_VERTEX_ARRAY, GL_NORMAL_ARRAY, GL_TEXTURE_COORD_ARRAY
+	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
 
+	// assume these client states are enabled: GL_VERTEX_ARRAY, GL_NORMAL_ARRAY, GL_TEXTURE_COORD_ARRAY
 	if (animated) {
 
 		if (animGeometry) {
-
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+			//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+			//glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 
 			glVertexPointer(3, GL_FLOAT, 0, 0);
 			glNormalPointer(GL_FLOAT, 0, GL_BUFFER_OFFSET(vbufsize));
 
 		} else {
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+			//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
+			glBindBuffer(GL_ARRAY_BUFFER, vbuf);
 			glVertexPointer(3, GL_FLOAT, 0, 0);
-			glBindBufferARB(GL_ARRAY_BUFFER_ARB, nbuf);
+			//glBindBufferARB(GL_ARRAY_BUFFER_ARB, nbuf);
+			glBindBuffer(GL_ARRAY_BUFFER, nbuf);
 			glNormalPointer(GL_FLOAT, 0, 0);
 		}
 
-		glBindBufferARB(GL_ARRAY_BUFFER_ARB, tbuf);
+		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, tbuf);
+		glBindBuffer(GL_ARRAY_BUFFER_ARB, tbuf);
 		glTexCoordPointer(2, GL_FLOAT, 0, 0);
 		
 		//glTexCoordPointer(2, GL_FLOAT, sizeof(ModelVertex), &origVertices[0].texcoords);
@@ -1065,13 +1098,90 @@ void ModelCamera::init(MPQFile &f, ModelCameraDef &mcd, int *global)
 	tTarget.fix(fixCoordSystem);
 }
 
+void perspectiveGL(float fovY, float aspect, float zNear, float zFar)
+{
+    float fH = tan(fovY / 360.0f * PI) * zNear * 2.0f;
+    float fW = fH * aspect;
+
+    glFrustum(-fW / 2.0f, fW / 2.0f, -fH / 2.0f, fH / 2.0f, zNear, zFar);
+}
+
+void lookAtGL(float eyeX, float eyeY, float eyeZ,
+              float centerX, float centerY, float centerZ,
+              float upX, float upY, float upZ)
+{
+    float forward[3], up[3], side[3];
+    float matrix[16];
+
+    // Calculate forward vector
+    forward[0] = centerX - eyeX;
+    forward[1] = centerY - eyeY;
+    forward[2] = centerZ - eyeZ;
+
+    // Normalize forward vector
+    float fMag = sqrt(forward[0] * forward[0] + forward[1] * forward[1] + forward[2] * forward[2]);
+    forward[0] /= fMag;
+    forward[1] /= fMag;
+    forward[2] /= fMag;
+
+    // Normalize up vector
+    up[0] = upX;
+    up[1] = upY;
+    up[2] = upZ;
+
+    // Calculate side vector (cross product of forward and up)
+    side[0] = forward[1] * up[2] - forward[2] * up[1];
+    side[1] = forward[2] * up[0] - forward[0] * up[2];
+    side[2] = forward[0] * up[1] - forward[1] * up[0];
+
+    // Normalize side vector
+    float sMag = sqrt(side[0] * side[0] + side[1] * side[1] + side[2] * side[2]);
+    side[0] /= sMag;
+    side[1] /= sMag;
+    side[2] /= sMag;
+
+    // Recompute up vector as cross product of side and forward
+    up[0] = side[1] * forward[2] - side[2] * forward[1];
+    up[1] = side[2] * forward[0] - side[0] * forward[2];
+    up[2] = side[0] * forward[1] - side[1] * forward[0];
+
+    // Set up the rotation part of the matrix
+    matrix[0] = side[0];
+    matrix[4] = side[1];
+    matrix[8] = side[2];
+    matrix[12] = 0.0;
+
+    matrix[1] = up[0];
+    matrix[5] = up[1];
+    matrix[9] = up[2];
+    matrix[13] = 0.0;
+
+    matrix[2] = -forward[0];
+    matrix[6] = -forward[1];
+    matrix[10] = -forward[2];
+    matrix[14] = 0.0;
+
+    matrix[3] = matrix[7] = matrix[11] = 0.0;
+    matrix[15] = 1.0;
+
+    // Load the matrix
+    glMultMatrixf(matrix);
+
+    // Apply translation
+    glTranslatef(-eyeX, -eyeY, -eyeZ);
+}
+
 void ModelCamera::setup(int time)
 {
 	if (!ok) return;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	gluPerspective(fov * 34.5f, (GLfloat)video.xres/(GLfloat)video.yres, nearclip, farclip);
+	//perspectiveGL(fov * 34.5f, (GLfloat)video.xres / (GLfloat)video.yres, nearclip, farclip);
+	//gluPerspective(45.0f, (GLfloat)video.xres / (GLfloat)video.yres, 0.1f, 1000.0f);
+	//perspectiveGL(45.0f, (GLfloat)video.xres / (GLfloat)video.yres, 0.1f, 1000.0f);
 
 	Vec3D p = pos + tPos.getValue(0, time);
 	Vec3D t = target + tTarget.getValue(0, time);
@@ -1081,7 +1191,12 @@ void ModelCamera::setup(int time)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
 	gluLookAt(p.x, p.y, p.z, t.x, t.y, t.z, u.x, u.y, u.z);
+	//lookAtGL(p.x, p.y, p.z, t.x, t.y, t.z, u.x, u.y, u.z);
+	//lookAtGL(p.x, p.y, p.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	//gluLookAt(p.x, p.y, p.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
 	//glRotatef(roll, 0, 0, 1);
 }
 
