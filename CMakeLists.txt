@@ -83,10 +83,12 @@ install(TARGETS zliblocal
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
 		
-set(CMAKE_PREFIX_PATH "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
-set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6/cmake")
+if (NOT MSVC)
+    set(CMAKE_PREFIX_PATH "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
+    #set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6/cmake")
+    set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
+endif()
 
-# For SDL2, use find_package(SDL2 REQUIRED) and ${SDL2_INCLUDE_DIRS}
 find_package(SDL2 REQUIRED)
 
 #[[add_library(sdl)
@@ -129,15 +131,17 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Navigation/src/cmake/
 if (NOT MSVC)
 	find_package(OpenGL REQUIRED)
     find_package(MySQL REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIRS})
 
     message(STATUS "Linking with MySQL libraries: ${MYSQL_LIBRARY}")
     #set(MYSQL_LIBRARIES "/usr/lib/libmariadb.so")
 	
 	target_link_libraries(wowmapview PRIVATE
         #ZLIB::ZLIB
-        SDL
+        #SDL
         #${CMAKE_SOURCE_DIR}/SDL/lib/SDL.lib
         #${CMAKE_SOURCE_DIR}/SDL/lib/SDLmain.lib
+        ${SDL2_LIBRARIES}
         zliblocal
         libmpq
 		Navigation
@@ -203,9 +207,9 @@ target_include_directories(wowmapview PRIVATE
 if(LINUX)
     # Link libraries
     target_link_libraries(wowmapview PRIVATE
-        ${SDL_LIBRARY}
+        ${SDL2_LIBRARY}
         ${OPENGL_LIBRARIES}
-        SDL
+        SDL2
         GL
         zliblocal
         libmpq
@@ -234,6 +238,14 @@ if(WIN32)
     #        COMMAND ${CMAKE_COMMAND} -E copy_if_different
     #        ${CMAKE_SOURCE_DIR}/SDL/lib/SDL.dll
     #        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL.dll)
+
+    set(SDL2_DLL "${SDL2_DIR}/lib/x64/SDL2.dll")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${SDL2_DLL}"
+        $<TARGET_FILE_DIR:my_wow>)
+        #${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL2.dll)
+
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
 endif()
