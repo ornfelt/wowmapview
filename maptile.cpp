@@ -24,7 +24,8 @@ MapTile::MapTile(int x0, int z0, char* filename): x(x0), z(z0), topnode(0,0,16)
 	//size_t size;
 	uint32_t size; // Use uint32_t if size is expected to be 32-bit
 
-	size_t mcnk_offsets[256], mcnk_sizes[256];
+	//size_t mcnk_offsets[256], mcnk_sizes[256];
+	int mcnk_offsets[256], mcnk_sizes[256];
 
 	while (!f.isEof()) {
 		f.read(fourcc,4);
@@ -45,7 +46,7 @@ MapTile::MapTile(int x0, int z0, char* filename): x(x0), z(z0), topnode(0,0,16)
 		}
 		else if (!strcmp(fourcc,"MTEX")) {
 			// texture lists
-			//char *buf = new char[size];
+			//char *buf = new car[size];
 			char* buf = new (std::nothrow) char[size];
 			if (!buf) {
 				std::cerr << "Failed to allocate memory." << std::endl;

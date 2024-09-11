@@ -202,14 +202,20 @@ void World::init()
 	MPQFile f(fn);
 
 	char fourcc[5];
-	size_t size;
+	//size_t size;
+	int size;
 
 	while (!f.isEof()) {
 		f.read(fourcc,4);
 		f.read(&size, 4);
 
+		//std::cout << "size: " << size << std::endl;
+
 		flipcc(fourcc);
 		fourcc[4] = 0;
+		//std::cout << "size: " << size << std::endl;
+		//std::cout << "size: " << (int)size << std::endl;
+		//size = (int)size;
 
 		size_t nextpos = f.getPos() + size;
 
@@ -293,6 +299,7 @@ void World::initMinimap()
 	for (int j=0; j<64; j++) {
 		for (int i=0; i<64; i++) {
 			if (ofsbuf[j][i]) {
+				int testVal = ofsbuf[j][i];
 				f.seek(ofsbuf[j][i]+8);
 				// read height values ^_^
 

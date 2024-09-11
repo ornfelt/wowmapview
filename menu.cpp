@@ -81,7 +81,7 @@ void Menu::randBackground()
 	do {
 		randnum = randint(0,6);
 	} while (randnum == lastbg);
-	// randnum = 0
+	//randnum = 1;
 	char *randui = ui[randnum];
 	darken = dark[randnum]!=0;
     char path[256];
@@ -117,6 +117,9 @@ void Menu::tick(float t, float dt)
 
 				float fx = (x/12.0f);
 				float fz = (y/12.0f);
+				// Hard-coded for alterac // TODO: change...
+				fx = 32.0f;
+				fz = 33.0f;
 
 				cx = (int)fx;
 				cz = (int)fz;
