@@ -126,6 +126,8 @@ public:
 
 	GLuint minimap;
 
+	bool drawPolygons, drawPlayerModels;
+
 	World(const char* name);
 	~World();
 	void init();

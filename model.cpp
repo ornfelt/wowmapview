@@ -419,6 +419,7 @@ void Model::initCommon(MPQFile &f)
 						textures[i] = video.textures.add("creature\\ragnaros\\ragnarosskin.blp");
 					else if (i == 1)
 						textures[i] = video.textures.add("creature\\ragnaros\\ragnaroshammer.blp");
+						//textures[i] = video.textures.add("Tileset\\IronForge\\IronForgeSnow05ScrapeBrown.blp");
 				}
 
 				else if (this->modelPath == "creature\\SkeletonNaked\\SkeletonNaked.mdx") {
@@ -1264,7 +1265,11 @@ void Model::draw()
 			}
 		}
 		lightsOn(GL_LIGHT4);
+		if (gWorld && gWorld->drawPolygons)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawModel();
+		if (gWorld && gWorld->drawPolygons)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		lightsOff(GL_LIGHT4);
 
 		// effects are unfogged..?

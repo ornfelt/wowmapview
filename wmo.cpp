@@ -27,6 +27,7 @@ WMO::WMO(std::string name): ManagedItem(name)
 	skybox = 0;
 
 	char *texbuf=0;
+	//int loopCounter = 0;
 
 	while (!f.isEof()) {
 		f.read(fourcc,4);
@@ -195,6 +196,7 @@ WMO::WMO(std::string name): ManagedItem(name)
 		}
 
 		f.seek((int)nextpos);
+		//loopCounter++;
 	}
 
 	f.close();
@@ -519,6 +521,7 @@ void WMOGroup::initDisplayList()
     gf.seek(0x14);
 
 	// read header
+	//int wmoGroupHeaderSize = sizeof(WMOGroupHeader);
 	gf.read(&gh, sizeof(WMOGroupHeader));
 	WMOFog &wf = wmo->fogs[gh.fogs[0]];
 	if (wf.r2 <= 0) fog = -1; // default outdoor fog..?
@@ -535,6 +538,8 @@ void WMOGroup::initDisplayList()
 	unsigned int *cv;
 	hascv = false;
 
+	//int loopCounter = 0;
+
 	while (!gf.isEof()) {
 		gf.read(fourcc,4);
 		gf.read(&size, 4);
@@ -550,10 +555,16 @@ void WMOGroup::initDisplayList()
 			// materials per triangle
 			nTriangles = (int)size / 2;
 			materials = (unsigned short*)gf.getPointer();
+			//for (int i = 0; i < nTriangles; i++) {
+			//	std::cout << "Counter: " << i << ", Value: " << materials[i] << std::endl;
+			//}
 		}
 		else if (!strcmp(fourcc,"MOVI")) {
 			// indices
 			indices =  (unsigned short*)gf.getPointer();
+			//for (int i = 0; i < (int)size/2; i++) {
+			//	std::cout << "Counter: " << i << ", Value: " << indices[i] << std::endl;
+			//}
 		}
 		else if (!strcmp(fourcc,"MOVT")) {
 			nVertices = (int)size / 12;
@@ -634,6 +645,7 @@ void WMOGroup::initDisplayList()
 		// TODO: figure out/use MFOG ?
 
  		gf.seek((int)nextpos);
+		//loopCounter++;
 	}
 
 	// ok, make a display list

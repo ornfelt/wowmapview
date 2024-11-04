@@ -202,6 +202,7 @@ GLuint TextureManager::add(std::string name)
 
 	Texture *tex = new Texture(name);
 	tex->id = id;
+	//std::cout << "Loading texture: " << name << std::endl;
 	LoadBLP(id, tex);
 
 	do_add(name, id, tex);

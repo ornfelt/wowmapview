@@ -40,6 +40,9 @@ Test::Test(World *w, float ah0, float av0): world(w), ah(ah0), av(av0)
 	world->drawhighres = true;
 	world->drawfog = true; // should this be on or off by default..? :(
 
+	world->drawPolygons = false;
+	world->drawPlayerModels = true;
+
 	// in the wow client, fog distance is stored in wtf\config.wtf as "farclip"
 	// minimum is 357, maximum is 777
 	world->fogdistance = 512.0f;
@@ -359,9 +362,14 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_F4) {
 			hud = !hud;
 		}
-		hud = true;
 		if (e->keysym.sym == SDLK_F6) {
 			world->drawwmo = !world->drawwmo;
+		}
+		if (e->keysym.sym == SDLK_F7) {
+			world->drawPolygons = !world->drawPolygons;
+		}
+		if (e->keysym.sym == SDLK_F8) {
+			world->drawPlayerModels = !world->drawPlayerModels;
 		}
 		if (e->keysym.sym == SDLK_h) {
 			world->drawhighres = !world->drawhighres;

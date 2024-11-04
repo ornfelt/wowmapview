@@ -81,13 +81,14 @@ void Menu::randBackground()
 	do {
 		randnum = randint(0,6);
 	} while (randnum == lastbg);
-	//randnum = 1;
+	//randnum = 0;
 	char *randui = ui[randnum];
 	darken = dark[randnum]!=0;
     char path[256];
 	sprintf(path, "Interface\\Glues\\Models\\UI_%s\\UI_%s.mdx", randui, randui);
 
     bg = new Model(path);
+    //bg = new Model(std::string("creature\\ragnaros\\ragnaros.mdx"));
 	bg->ind = true;
 	lastbg = randnum;
 }
@@ -117,9 +118,12 @@ void Menu::tick(float t, float dt)
 
 				float fx = (x/12.0f);
 				float fz = (y/12.0f);
-				// Hard-coded for alterac // TODO: change...
-				fx = 32.0f;
-				fz = 33.0f;
+				// Hard-coded for Alterac
+				//fx = 32.0f;
+				//fz = 33.0f;
+				// Hard-coded for stv
+				//fx = 31.58f;
+				//fz = 57.33f;
 
 				cx = (int)fx;
 				cz = (int)fz;

@@ -978,7 +978,8 @@ void World::draw()
 		for (int j=0; j<3; j++) {
 			for (int i=0; i<3; i++) {
 				uselowlod = drawfog;// && i==1 && j==1;
-				if (oktile(i,j) && current[j][i] != 0) current[j][i]->draw();
+				if (oktile(i,j) && current[j][i] != 0) 
+					current[j][i]->draw();
 			}
 		}
 	}
@@ -1080,6 +1081,8 @@ void World::draw()
 #if !USE_OLD_CHAR
 	//player->cam.setup(globalTime);
 	//player->draw();
+	if (!gWorld->drawPlayerModels) return;
+
 	for (auto& playermodel : playermodelis) {
 		playermodel.draw();
 	}

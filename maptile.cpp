@@ -133,10 +133,13 @@ MapTile::MapTile(int x0, int z0, char* filename): x(x0), z(z0), topnode(0,0,16)
 		f.seek((int)nextpos);
 	}
 
+	//int sizeTest = f.getPos();
+
 	// read individual map chunks
 	for (int j=0; j<16; j++) {
 		for (int i=0; i<16; i++) {
 			f.seek((int)mcnk_offsets[j*16+i]);
+			//int sizeTest2 = (int)mcnk_offsets[j*16+i];
 			chunks[j][i].init(this, f);
 		}
 	}
@@ -187,7 +190,6 @@ void MapTile::draw()
 	}
 	
 	topnode.draw();
-
 }
 
 void MapTile::drawWater()
@@ -293,14 +295,18 @@ struct MapChunkHeader {
 void MapChunk::init(MapTile* mt, MPQFile &f)
 {
 	Vec3D tn[mapbufsize], tv[mapbufsize];
+	//int sizeTest = f.getPos();
 
     f.seekRelative(4);
 	char fcc[5];
 	size_t size;
+	//int size;
 	f.read(&size, 4);
 
 	// okay here we go ^_^
 	size_t lastpos = f.getPos() + size;
+
+	//std::cout << "Reading mapchunkheader (filePos: " << (int)f.getPos() << ", size: " << size << ")" << std::endl;
 
 	//char header[0x80];
 	MapChunkHeader header;
@@ -355,11 +361,16 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 			for (int j=0; j<17; j++) {
 				for (int i=0; i<((j%2)?8:9); i++) {
 					f.read(nor,3);
+					//if (nor[2] != 127) {
+					//	std::cout << "hiii\n";
+					//}
 					// order Z,X,Y ?
 					//*ttn++ = Vec3D((float)nor[0]/127.0f, (float)nor[2]/127.0f, (float)nor[1]/127.0f);
 					*ttn++ = Vec3D(-(float)nor[1]/127.0f, (float)nor[2]/127.0f, -(float)nor[0]/127.0f);
 				}
 			}
+			//int newfilePos = f.getPos();
+			//std::cout << "pos: " << newfilePos << std::endl;
 		}
 		else if (!strcmp(fcc,"MCVT")) {
 			Vec3D *ttv = tv;
@@ -456,10 +467,16 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 			if (nTextures>0) {
 				glGenTextures(nTextures-1, alphamaps);
 				for (int i=0; i<nTextures-1; i++) {
+					//std::cout << "generating alphamaps for areaId: " << areaID << ", x: " << xbase << std::endl;
+
 					glBindTexture(GL_TEXTURE_2D, alphamaps[i]);
 					unsigned char amap[64*64], *p;
 					char *abuf = f.getPointer();
 					p = amap;
+
+					//for (size_t k = 0; k < 20; k++)
+					//	std::cout << "abuf[" << k << "]: " << static_cast<int>(static_cast<unsigned char>(abuf[k])) << std::endl;
+
 					for (int j=0; j<64; j++) {
 						for (int i=0; i<32; i++) {
 							unsigned char c = *abuf++;
@@ -468,6 +485,12 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 						}
 
 					}
+					//for (size_t k = 0; k < 30; k++)
+					//{
+					//	//std::cout << "abuf: " << abuf[k] << std::endl;
+					//	std::cout << "amap[" << k << "]: " << static_cast<int>(static_cast<unsigned char>(amap[k])) << std::endl;
+					//}
+
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 64, 64, 0, GL_ALPHA, GL_UNSIGNED_BYTE, amap);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -529,6 +552,8 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, normals);
 	glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*3*sizeof(float), tn, GL_STATIC_DRAW_ARB);
+
+	//std::cout << "VERTICES GENERATED: " << vertices << std::endl;
 
 	if (hasholes) initStrip(holes);
 	/*
@@ -609,6 +634,13 @@ void MapChunk::drawPass(int anim)
 		glTranslatef(f*fdx,f*fdy,0);
 	}
 
+	//for (size_t i = 0; i < 10; i++) {
+	//	std::cout << "strip[" << i << "] = " << strip[i] << std::endl;
+	//	std::cout << "vertices = " << vertices << std::endl;
+	//	std::cout << "textures = " << textures << std::endl;
+	//	if (i < 3)
+	//		std::cout << "alphamaps[" << i << "] = " << alphamaps[i] << std::endl;
+	//}
 	glDrawElements(GL_TRIANGLE_STRIP, striplen, GL_UNSIGNED_SHORT, strip);
 
 	if (anim) {
@@ -617,7 +649,6 @@ void MapChunk::drawPass(int anim)
 		glActiveTextureARB(GL_TEXTURE1_ARB);
 	}
 }
-
 
 void MapChunk::draw()
 {
@@ -657,11 +688,18 @@ void MapChunk::draw()
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	//glBindTexture(GL_TEXTURE_2D, video.textures.get(std::string("Tileset\\IronForge\\IronForgeSnow01solid.blp")));
+	//glBindTexture(GL_TEXTURE_2D, video.textures.get(std::string("creature\\drake\\drakeskin3.blp")));
 
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_2D);
 
+	if (gWorld->drawPolygons)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawPass(animated[0]);
+	if (gWorld->drawPolygons)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//return;
 
 	if (nTextures>1) {
 		//glDepthFunc(GL_EQUAL); // GL_LEQUAL is fine too...?
@@ -686,6 +724,8 @@ void MapChunk::draw()
 		//glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
 	}
+
+	//return;
 	
 	// shadow map
 	glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -818,7 +858,9 @@ void MapChunk::drawWater()
 void MapNode::draw()
 {
 	if (!gWorld->frustum.intersects(vmin,vmax)) return;
-	for (int i=0; i<4; i++) children[i]->draw();
+	//std::cout << "Drawing: " << px << ", " << py << ", " << size << std::endl;
+	for (int i = 0; i < 4; i++)
+		children[i]->draw();
 }
 
 void MapNode::setup(MapTile *t)
@@ -851,6 +893,74 @@ void MapNode::setup(MapTile *t)
 		if (children[i]->vmax.z > vmax.z) vmax.z = children[i]->vmax.z;
 	}
 }
+
+//#include <stack>
+//#include <limits>
+//void MapNode::setup(MapTile* t)
+//{
+//	struct NodeInfo {
+//		MapNode* node;
+//		bool childrenCreated;
+//	};
+//
+//	std::stack<NodeInfo> stack;
+//	stack.push({ this, false });
+//
+//	while (!stack.empty())
+//	{
+//		NodeInfo currentInfo = stack.top();
+//		MapNode* currentNode = currentInfo.node;
+//		stack.pop();
+//
+//		if (!currentInfo.childrenCreated)
+//		{
+//			// Initialize the current node
+//			currentNode->vmin = Vec3D(9999999.0f, 9999999.0f, 9999999.0f);
+//			currentNode->vmax = Vec3D(-9999999.0f, -9999999.0f, -9999999.0f);
+//			currentNode->mt = t;
+//
+//			if (currentNode->size == 2)
+//			{
+//				// Assign mapchunks as children
+//				currentNode->children[0] = &(currentNode->mt->chunks[currentNode->py][currentNode->px]);
+//				currentNode->children[1] = &(currentNode->mt->chunks[currentNode->py][currentNode->px + 1]);
+//				currentNode->children[2] = &(currentNode->mt->chunks[currentNode->py + 1][currentNode->px]);
+//				currentNode->children[3] = &(currentNode->mt->chunks[currentNode->py + 1][currentNode->px + 1]);
+//			}
+//			else
+//			{
+//				// Create child nodes
+//				int half = currentNode->size / 2;
+//				currentNode->children[0] = new MapNode(currentNode->px, currentNode->py, half);
+//				currentNode->children[1] = new MapNode(currentNode->px + half, currentNode->py, half);
+//				currentNode->children[2] = new MapNode(currentNode->px, currentNode->py + half, half);
+//				currentNode->children[3] = new MapNode(currentNode->px + half, currentNode->py + half, half);
+//
+//				// Push the current node back to the stack for bounding box processing
+//				stack.push({ currentNode, true });
+//
+//				// Push the child nodes to the stack to be processed
+//				for (int i = 0; i < 4; i++)
+//				{
+//					stack.push({ currentNode->children[i], false });
+//				}
+//			}
+//		}
+//		else
+//		{
+//			// Update the bounding box after all children have been processed
+//			for (int i = 0; i < 4; i++)
+//			{
+//				if (currentNode->children[i]->vmin.x < currentNode->vmin.x) currentNode->vmin.x = currentNode->children[i]->vmin.x;
+//				if (currentNode->children[i]->vmin.y < currentNode->vmin.y) currentNode->vmin.y = currentNode->children[i]->vmin.y;
+//				if (currentNode->children[i]->vmin.z < currentNode->vmin.z) currentNode->vmin.z = currentNode->children[i]->vmin.z;
+//				if (currentNode->children[i]->vmax.x > currentNode->vmax.x) currentNode->vmax.x = currentNode->children[i]->vmax.x;
+//				if (currentNode->children[i]->vmax.y > currentNode->vmax.y) currentNode->vmax.y = currentNode->children[i]->vmax.y;
+//				if (currentNode->children[i]->vmax.z > currentNode->vmax.z) currentNode->vmax.z = currentNode->children[i]->vmax.z;
+//			}
+//		}
+//	}
+//}
 
 void MapNode::cleanup()
 {
