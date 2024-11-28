@@ -1399,247 +1399,414 @@ void ModelInstance::init2(Model *m, MPQFile &f)
 	lcol = Vec3D(((d1&0xff0000)>>16) / 255.0f, ((d1&0x00ff00)>>8) / 255.0f, (d1&0x0000ff) / 255.0f);
 }
 
-void ModelInstance::draw()
-{
-	if (!this->model->isUnit && !this->model->isSpell)
-	{
-		//if ((pos - gWorld->camera).lengthSquared() > (gWorld->modeldrawdistance2+(model->rad*model->rad*sc))) return;
-		float dist = (pos - gWorld->camera).length() - model->rad;
-		if (dist > gWorld->modeldrawdistance) return;
-		if (!gWorld->frustum.intersectsSphere(pos, model->rad * sc)) return;
-	}
+void ModelInstance::draw() {
+    if (!shouldDraw()) return;
 
-	glPushMatrix();
-	glTranslatef(pos.x, pos.y, pos.z);
+    setupTransformations();
 
-	if (this->model->isUnit || this->model->isSpell)
-	{
-		//pos = gWorld->camera;
+    if (this->model->isUnit || this->model->isSpell) {
+        handleUnitOrSpell();
+    } else {
+        applyDefaultRotations();
+    }
 
-		//std::cout << "cam pos: " << -(gWorld->camera.z - ZEROPOINT) << ", " << -(gWorld->camera.x - ZEROPOINT) << ", " << gWorld->camera.y << std::endl;
-		Vec3D newdir = gWorld->lookat - gWorld->camera;
-		newdir.normalize();
-		float distanceInFrontOfCamera = 20.0;
+    applyScalingAndDraw();
 
-		if (this->model->isNpc || this->isWandering)
-		{
-			//if (currentTargetIndex >= currentPath.size()) return;
-			//if (currentTargetIndex < currentPath.size()) {
-			//	const Point& target = currentPath[currentTargetIndex];
-			//	double transformedTargetX = -target.y + ZEROPOINT;
-			//	double transformedTargetY = target.z;
-			//	double transformedTargetZ = -target.x + ZEROPOINT;
-
-			//	double dx = transformedTargetX - pos.x;
-			//	double dy = transformedTargetY - pos.y;
-			//	double dz = transformedTargetZ - pos.z;
-			//	double distance = sqrt(dx * dx + dy * dy + dz * dz);
-			//	std::cout << "distance: " << distance << std::endl;
-
-			//	if (distance < moveSpeed) {
-			//		// If NPC is close enough to the target, snap directly to the target position
-			//		pos.x = transformedTargetX;
-			//		pos.y = transformedTargetY;
-			//		pos.z = transformedTargetZ;
-			//		std::cout << "node reached! " << currentTargetIndex << std::endl;
-			//		currentTargetIndex++; // Move to the next target
-			//		std::cout << "new node: " << currentTargetIndex << std::endl;
-			//	}
-			//	else {
-			//		// Move towards the target
-			//		pos.x += (dx / distance) * moveSpeed;
-			//		pos.y += (dy / distance) * moveSpeed;
-			//		pos.z += (dz / distance) * moveSpeed;
-			//	}
-
-			//	float yawDegrees = atan2(dx, dz) * (360.0f / PI);
-			//	dir.y = yawDegrees;	newdir = pos;
-			//}
-
-			if (currentNode.x == 0.0f) {
-				//std::cout << "No current node set! Setting closest node based on player pos..." << std::endl;
-				//currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
-				currentNode = gWorld->GetRandomNode(*this);
-				pos.x = -currentNode.y + ZEROPOINT;
-				pos.y = currentNode.z;
-				pos.z = -currentNode.x + ZEROPOINT;
-			}
-
-			if (currentPath.empty()) {
-				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
-				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
-				currentNode = newNode;
-			}
-
-			if (currentTargetIndex < currentPath.size()) {
-				//const Point& target = currentPath[currentTargetIndex];
-				const Vec3D& target = currentPath[currentTargetIndex];
-
-				// Set the coordinate based on wow x, y, z
-				double transformedTargetX = -target.y + ZEROPOINT;
-				double transformedTargetY = target.z;
-				double transformedTargetZ = -target.x + ZEROPOINT;
-				Vec3D targetPos(transformedTargetX, transformedTargetY, transformedTargetZ);
-				newdir = targetPos - pos;
-				// Compute the Euclidean distance using the differences
-				double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
-				if (distance > 0) {
-					newdir.normalize();
-				}
-
-				//std::cout << "distance: " << distance << std::endl;
-
-				bool updateAngle = true;
-				if (distance < moveSpeed) {
-				//if (moveSpeed > 5) {
-					//moveSpeed = 0.1;
-					updateAngle = false;
-					pos.x = transformedTargetX;
-					pos.y = transformedTargetY;
-					pos.z = transformedTargetZ;
-					//std::cout << "node reached! " << currentTargetIndex << std::endl;
-					//std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
-					currentTargetIndex++;
-					//std::cout << "new node: " << currentTargetIndex << std::endl;
-				}
-				else {
-					// Move towards the target
-					pos.x += newdir.x * moveSpeed;
-					pos.y += newdir.y * moveSpeed;
-					pos.z += newdir.z * moveSpeed;
-					//moveSpeed += 0.1;
-				}
-
-				if (updateAngle) {
-					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-					// Normalize to ensure it falls between 0 and 360
-					yawDegrees = fmod(yawDegrees, 360.0f);
-					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
-
-					// Assuming model faces east by default, adjust to face north
-					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-					dir.y = yawDegrees;
-				}
-
-#ifdef _DEBUG
-				// WHAT?!
-				dir.x = 210.0f;
-#endif
-			dir.x = 0.0f;
-
-			if (this->isWandering) {
-				float distanceBehindCamera = 40.0f;
-				gWorld->camera = gWorld->playermodelis[0].pos;
-				float rotationAngle = -(gWorld->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
-				Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
-				newdir.y = 0.0f;
-				Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
-				newcampos.y += distanceBehindCamera / 2;
-				gWorld->lookat = gWorld->playermodelis[0].pos;
-				gWorld->camera = newcampos;
-			}
-
-			} else {
-				currentTargetIndex = 0;
-				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
-				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
-				currentNode = newNode;
-			}
-		} else if (!this->model->isSpell) {
-			if (this->teleToTarget) {
-				pos = this->target->pos;
-				gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
-				this->teleToTarget = false;
-			} else {
-				if (!this->isWandering && !this->usePhysics) {
-					Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-					pos = newpos;
-
-					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
-					// Normalize to ensure it falls between 0 and 360
-					yawDegrees = fmod(yawDegrees, 360.0f);
-					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
-					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
-
-					// Assuming model faces east by default, adjust to face north
-					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-					dir.y = yawDegrees;
-					//dir = newpos;
-
-#ifdef _DEBUG
-					// WHAT?!
-					dir.x = 210.0f;
-#endif
-					dir.x = 0.0f;
-					//std::cout << "dir.x:: " << dir.x << std::endl;
-
-					//dir.y += 1.0f; // Continuosly rotate
-					//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
-				}
-			}
-		}
-		else if (this->model->isSpell) {
-			// Casting
-			if (this->isCasting) {
-				// Move spell towards target
-				Vec3D targetPos(this->target->pos.x, this->target->pos.y+1.0f, this->target->pos.z);
-				Vec3D spelldir = targetPos - pos;
-				// Compute the Euclidean distance using the differences
-				double spelldistance = sqrt(spelldir.x * spelldir.x + spelldir.y * spelldir.y + spelldir.z * spelldir.z);
-				if (spelldistance > 0) {
-					spelldir.normalize();
-				}
-
-				bool updateSpellAngle = true;
-				if (spelldistance < moveSpeed*3) {
-					updateSpellAngle = false;
-					pos.x = targetPos.x;
-					pos.y = targetPos.y+1.0f;
-					pos.z = targetPos.z;
-					this->isCasting = false;
-					this->isHidden = true;
-				}
-				else {
-					// Move towards the target
-					pos.x += spelldir.x * moveSpeed*3;
-					pos.y += spelldir.y * moveSpeed*3;
-					pos.z += spelldir.z * moveSpeed*3;
-				}
-
-				// Fix this (maybe needs update further down where angle is handled for the spell)...
-				if (updateSpellAngle) {
-					float yawDegrees = atan2(spelldir.x, spelldir.z) * 180.0f / PI;
-					yawDegrees = fmod(yawDegrees, 360.0f);
-					if (yawDegrees < 0) yawDegrees += 360.0f;
-					yawDegrees += 180.0f;
-					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
-					dir.y = yawDegrees;
-					//dir = targetPos;
-				}
-			}
-		}
-
-		if (this->model->isSpell && this->model->modelPath == "spells\\Frostbolt.mdx") {
-			//std::cout << "Spell model: " << this->model->modelPath << std::endl;
-			glRotatef(dir.y - 180.0f, 0, 1, 0);
-			glRotatef(-dir.x + 90.0f, 0, 0, 1);
-		}
-		else {
-			glRotatef(dir.y, 0, 1, 0);
-			glRotatef(dir.x, 1, 0, 0);
-		}
-	} else {
-		//glRotatef(dir.y - 90.0f, 0, 1, 0);
-		//glRotatef(-dir.x, 0, 0, 1);
-	}
-
-	//glRotatef(dir.z, 1, 0, 0);
-	glScalef(sc,sc,sc);
-
-	model->draw();
-	glPopMatrix();
+    glPopMatrix();
 }
+
+bool ModelInstance::shouldDraw() {
+    if (!this->model->isUnit && !this->model->isSpell) {
+        //if ((pos - gWorld->camera).lengthSquared() > (gWorld->modeldrawdistance2+(model->rad*model->rad*sc))) return;
+        float dist = (pos - gWorld->camera).length() - model->rad;
+        if (dist > gWorld->modeldrawdistance) return false;
+        if (!gWorld->frustum.intersectsSphere(pos, model->rad * sc)) return false;
+    }
+    return true;
+}
+
+void ModelInstance::setupTransformations() {
+    glPushMatrix();
+    glTranslatef(pos.x, pos.y, pos.z);
+}
+
+void ModelInstance::handleUnitOrSpell() {
+    Vec3D newdir = gWorld->lookat - gWorld->camera;
+    newdir.normalize();
+    float distanceInFrontOfCamera = 20.0;
+
+    if (this->model->isNpc || this->isWandering) {
+        handleNpcOrWandering(newdir, distanceInFrontOfCamera);
+    } else if (!this->model->isSpell) {
+        handleTeleportOrPhysics(newdir, distanceInFrontOfCamera);
+    } else {
+        handleSpellCasting();
+    }
+
+    applyUnitOrSpellRotations(newdir);
+}
+
+void ModelInstance::handleNpcOrWandering(Vec3D& newdir, float distanceInFrontOfCamera) {
+    if (currentNode.x == 0.0f) {
+        //std::cout << "No current node set! Setting closest node based on player pos..." << std::endl;
+        currentNode = gWorld->GetRandomNode(*this);
+        pos.x = -currentNode.y + ZEROPOINT;
+        pos.y = currentNode.z;
+        pos.z = -currentNode.x + ZEROPOINT;
+    }
+
+    if (currentPath.empty()) {
+        Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
+        currentPath = gWorld->CalculatePath(
+            currentNode.x, currentNode.y, currentNode.z,
+            newNode.x, newNode.y, newNode.z);
+        currentNode = newNode;
+    }
+
+    traversePath(newdir);
+}
+
+void ModelInstance::traversePath(Vec3D& newdir) {
+    if (currentTargetIndex < currentPath.size()) {
+        const Vec3D& target = currentPath[currentTargetIndex];
+
+        double transformedTargetX = -target.y + ZEROPOINT;
+        double transformedTargetY = target.z;
+        double transformedTargetZ = -target.x + ZEROPOINT;
+        Vec3D targetPos(transformedTargetX, transformedTargetY, transformedTargetZ);
+
+        newdir = targetPos - pos;
+        double distance = newdir.length();
+        if (distance > 0) newdir.normalize();
+
+        if (distance < moveSpeed) {
+            pos = targetPos;
+            currentTargetIndex++;
+        } else {
+            pos += newdir * moveSpeed;
+        }
+
+        updateAngle(newdir);
+    } else {
+        resetPath();
+    }
+}
+
+void ModelInstance::resetPath() {
+    currentTargetIndex = 0;
+    Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
+    currentPath = gWorld->CalculatePath(
+        currentNode.x, currentNode.y, currentNode.z,
+        newNode.x, newNode.y, newNode.z);
+    currentNode = newNode;
+}
+
+void ModelInstance::handleTeleportOrPhysics(Vec3D& newdir, float distanceInFrontOfCamera) {
+    if (this->teleToTarget) {
+        pos = this->target->pos;
+        gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
+        this->teleToTarget = false;
+    } else if (!this->isWandering && !this->usePhysics) {
+        Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+        pos = newpos;
+        updateAngle(newdir);
+    }
+}
+
+void ModelInstance::handleSpellCasting() {
+    if (this->isCasting) {
+        Vec3D targetPos(this->target->pos.x, this->target->pos.y + 1.0f, this->target->pos.z);
+        Vec3D spelldir = targetPos - pos;
+        double spelldistance = spelldir.length();
+        if (spelldistance > 0) spelldir.normalize();
+
+        if (spelldistance < moveSpeed * 3) {
+            pos = targetPos;
+            this->isCasting = false;
+            this->isHidden = true;
+        } else {
+            pos += spelldir * moveSpeed * 3;
+        }
+
+        updateAngle(spelldir);
+    }
+}
+
+void ModelInstance::updateAngle(const Vec3D& direction) {
+    float yawDegrees = atan2(direction.x, direction.z) * 180.0f / PI;
+    yawDegrees = fmod(yawDegrees + 360.0f, 360.0f);
+    yawDegrees += 180.0f;
+    yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+    dir.y = yawDegrees;
+#ifdef _DEBUG
+	// WHAT?!
+	dir.x = 210.0f;
+#endif
+	dir.x = 0.0f;
+}
+
+void ModelInstance::applyUnitOrSpellRotations(const Vec3D& newdir) {
+    if (this->model->isSpell && this->model->modelPath == "spells\\Frostbolt.mdx") {
+        glRotatef(dir.y - 180.0f, 0, 1, 0);
+        glRotatef(-dir.x + 90.0f, 0, 0, 1);
+    } else {
+        glRotatef(dir.y, 0, 1, 0);
+        glRotatef(dir.x, 1, 0, 0);
+    }
+}
+
+void ModelInstance::applyDefaultRotations() {
+    glRotatef(dir.y, 0, 1, 0);
+    glRotatef(dir.x, 1, 0, 0);
+}
+
+void ModelInstance::applyScalingAndDraw() {
+    glScalef(sc, sc, sc);
+    model->draw();
+}
+
+//void ModelInstance::draw()
+//{
+//	if (!this->model->isUnit && !this->model->isSpell)
+//	{
+//		//if ((pos - gWorld->camera).lengthSquared() > (gWorld->modeldrawdistance2+(model->rad*model->rad*sc))) return;
+//		float dist = (pos - gWorld->camera).length() - model->rad;
+//		if (dist > gWorld->modeldrawdistance) return;
+//		if (!gWorld->frustum.intersectsSphere(pos, model->rad * sc)) return;
+//	}
+//
+//	glPushMatrix();
+//	glTranslatef(pos.x, pos.y, pos.z);
+//
+//	if (this->model->isUnit || this->model->isSpell)
+//	{
+//		//pos = gWorld->camera;
+//
+//		//std::cout << "cam pos: " << -(gWorld->camera.z - ZEROPOINT) << ", " << -(gWorld->camera.x - ZEROPOINT) << ", " << gWorld->camera.y << std::endl;
+//		Vec3D newdir = gWorld->lookat - gWorld->camera;
+//		newdir.normalize();
+//		float distanceInFrontOfCamera = 20.0;
+//
+//		if (this->model->isNpc || this->isWandering)
+//		{
+//			//if (currentTargetIndex >= currentPath.size()) return;
+//			//if (currentTargetIndex < currentPath.size()) {
+//			//	const Point& target = currentPath[currentTargetIndex];
+//			//	double transformedTargetX = -target.y + ZEROPOINT;
+//			//	double transformedTargetY = target.z;
+//			//	double transformedTargetZ = -target.x + ZEROPOINT;
+//
+//			//	double dx = transformedTargetX - pos.x;
+//			//	double dy = transformedTargetY - pos.y;
+//			//	double dz = transformedTargetZ - pos.z;
+//			//	double distance = sqrt(dx * dx + dy * dy + dz * dz);
+//			//	std::cout << "distance: " << distance << std::endl;
+//
+//			//	if (distance < moveSpeed) {
+//			//		// If NPC is close enough to the target, snap directly to the target position
+//			//		pos.x = transformedTargetX;
+//			//		pos.y = transformedTargetY;
+//			//		pos.z = transformedTargetZ;
+//			//		std::cout << "node reached! " << currentTargetIndex << std::endl;
+//			//		currentTargetIndex++; // Move to the next target
+//			//		std::cout << "new node: " << currentTargetIndex << std::endl;
+//			//	}
+//			//	else {
+//			//		// Move towards the target
+//			//		pos.x += (dx / distance) * moveSpeed;
+//			//		pos.y += (dy / distance) * moveSpeed;
+//			//		pos.z += (dz / distance) * moveSpeed;
+//			//	}
+//
+//			//	float yawDegrees = atan2(dx, dz) * (360.0f / PI);
+//			//	dir.y = yawDegrees;	newdir = pos;
+//			//}
+//
+//			if (currentNode.x == 0.0f) {
+//				//std::cout << "No current node set! Setting closest node based on player pos..." << std::endl;
+//				//currentNode = gWorld->GetClosestNode(-(gWorld->camera.z - ZEROPOINT), -(gWorld->camera.x - ZEROPOINT), gWorld->camera.y, *this);
+//				currentNode = gWorld->GetRandomNode(*this);
+//				pos.x = -currentNode.y + ZEROPOINT;
+//				pos.y = currentNode.z;
+//				pos.z = -currentNode.x + ZEROPOINT;
+//			}
+//
+//			if (currentPath.empty()) {
+//				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
+//				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
+//				currentNode = newNode;
+//			}
+//
+//			if (currentTargetIndex < currentPath.size()) {
+//				//const Point& target = currentPath[currentTargetIndex];
+//				const Vec3D& target = currentPath[currentTargetIndex];
+//
+//				// Set the coordinate based on wow x, y, z
+//				double transformedTargetX = -target.y + ZEROPOINT;
+//				double transformedTargetY = target.z;
+//				double transformedTargetZ = -target.x + ZEROPOINT;
+//				Vec3D targetPos(transformedTargetX, transformedTargetY, transformedTargetZ);
+//				newdir = targetPos - pos;
+//				// Compute the Euclidean distance using the differences
+//				double distance = sqrt(newdir.x * newdir.x + newdir.y * newdir.y + newdir.z * newdir.z);
+//				if (distance > 0) {
+//					newdir.normalize();
+//				}
+//
+//				//std::cout << "distance: " << distance << std::endl;
+//
+//				bool updateAngle = true;
+//				if (distance < moveSpeed) {
+//				//if (moveSpeed > 5) {
+//					//moveSpeed = 0.1;
+//					updateAngle = false;
+//					pos.x = transformedTargetX;
+//					pos.y = transformedTargetY;
+//					pos.z = transformedTargetZ;
+//					//std::cout << "node reached! " << currentTargetIndex << std::endl;
+//					//std::cout << "target was: " << target.x << ", " << target.y << ", " << target.z << std::endl;
+//					currentTargetIndex++;
+//					//std::cout << "new node: " << currentTargetIndex << std::endl;
+//				}
+//				else {
+//					// Move towards the target
+//					pos.x += newdir.x * moveSpeed;
+//					pos.y += newdir.y * moveSpeed;
+//					pos.z += newdir.z * moveSpeed;
+//					//moveSpeed += 0.1;
+//				}
+//
+//				if (updateAngle) {
+//					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+//					// Normalize to ensure it falls between 0 and 360
+//					yawDegrees = fmod(yawDegrees, 360.0f);
+//					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+//					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+//
+//					// Assuming model faces east by default, adjust to face north
+//					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+//					dir.y = yawDegrees;
+//				}
+//
+//#ifdef _DEBUG
+//				// WHAT?!
+//				dir.x = 210.0f;
+//#endif
+//			dir.x = 0.0f;
+//
+//			if (this->isWandering) {
+//				float distanceBehindCamera = 40.0f;
+//				gWorld->camera = gWorld->playermodelis[0].pos;
+//				float rotationAngle = -(gWorld->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+//				Vec3D newdir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
+//				newdir.y = 0.0f;
+//				Vec3D newcampos = gWorld->camera - (newdir * distanceBehindCamera);
+//				newcampos.y += distanceBehindCamera / 2;
+//				gWorld->lookat = gWorld->playermodelis[0].pos;
+//				gWorld->camera = newcampos;
+//			}
+//
+//			} else {
+//				currentTargetIndex = 0;
+//				Vec3D newNode = gWorld->GetRandomLinkedNode(currentNodeId, *this);
+//				currentPath = gWorld->CalculatePath(currentNode.x, currentNode.y, currentNode.z, newNode.x, newNode.y, newNode.z);
+//				currentNode = newNode;
+//			}
+//		} else if (!this->model->isSpell) {
+//			if (this->teleToTarget) {
+//				pos = this->target->pos;
+//				gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
+//				this->teleToTarget = false;
+//			} else {
+//				if (!this->isWandering && !this->usePhysics) {
+//					//Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+//					Vec3D newpos = Vec3D(gWorld->camera.x, gWorld->camera.y, gWorld->camera.z) + newdir * distanceInFrontOfCamera;
+//					pos = newpos;
+//
+//					float yawDegrees = atan2(newdir.x, newdir.z) * 180.0f / PI;
+//					// Normalize to ensure it falls between 0 and 360
+//					yawDegrees = fmod(yawDegrees, 360.0f);
+//					if (yawDegrees < 0) yawDegrees += 360.0f; // Correct for negative values from fmod
+//					yawDegrees += 180.0f; // Add 180 degrees to face the opposite direction
+//
+//					// Assuming model faces east by default, adjust to face north
+//					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+//					dir.y = yawDegrees;
+//					//dir = newpos;
+//
+//#ifdef _DEBUG
+//					// WHAT?!
+//					dir.x = 210.0f;
+//#endif
+//					dir.x = 0.0f;
+//					//std::cout << "dir.x:: " << dir.x << std::endl;
+//
+//					//dir.y += 1.0f; // Continuosly rotate
+//					//std::cout << "dir: " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
+//				}
+//			}
+//		}
+//		else if (this->model->isSpell) {
+//			// Casting
+//			if (this->isCasting) {
+//				// Move spell towards target
+//				Vec3D targetPos(this->target->pos.x, this->target->pos.y+1.0f, this->target->pos.z);
+//				Vec3D spelldir = targetPos - pos;
+//				// Compute the Euclidean distance using the differences
+//				double spelldistance = sqrt(spelldir.x * spelldir.x + spelldir.y * spelldir.y + spelldir.z * spelldir.z);
+//				if (spelldistance > 0) {
+//					spelldir.normalize();
+//				}
+//
+//				bool updateSpellAngle = true;
+//				if (spelldistance < moveSpeed*3) {
+//					updateSpellAngle = false;
+//					pos.x = targetPos.x;
+//					pos.y = targetPos.y+1.0f;
+//					pos.z = targetPos.z;
+//					this->isCasting = false;
+//					this->isHidden = true;
+//				}
+//				else {
+//					// Move towards the target
+//					pos.x += spelldir.x * moveSpeed*3;
+//					pos.y += spelldir.y * moveSpeed*3;
+//					pos.z += spelldir.z * moveSpeed*3;
+//				}
+//
+//				// Fix this (maybe needs update further down where angle is handled for the spell)...
+//				if (updateSpellAngle) {
+//					float yawDegrees = atan2(spelldir.x, spelldir.z) * 180.0f / PI;
+//					yawDegrees = fmod(yawDegrees, 360.0f);
+//					if (yawDegrees < 0) yawDegrees += 360.0f;
+//					yawDegrees += 180.0f;
+//					yawDegrees = fmod(yawDegrees + 90.0f, 360.0f);
+//					dir.y = yawDegrees;
+//					//dir = targetPos;
+//				}
+//			}
+//		}
+//
+//		if (this->model->isSpell && this->model->modelPath == "spells\\Frostbolt.mdx") {
+//			//std::cout << "Spell model: " << this->model->modelPath << std::endl;
+//			glRotatef(dir.y - 180.0f, 0, 1, 0);
+//			glRotatef(-dir.x + 90.0f, 0, 0, 1);
+//		}
+//		else {
+//			glRotatef(dir.y, 0, 1, 0);
+//			glRotatef(dir.x, 1, 0, 0);
+//		}
+//	} else {
+//		//glRotatef(dir.y - 90.0f, 0, 1, 0);
+//		//glRotatef(-dir.x, 0, 0, 1);
+//	}
+//
+//	//glRotatef(dir.z, 1, 0, 0);
+//	glScalef(sc,sc,sc);
+//
+//	model->draw();
+//	glPopMatrix();
+//}
 
 void glQuaternionRotate(const Vec3D& vdir, float w)
 {

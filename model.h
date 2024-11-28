@@ -226,6 +226,21 @@ public:
 	void draw();
 	void draw2(const Vec3D& ofs, const float rot);
 
+
+	bool shouldDraw();
+	void setupTransformations();
+	void handleUnitOrSpell();
+	void handleNpcOrWandering(Vec3D& newdir, float distanceInFrontOfCamera);
+	void traversePath(Vec3D& newdir);
+	void resetPath();
+	void handleTeleportOrPhysics(Vec3D& newdir, float distanceInFrontOfCamera);
+	void handleSpellCasting();
+	void updateAngle(const Vec3D& direction);
+	void applyUnitOrSpellRotations(const Vec3D& newdir);
+	void applyDefaultRotations();
+	void applyScalingAndDraw();
+
+
 	struct Point {
 		double x, y, z;
 	};
