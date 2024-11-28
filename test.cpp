@@ -123,6 +123,12 @@ void Test::tick(float t, float dt)
 		}
 		if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
 		world->lookat = world->camera + dir;
+
+		Vec3D newdir = gWorld->lookat - gWorld->camera;
+		newdir.normalize();
+		float distanceInFrontOfCamera = 20.0;
+        Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+        world->playermodelis[0].pos = newpos;
 	}
 	if (world->playermodelis[0].usePhysics) {
 		if (strafing != 0) {

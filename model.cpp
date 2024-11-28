@@ -1507,8 +1507,8 @@ void ModelInstance::handleTeleportOrPhysics(Vec3D& newdir, float distanceInFront
         gWorld->camera = this->target->pos - (newdir * distanceInFrontOfCamera);
         this->teleToTarget = false;
     } else if (!this->isWandering && !this->usePhysics) {
-        Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-        pos = newpos;
+        //Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
+        //pos = newpos;
         updateAngle(newdir);
     }
 }
