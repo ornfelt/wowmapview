@@ -124,11 +124,10 @@ void Test::tick(float t, float dt)
 		if (updown != 0) world->camera += Vec3D(0, dt * movespd * updown, 0);
 		world->lookat = world->camera + dir;
 
-		Vec3D newdir = gWorld->lookat - gWorld->camera;
-		newdir.normalize();
+		// Update player position
+		Vec3D newdir = (gWorld->lookat - gWorld->camera).normalize();
 		float distanceInFrontOfCamera = 20.0;
-        Vec3D newpos = gWorld->camera + newdir * distanceInFrontOfCamera;
-        world->playermodelis[0].pos = newpos;
+        world->playermodelis[0].pos = gWorld->camera + newdir * distanceInFrontOfCamera;
 	}
 	if (world->playermodelis[0].usePhysics) {
 		if (strafing != 0) {
@@ -290,6 +289,8 @@ void Test::display(float t, float dt)
 
 void Test::keypressed(SDL_KeyboardEvent *e)
 {
+	auto& playerModel = world->playermodelis[0];
+
 	if (e->type == SDL_KEYDOWN) {
 		// key DOWN
 
@@ -300,9 +301,9 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		// movement
 		if (e->keysym.sym == SDLK_w) {
 			moving = 1.0f;
-			world->playermodelis[0].isWandering = false;
-			world->playermodelis[0].currentPath = std::vector<Vec3D>();
-			world->playermodelis[0].currentNode.x = 0.0f;
+			playerModel.isWandering = false;
+			playerModel.currentPath = std::vector<Vec3D>();
+			playerModel.currentNode.x = 0.0f;
 		}
 		if (e->keysym.sym == SDLK_s) {
 			moving = -1.0f;
@@ -313,10 +314,12 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_d) {
 			strafing = 1.0f;
 		}
-		if (e->keysym.sym == SDLK_e) {
+		//if (e->keysym.sym == SDLK_e) {
+		if (e->keysym.sym == SDLK_TAB) {
 			updown = -1.0f;
 		}
-		if (e->keysym.sym == SDLK_q) {
+		//if (e->keysym.sym == SDLK_q) {
+		if (e->keysym.sym == SDLK_SPACE) {
 			updown = 1.0f;
 		}
 
@@ -452,82 +455,82 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 
 		// Teleport to playertwo
 		if (e->keysym.sym == SDLK_0) {
-			world->playermodelis[0].teleToTarget = true;
+			playerModel.teleToTarget = true;
 		}
 		if (e->keysym.sym == SDLK_t) {
-			world->playermodelis[0].targetIndex = (world->playermodelis[0].targetIndex + 1) % world->playermodelis.size();
-			if (world->playermodelis[0].targetIndex == 0 && world->playermodelis.size() > 1) // Don't pick player as target
+			playerModel.targetIndex = (playerModel.targetIndex + 1) % world->playermodelis.size();
+			if (playerModel.targetIndex == 0 && world->playermodelis.size() > 1) // Don't pick player as target
 				world->playermodelis[0].targetIndex = 1;
-			world->playermodelis[0].target = &world->playermodelis[world->playermodelis[0].targetIndex];
-			std::cout << "New target index: " << world->playermodelis[0].targetIndex << std::endl;
+			playerModel.target = &world->playermodelis[playerModel.targetIndex];
+			std::cout << "New target index: " << playerModel.targetIndex << std::endl;
 		}
 
 		if (e->keysym.sym == SDLK_1) {
-			world->playermodelis[0].chosenSpell = &world->spellmodelis[0];
-			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
-				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].chosenSpell->isCasting = true;
-				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
-				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			playerModel.chosenSpell = &world->spellmodelis[0];
+			if (playerModel.chosenSpell && !playerModel.chosenSpell->isCasting) {
+				playerModel.chosenSpell->isHidden = false;
+				playerModel.chosenSpell->isCasting = true;
+				playerModel.chosenSpell->target = playerModel.target;
+				playerModel.chosenSpell->pos = playerModel.pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_2) {
-			world->playermodelis[0].chosenSpell = &world->spellmodelis[1];
-			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
-				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].chosenSpell->isCasting = true;
-				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
-				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			playerModel.chosenSpell = &world->spellmodelis[1];
+			if (playerModel.chosenSpell && !playerModel.chosenSpell->isCasting) {
+				playerModel.chosenSpell->isHidden = false;
+				playerModel.chosenSpell->isCasting = true;
+				playerModel.chosenSpell->target = playerModel.target;
+				playerModel.chosenSpell->pos = playerModel.pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_3) {
-			world->playermodelis[0].chosenSpell = &world->spellmodelis[2];
-			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
-				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].chosenSpell->isCasting = true;
-				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
-				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			playerModel.chosenSpell = &world->spellmodelis[2];
+			if (playerModel.chosenSpell && !playerModel.chosenSpell->isCasting) {
+				playerModel.chosenSpell->isHidden = false;
+				playerModel.chosenSpell->isCasting = true;
+				playerModel.chosenSpell->target = playerModel.target;
+				playerModel.chosenSpell->pos = playerModel.pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_4) {
-			world->playermodelis[0].chosenSpell = &world->spellmodelis[3];
-			if (world->playermodelis[0].chosenSpell && !world->playermodelis[0].chosenSpell->isCasting) {
-				world->playermodelis[0].chosenSpell->isHidden = false;
-				world->playermodelis[0].chosenSpell->isCasting = true;
-				world->playermodelis[0].chosenSpell->target = world->playermodelis[0].target;
-				world->playermodelis[0].chosenSpell->pos = world->playermodelis[0].pos;
+			playerModel.chosenSpell = &world->spellmodelis[3];
+			if (playerModel.chosenSpell && !playerModel.chosenSpell->isCasting) {
+				playerModel.chosenSpell->isHidden = false;
+				playerModel.chosenSpell->isCasting = true;
+				playerModel.chosenSpell->target = playerModel.target;
+				playerModel.chosenSpell->pos = playerModel.pos;
 			}
 		}
 		if (e->keysym.sym == SDLK_y) {
-			world->playermodelis[0].isWandering = true;
+			playerModel.isWandering = true;
 		}
 
 		if (e->keysym.sym == SDLK_8) {
-			world->playermodelis[0].usePhysics = !world->playermodelis[0].usePhysics;
+			playerModel.usePhysics = !playerModel.usePhysics;
 			//world->thirdperson = !world->thirdperson;
-			if (world->playermodelis[0].usePhysics) {
-				Vec3D currentNode = gWorld->GetClosestNode(-(world->playermodelis[0].pos.z - ZEROPOINT), -(world->playermodelis[0].pos.x - ZEROPOINT), world->playermodelis[0].pos.y, world->playermodelis[0]);
+			if (playerModel.usePhysics) {
+				Vec3D currentNode = gWorld->GetClosestNode(-(playerModel.pos.z - ZEROPOINT), -(playerModel.pos.x - ZEROPOINT), playerModel.pos.y, playerModel);
 				std::cout << "New closest node! " << currentNode.x << ", " << currentNode.y << ", " << currentNode.z << std::endl;
 
 				float newPosX = -currentNode.y + ZEROPOINT;
 				float newPosY = currentNode.z;
 				float newPosZ = -currentNode.x + ZEROPOINT;
 				Vec3D targetPos(newPosX, newPosY, newPosZ);
-				Vec3D newdir = targetPos - world->playermodelis[0].pos;
+				Vec3D newdir = targetPos - playerModel.pos;
 
-				world->playermodelis[0].pos.x = newPosX;
-				world->playermodelis[0].pos.y = newPosY;
-				world->playermodelis[0].pos.z = newPosZ;
-				world->camera = world->playermodelis[0].pos;
-				//world->camera = world->playermodelis[0].pos - (world->lookat * 20.0f);
+				playerModel.pos.x = newPosX;
+				playerModel.pos.y = newPosY;
+				playerModel.pos.z = newPosZ;
+				world->camera = playerModel.pos;
+				//world->camera = playerModel.pos - (world->lookat * 20.0f);
 
-                world->camera = world->playermodelis[0].pos;
-                float rotationAngle = -(world->playermodelis[0].dir.y * (PI / 180.0f)) + PI;
+                world->camera = playerModel.pos;
+                float rotationAngle = -(playerModel.dir.y * (PI / 180.0f)) + PI;
                 Vec3D newmovedir(cos(rotationAngle + PI), 0, sin(rotationAngle + PI));
                 newmovedir.y = 0.0f;
                 Vec3D newcampos = gWorld->camera - (newmovedir * distanceBehindCamera);
                 newcampos.y += distanceBehindCamera/2;
-                world->lookat = world->playermodelis[0].pos;
+                world->lookat = playerModel.pos;
                 world->camera = newcampos;
 			}
 		}
@@ -547,10 +550,12 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_a) {
 			if (strafing < 0) strafing = 0;
 		}
-		if (e->keysym.sym == SDLK_q) {
+		//if (e->keysym.sym == SDLK_q) {
+		if (e->keysym.sym == SDLK_SPACE) {
 			if (updown > 0) updown = 0;
 		}
-		if (e->keysym.sym == SDLK_e) {
+		//if (e->keysym.sym == SDLK_e) {
+		if (e->keysym.sym == SDLK_TAB) {
 			if (updown < 0) updown = 0;
 		}
         if (e->keysym.sym == SDLK_LSHIFT) {
