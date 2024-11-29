@@ -62,6 +62,8 @@ void Test::tick(float t, float dt)
 	Vec3D dir(1,0,0);
 	rotate(0,0, &dir.x,&dir.y, av*PI/180.0f);
     rotate(0,0, &dir.x,&dir.z, ah*PI/180.0f);
+	// Invert mouseX
+    //rotate(0,0, &dir.x,&dir.z, -ah*PI/180.0f);
 
 	if (world->playermodelis[0].usePhysics && moving > 0) {
 		// Position
