@@ -385,7 +385,8 @@ void World::initDisplay()
 
 	initLowresTerrain();
 
-	botNodes.LoadFromDB();
+    botNodes.LoadNodeModel();
+    botNodes.LoadFromDB();
 
 }
 
