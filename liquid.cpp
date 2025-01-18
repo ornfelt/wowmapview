@@ -1,8 +1,10 @@
 #include "liquid.h"
 #include "world.h"
+#include "shaders.h"
 
 struct LiquidVertex {
-    unsigned char c[4];
+    //unsigned char c[4];
+    unsigned short w1,w2;
     float h;
 };
 
@@ -26,6 +28,7 @@ void Liquid::initFromTerrain(MPQFile &f, int flags)
         // river/lake
         initTextures("XTextures\\river\\lake_a", 1, 30); // TODO: rivers etc.?
         type = 2; // dynamic colors
+        shader = 0;
     }
     else {
         // ocean
@@ -35,6 +38,7 @@ void Liquid::initFromTerrain(MPQFile &f, int flags)
         col = Vec3D(0.0f, 0.1f, 0.4f); // TODO: figure out real ocean colors?
         */
         type = 2;
+        shader = 0;
     }
     initGeometry(f);
     trans = false;
@@ -65,8 +69,10 @@ void Liquid::initFromWMO(MPQFile &f, WMOMaterial &mat, bool indoor)
             trans = true;
             type = 1;
             col = Vec3D( ((mat.col2&0xFF0000)>>16)/255.0f, ((mat.col2&0xFF00)>>8)/255.0f, (mat.col2&0xFF)/255.0f);
+            shader = 0;
         } else {
             type = 2; // outdoor water (...?)
+            shader = 0;
         }
     }
 
@@ -105,12 +111,15 @@ void Liquid::initGeometry(MPQFile &f)
 
     // generate vertices
     Vec3D *verts = new Vec3D[(xtiles+1)*(ytiles+1)];
+    float *col = new float[(xtiles+1)*(ytiles+1)];
+
     for (int j=0; j<ytiles+1; j++) {
         for (int i=0; i<xtiles+1; i++) {
             size_t p = j*(xtiles+1)+i;
             float h = map[p].h;
             if (h > 100000) h = pos.y;
             verts[p] = Vec3D(pos.x + tilesize * i, h, pos.z + ydir * tilesize * j);
+            col[p] = (map[p].w1 / 255.0f)*0.5f + 0.5f;
         }
     }
 
@@ -129,16 +138,19 @@ void Liquid::initGeometry(MPQFile &f)
                 // 15 seems to be "don't draw"
                 size_t p = j*(xtiles+1)+i;
 
-                glTexCoord2f(i / texRepeats, j / texRepeats);
+                // HACK: pack the vertex color selection into the 2nd texture coordinate
+                //float fc;
+
+                glTexCoord3f(i / texRepeats, j / texRepeats, col[p]);
                 glVertex3fv(verts[p]);
 
-                glTexCoord2f((i+1) / texRepeats, j / texRepeats);
+                glTexCoord3f((i+1) / texRepeats, j / texRepeats, col[p+1]);
                 glVertex3fv(verts[p+1]);
 
-                glTexCoord2f((i+1) / texRepeats, (j+1) / texRepeats);
+                glTexCoord3f((i+1) / texRepeats, (j+1) / texRepeats, col[p+xtiles+1+1]);
                 glVertex3fv(verts[p+xtiles+1+1]);
 
-                glTexCoord2f(i / texRepeats, (j+1) / texRepeats);
+                glTexCoord3f(i / texRepeats, (j+1) / texRepeats, col[p+xtiles+1]);
                 glVertex3fv(verts[p+xtiles+1]);
 
             }
@@ -196,10 +208,11 @@ void Liquid::initGeometry(MPQFile &f)
 
     glEndList();
     delete[] verts;
+    delete[] col;
 
     /*
     // only log .wmo
-    if (ydir > 0) return;
+    //if (ydir > 0) return;
     // LOGGING: debug info
     std::string slq;
     char buf[32];
@@ -243,18 +256,39 @@ void Liquid::draw()
         glDepthMask(GL_FALSE);
     }
 
-    if (type==0) glColor4f(1,1,1,tcol);
-    else {
+    if (supportShaders && gWorld->useshaders && (shader>=0)) {
+        // SHADER-BASED
+        Vec3D col2;
+        waterShaders[shader]->bind();
         if (type==2) {
-            // dynamic color lookup! ^_^
-            col = gWorld->skies->colorSet[WATER_COLOR_LIGHT]; // TODO: add variable water color
+            col = gWorld->skies->colorSet[WATER_COLOR_LIGHT];
+            col2 = gWorld->skies->colorSet[WATER_COLOR_DARK];
+        } else {
+            col2 = col;
         }
-        glColor4f(col.x, col.y, col.z, tcol);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD); // TODO: check if ARB_texture_env_add is supported? :(
-    }
-    glCallList(dlist);
 
-    if (type!=0) glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, col.x,col.y,col.z,tcol);
+        glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1, col2.x,col2.y,col2.z,tcol);
+
+        glCallList(dlist);
+        waterShaders[shader]->unbind();
+    } else {
+        // FIXED-FUNCTION
+
+        if (type==0) glColor4f(1,1,1,tcol);
+        else {
+            if (type==2) {
+                // dynamic color lookup! ^_^
+                col = gWorld->skies->colorSet[WATER_COLOR_LIGHT]; // TODO: add variable water color
+            }
+            glColor4f(col.x, col.y, col.z, tcol);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD); // TODO: check if ARB_texture_env_add is supported? :(
+        }
+        glCallList(dlist);
+
+        if (type!=0) glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    }
+
     glDepthFunc(GL_LEQUAL);
     glColor4f(1,1,1,1);
     if (trans) {

@@ -131,3 +131,17 @@ void MPQFile::close()
     buffer = 0;
     eof = true;
 }
+
+bool MPQFile::exists(const char* filename)
+{
+    for(auto i=gOpenArchives.begin(); i!=gOpenArchives.end();++i)
+    {
+        mpq_archive* mpq_a = (*i)->mpq_a;
+        uint32 filenum;
+        if (libmpq__file_number(mpq_a, filename, &filenum)) continue;
+        if (filenum != LIBMPQ_HASH_ENTRY_DELETED)
+            return true;
+    }
+
+    return false;
+}

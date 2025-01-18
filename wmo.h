@@ -21,14 +21,15 @@ class WMOGroup {
     int flags;
     Vec3D v1,v2;
     int nTriangles, nVertices;
-    GLuint dl,dl_light;
+    //GLuint dl,dl_light;
     Vec3D center;
     float rad;
     int num;
     int fog;
-    int nDoodads;
+    int nDoodads, nBatches;
     short *ddr;
     Liquid *lq;
+    std::vector< std::pair<GLuint, int> > lists;
 public:
     Vec3D b1,b2;
     Vec3D vmin, vmax;
@@ -38,7 +39,7 @@ public:
     bool outdoorLights;
     std::string name;
 
-    WMOGroup() : dl(0) {}
+    WMOGroup():nBatches(0) {}
     ~WMOGroup();
     void init(WMO *wmo, MPQFile &f, int num, char *names);
     void initDisplayList();
@@ -51,7 +52,7 @@ public:
 
 struct WMOMaterial {
     int flags;
-    int d1;
+    int specular;
     int transparent;
     int nameStart;
     unsigned int col1;

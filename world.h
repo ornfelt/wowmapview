@@ -45,6 +45,7 @@ public:
 
 	bool thirdperson,lighting,drawmodels,drawdoodads,drawterrain,drawwmo,loading,drawhighres,drawfog;
 	bool uselowlod;
+    bool useshaders;
 
 	GLuint detailtexcoords, alphatexcoords;
 

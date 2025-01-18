@@ -1,6 +1,7 @@
 #include "maptile.h"
 #include "world.h"
 #include "vec3d.h"
+#include "shaders.h"
 #include <cassert>
 #include <algorithm>
 using namespace std;
@@ -52,6 +53,12 @@ MapTile::MapTile(int x0, int z0, char* filename): x(x0), z(z0), topnode(0,0,16)
                 string texpath(p);
                 p+=strlen(p)+1;
                 fixname(texpath);
+
+                if (supportShaders) {
+                    // load the specular texture instead
+                    texpath.insert(texpath.length()-4,"_s");
+                }
+
                 video.textures.add(texpath);
                 textures.push_back(texpath);
             }
@@ -327,6 +334,12 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
     vmin = Vec3D( 9999999.0f, 9999999.0f, 9999999.0f);
     vmax = Vec3D(-9999999.0f,-9999999.0f,-9999999.0f);
 
+    unsigned char *blendbuf;
+    if (supportShaders) {
+        blendbuf = new unsigned char[64*64*4];
+        memset(blendbuf, 0, 64*64*4);
+    }
+
     while (f.getPos() < lastpos) {
         f.read(fcc,4);
         f.read(&size, 4);
@@ -439,6 +452,11 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+            if (supportShaders) {
+                for (int p=0; p<64*64; p++) {
+                    blendbuf[p*4+3] = sbuf[p];
+                }
+            }
         }
         else if (!strcmp(fcc,"MCAL")) {
             // alpha maps  64 x 64
@@ -462,8 +480,16 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+                    if (supportShaders) {
+                        for (int p=0; p<64*64; p++) {
+                            blendbuf[p*4+i] = amap[p];
+                        }
+                    }
+
                     f.seekRelative(0x800);
                 }
+
             } else {
                 // some MCAL chunks have incorrect sizes! :(
                 continue;
@@ -531,6 +557,16 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 
     vcenter = (vmin + vmax) * 0.5f;
 
+    if (supportShaders) {
+        glGenTextures(1, &blend);
+        glBindTexture(GL_TEXTURE_2D, blend);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 64, 64, 0, GL_RGBA, GL_UNSIGNED_BYTE, blendbuf);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        delete[] blendbuf;
+    }
 }
 
 
@@ -642,57 +678,105 @@ void MapChunk::draw()
     glNormalPointer(GL_FLOAT, 0, 0);
     // ASSUME: texture coordinates set up already
 
-    // first pass: base texture
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    if (supportShaders && gWorld->useshaders) {
+        // SHADER-BASED
 
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glDisable(GL_TEXTURE_2D);
+        // TODO: figure out texture animation for shaders
+        // (modifying the texture matrix for only an individual texture layer)
 
-    drawPass(animated[0]);
+        // setup textures
+        /*
+        unit 0 - base texture layer
+        unit 1 - shadow map and alpha layers
+        unit 2 - texture layer 1
+        unit 3 - texture layer 2
+        unit 4 - texture layer 3
+        */
+        // base layer
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        // shadow map
+        // TODO: handle case when there is no shadowmap?
+        glActiveTextureARB(GL_TEXTURE1_ARB);
+        glBindTexture(GL_TEXTURE_2D, blend);
+        // blended layers
+        for (int i=1; i<nTextures; i++) {
+            int tex = GL_TEXTURE2_ARB + i - 1;
+            glActiveTextureARB(tex);
+            glBindTexture(GL_TEXTURE_2D, textures[i]);
+        }
+        glActiveTextureARB( GL_TEXTURE0_ARB );
 
-    if (nTextures>1) {
-        //glDepthFunc(GL_EQUAL); // GL_LEQUAL is fine too...?
-        glDepthMask(GL_FALSE);
-    }
+        terrainShaders[nTextures-1]->bind();
+        // setup shadow color as local parameter:
+        Vec3D shc = gWorld->skies->colorSet[SHADOW_COLOR] * 0.3f;
+        glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0, shc.x,shc.y,shc.z,1);
 
-    // additional passes: if required
-    for (int i=0; i<nTextures-1; i++) {
+        glDrawElements(GL_TRIANGLE_STRIP, striplen, GL_UNSIGNED_SHORT, strip);
+        terrainShaders[nTextures-1]->unbind();
+
+    } else {
+        // FIXED-FUNCTION
+
+        // first pass: base texture
         glActiveTextureARB(GL_TEXTURE0_ARB);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, textures[i+1]);
-        // this time, use blending:
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+
         glActiveTextureARB(GL_TEXTURE1_ARB);
+        glDisable(GL_TEXTURE_2D);
+
+        glDisable(GL_BLEND);
+        drawPass(animated[0]);
+        glEnable(GL_BLEND);
+
+        if (nTextures>1) {
+            //glDepthFunc(GL_EQUAL); // GL_LEQUAL is fine too...?
+            glDepthMask(GL_FALSE);
+        }
+
+        // additional passes: if required
+        for (int i=0; i<nTextures-1; i++) {
+            glActiveTextureARB(GL_TEXTURE0_ARB);
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, textures[i+1]);
+            // this time, use blending:
+            glActiveTextureARB(GL_TEXTURE1_ARB);
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, alphamaps[i]);
+
+            // if we loaded a texture with specular maps, setup the texenv
+            // to replace our alpha channel instead of modulating it
+            if (supportShaders) glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+            drawPass(animated[i+1]);
+            // back to normal
+            if (supportShaders) glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+        }
+
+        if (nTextures>1) {
+            //glDepthFunc(GL_LEQUAL);
+            glDepthMask(GL_TRUE);
+        }
+
+        // shadow map
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+
+        Vec3D shc = gWorld->skies->colorSet[SHADOW_COLOR] * 0.3f;
+        //glColor4f(0,0,0,1);
+        glColor4f(shc.x,shc.y,shc.z,1);
+
+        glActiveTextureARB(GL_TEXTURE1_ARB);
+        glBindTexture(GL_TEXTURE_2D, shadow);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, alphamaps[i]);
 
-        drawPass(animated[i+1]);
+        drawPass(0);
 
+        glEnable(GL_LIGHTING);
+        glColor4f(1,1,1,1);
     }
-
-    if (nTextures>1) {
-        //glDepthFunc(GL_LEQUAL);
-        glDepthMask(GL_TRUE);
-    }
-
-    // shadow map
-    glActiveTextureARB(GL_TEXTURE0_ARB);
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
-
-    Vec3D shc = gWorld->skies->colorSet[SHADOW_COLOR] * 0.3f;
-    //glColor4f(0,0,0,1);
-    glColor4f(shc.x,shc.y,shc.z,1);
-
-    glActiveTextureARB(GL_TEXTURE1_ARB);
-    glBindTexture(GL_TEXTURE_2D, shadow);
-    glEnable(GL_TEXTURE_2D);
-
-    drawPass(0);
-
-    glEnable(GL_LIGHTING);
-    glColor4f(1,1,1,1);
 
     /*
     //////////////////////////////////

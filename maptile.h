@@ -55,7 +55,7 @@ public:
 
     TextureID textures[4];
     TextureID alphamaps[3];
-    TextureID shadow;
+    TextureID shadow, blend;
 
     int animated[4];
 

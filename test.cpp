@@ -360,6 +360,12 @@ void Test::keypressed(SDL_KeyboardEvent *e)
 		if (e->keysym.sym == SDLK_F6) {
 			world->drawwmo = !world->drawwmo;
 		}
+        if (e->keysym.sym == SDLK_F7) {
+            world->useshaders = !world->useshaders;
+        }
+        if (e->keysym.sym == SDLK_F8) {
+            reloadShaders();
+        }
 		if (e->keysym.sym == SDLK_h) {
 			world->drawhighres = !world->drawhighres;
 		}

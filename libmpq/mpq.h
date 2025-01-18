@@ -56,6 +56,7 @@ extern "C" {
 #define LIBMPQ_ERROR_DECRYPT			-11		/* we don't know the decryption seed. */
 #define LIBMPQ_ERROR_UNPACK			-12		/* error on unpacking file. */
 
+#define LIBMPQ_HASH_ENTRY_DELETED	0xFFFFFFFE	/* Block index for deleted hash entry */
 /* internal data structure. */
 typedef struct mpq_archive mpq_archive_s;
 

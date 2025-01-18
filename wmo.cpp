@@ -1,7 +1,7 @@
 #include "wmo.h"
 #include "world.h"
 #include "liquid.h"
-
+#include "shaders.h"
 
 using namespace std;
 
@@ -481,6 +481,15 @@ void setGLColor(unsigned int col)
     glColor4ub(r,g,b,1);
 }
 
+Vec4D colorFromInt(unsigned int col) {
+    GLubyte r,g,b,a;
+    a = (col & 0xFF000000) >> 24;
+    r = (col & 0x00FF0000) >> 16;
+    g = (col & 0x0000FF00) >> 8;
+    b = (col & 0x000000FF);
+    return Vec4D(r/255.0f, g/255.0f, b/255.0f, a/255.0f);
+}
+
 struct WMOGroupHeader {
     int nameStart, nameStart2, flags;
     float box1[3], box2[3];
@@ -497,7 +506,7 @@ void WMOGroup::initDisplayList()
     unsigned short *indices;
     unsigned short *materials;
     WMOBatch *batches;
-    int nBatches;
+    //int nBatches;
 
     WMOGroupHeader gh;
 
@@ -639,11 +648,13 @@ void WMOGroup::initDisplayList()
 
     initLighting(nLR,useLights);
 
-    dl = glGenLists(1);
-    glNewList(dl, GL_COMPILE);
-    glDisable(GL_BLEND);
+    //dl = glGenLists(1);
+    //glNewList(dl, GL_COMPILE);
+    //glDisable(GL_BLEND);
+    //glColor4f(1,1,1,1);
 
-    glColor4f(1,1,1,1);
+    // generate lists for each batch individually instead
+    GLuint listbase = glGenLists(nBatches);
 
     /*
     float xr=0,xg=0,xb=0;
@@ -656,8 +667,20 @@ void WMOGroup::initDisplayList()
     // assume that texturing is on, for unit 1
 
     for (int b=0; b<nBatches; b++) {
+
+        GLuint list = listbase + b;
+
         WMOBatch *batch = &batches[b];
         WMOMaterial *mat = &wmo->mat[batch->texture];
+
+        bool overbright = ((mat->flags & 0x10) && !hascv);
+        bool spec_shader = (mat->specular && !hascv && !overbright);
+
+        pair<GLuint, int> currentList;
+        currentList.first = list;
+        currentList.second = spec_shader ? 1 : 0;
+
+        glNewList(list, GL_COMPILE);
 
         // setup texture
         glBindTexture(GL_TEXTURE_2D, mat->tex);
@@ -675,6 +698,13 @@ void WMOGroup::initDisplayList()
         if (mat->flags & 0x04) glDisable(GL_CULL_FACE);
         else glEnable(GL_CULL_FACE);
 
+        if (spec_shader) {
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, colorFromInt(mat->col2));
+        } else {
+            Vec4D nospec(0,0,0,1);
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, nospec);
+        }
+
         /*
         float fr,fg,fb;
         fr = rand()/(float)RAND_MAX;
@@ -683,7 +713,6 @@ void WMOGroup::initDisplayList()
         glColor4f(fr,fg,fb,1);
         */
 
-        bool overbright = ((mat->flags & 0x10) && !hascv);
         if (overbright) {
             // TODO: use emissive color from the WMO Material instead of 1,1,1,1
             GLfloat em[4] = {1,1,1,1};
@@ -711,12 +740,15 @@ void WMOGroup::initDisplayList()
         if (atest) {
             glDisable(GL_ALPHA_TEST);
         }
+
+        glEndList();
+        lists.push_back(currentList);
     }
 
-    glColor4f(1,1,1,1);
-    glEnable(GL_CULL_FACE);
+    //glColor4f(1,1,1,1);
+    //glEnable(GL_CULL_FACE);
 
-    glEndList();
+    //glEndList();
 
     gf.close();
 
@@ -727,7 +759,7 @@ void WMOGroup::initDisplayList()
 
 void WMOGroup::initLighting(int nLR, short *useLights)
 {
-    dl_light = 0;
+    //dl_light = 0;
     // "real" lighting?
     if ((flags&0x2000) && hascv) {
 
@@ -789,7 +821,19 @@ void WMOGroup::draw(const Vec3D& ofs, const float rot)
     }
     setupFog();
 
-    glCallList(dl);
+
+    //glCallList(dl);
+    glDisable(GL_BLEND);
+    glColor4f(1,1,1,1);
+    for (int i=0; i<nBatches; i++) {
+        bool useshader = (supportShaders && gWorld->useshaders && lists[i].second);
+        if (useshader) wmoShader->bind();
+        glCallList(lists[i].first);
+        if (useshader) wmoShader->unbind();
+    }
+
+    glColor4f(1,1,1,1);
+    glEnable(GL_CULL_FACE);
 
     if (hascv) {
         if (gWorld->lighting) {
@@ -821,7 +865,12 @@ void WMOGroup::drawDoodads(int doodadset, const Vec3D& ofs, const float rot)
     glColor4f(1,1,1,1);
     for (int i=0; i<nDoodads; i++) {
         short dd = ddr[i];
-        if ((dd >= wmo->doodadsets[doodadset].start) && (dd < (wmo->doodadsets[doodadset].start+wmo->doodadsets[doodadset].size))) {
+        bool inSet;
+        // apparently, doodadset #0 (defaultGlobal) should always be visible
+        inSet = ( ((dd >= wmo->doodadsets[doodadset].start) && (dd < (wmo->doodadsets[doodadset].start+wmo->doodadsets[doodadset].size)))
+            || ( (dd >= wmo->doodadsets[0].start) && ((dd < (wmo->doodadsets[0].start+wmo->doodadsets[0].size) )) ) );
+        if (inSet) {
+        //if ((dd >= wmo->doodadsets[doodadset].start) && (dd < (wmo->doodadsets[doodadset].start+wmo->doodadsets[doodadset].size))) {
 
             ModelInstance &mi = wmo->modelis[dd];
 
@@ -879,8 +928,14 @@ void WMOGroup::setupFog()
 
 WMOGroup::~WMOGroup()
 {
-    if (dl) glDeleteLists(dl, 1);
-    if (dl_light) glDeleteLists(dl_light, 1);
+    //if (dl) glDeleteLists(dl, 1);
+    //if (dl_light) glDeleteLists(dl_light, 1);
+
+    //for (size_t i=0; i<lists.size(); i++) {
+    //	glDeleteLists(lists[i].first);
+    //}
+    if (nBatches && lists.size()) glDeleteLists(lists[0].first, nBatches);
+
     if (nDoodads) delete[] ddr;
     if (lq) delete lq;
 }
@@ -932,6 +987,8 @@ int WMOManager::add(std::string name)
 
 WMOInstance::WMOInstance(WMO *wmo, MPQFile &f) : wmo (wmo)
 {
+    pos = Vec3D(0,0,0);
+
     float ff[3];
     f.read(&id, 4);
     f.read(ff,12);

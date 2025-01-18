@@ -95,6 +95,8 @@ class MPQFile
         void seek(int offset);
         void seekRelative(int offset);
         void close();
+
+        static bool exists(const char* filename);
 };
 
 inline void flipcc(char* fcc)

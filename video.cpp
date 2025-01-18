@@ -76,6 +76,7 @@ void Video::init(int xres, int yres, bool fullscreen)
 
 	// Initialize extensions
 	initExtensions();
+    initShaders();
 
 	// Verify required extensions
 	if (!(supportVBO && supportMultiTex)) {

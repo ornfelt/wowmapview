@@ -1,4 +1,5 @@
 #include "world.h"
+#include "shaders.h"
 #include <cassert>
 
 using namespace std;
@@ -370,6 +371,8 @@ void World::initDisplay()
 	detailtexcoords = gdetailtexcoords;
 	alphatexcoords = galphatexcoords;
 
+    useshaders = true;
+
 	highresdistance = 384.0f;
 	mapdrawdistance = 998.0f;
 	modeldrawdistance = 384.0f;
@@ -591,6 +594,10 @@ void World::outdoorLighting()
 	glLightfv(GL_LIGHT0, GL_AMBIENT, black);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+
+    const float spc = useshaders?1.4f:0; // specular light intensity...
+    Vec4D spcol(spc,spc,spc,1);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, spcol); // ???
 	
 	/*
 	Vec3D dd = outdoorLightStats.nightDir;
@@ -773,6 +780,15 @@ void World::draw()
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glColor4f(1,1,1,1);
 
+    // if we're using shaders let's give it some specular
+    if (supportShaders && useshaders) {
+        Vec4D spec_color(1,1,1,1);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec_color);
+        glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 20);
+
+        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+    }
+
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -817,6 +833,11 @@ void World::draw()
 	glColor4f(1,1,1,1);
 	glEnable(GL_BLEND);
 
+    if (supportShaders && useshaders) {
+        Vec4D spec_color(0,0,0,1);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec_color);
+        glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 0);
+    }
 
 	// unbind hardware buffers
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -841,6 +862,14 @@ void World::draw()
 			gwmois[i].draw();
 		}
 	}
+
+    if (supportShaders && useshaders) {
+        Vec4D spec_color(1,1,1,1);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec_color);
+        glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 10);
+
+        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+    }
 	
 	// map objects
 	for (int j=0; j<3; j++) {
@@ -848,6 +877,12 @@ void World::draw()
 			if (oktile(i,j) && drawwmo && current[j][i] != 0) current[j][i]->drawObjects();
 		}
 	}
+
+    if (supportShaders && useshaders) {
+        Vec4D spec_color(0,0,0,1);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec_color);
+        glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 0);
+    }
 
 	outdoorLights(true);
 	setupFog();
