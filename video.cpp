@@ -127,36 +127,12 @@ void Video::close()
 
 bool isExtensionSupported(const char* search)
 {
-	const char* extensions = (const char*)glGetString(GL_EXTENSIONS);
-	if (!extensions) {
-		gLog("Failed to get OpenGL extensions string\n");
-		return false;
-	}
-
-	// Log all available extensions for debugging
-	gLog("Available OpenGL extensions:\n%s\n", extensions);
-
-	const char* start, * where, * terminator;
-
-	where = strchr(search, ' ');
-	if (where || *search == '\0')
-		return false;
-
-	start = extensions;
-	for (;;) {
-		where = strstr(start, search);
-		if (!where)
-			break;
-
-		terminator = where + strlen(search);
-		if (where == start || *(where - 1) == ' ')
-			if (*terminator == ' ' || *terminator == '\0')
-				return true;
-
-		start = terminator;
-	}
-
-	return false;
+    char *exts = (char*)glGetString(GL_EXTENSIONS);
+    if (exts) {
+        string str(exts);
+        return (str.find(search) != string::npos);
+    }
+    return false;
 }
 
 void Video::initExtensions()
