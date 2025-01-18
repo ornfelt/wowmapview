@@ -262,7 +262,7 @@ void Liquid::draw()
         waterShaders[shader]->bind();
         if (type==2) {
             col = gWorld->skies->colorSet[WATER_COLOR_LIGHT];
-            col2 = gWorld->skies->colorSet[WATER_COLOR_DARK];
+            col2 = col;//gWorld->skies->colorSet[WATER_COLOR_DARK];
         } else {
             col2 = col;
         }
