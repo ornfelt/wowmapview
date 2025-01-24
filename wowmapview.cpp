@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[i],"-p")) usePatch = true;
         else if (!strcmp(argv[i],"-np")) usePatch = false;
         else if (!strcmp(argv[i],"-tbc")) expansion = 1;
+        else if (!strcmp(argv[i],"-wotlk")) expansion = 2;
         else if (!strcmp(argv[i],"-fps"))
         {
             i++;
@@ -198,49 +199,178 @@ int main(int argc, char *argv[])
     std::vector<MPQArchive*> archives;
     char path[512];
     // TBC+ have archives in locale folders
-    if (expansion > 0)
+    if (expansion == 1)
     {
-        const char* archiveNames[] = {"common.MPQ", "expansion.MPQ", "enUS\\locale-enUS.MPQ", "enUS\\expansion-locale-enUS.MPQ", "enGB\\locale-enGB.MPQ", "enGB\\expansion-locale-enGB.MPQ", "deDE\\locale-deDE.MPQ", "deDE\\expansion-locale-deDE.MPQ", "frFR\\locale-frFR.MPQ", "frFR\\expansion-locale-frFR.MPQ"};
+        // detect locale
+        std::string langName;
+        const char* locales[] = {"enUS", "enGB", "deDE", "frFR", "zhTW", "ruRU", "esES", "koKR", "zhCN", "ptBR"};
+        for (auto & locale : locales)
+        {
+            sprintf(path, "%s%s\\locale-%s.MPQ", gamePath.c_str(), locale, locale);
+            if (file_exists(path)) {
+                langName = locale;
+                break;
+            }
+        }
+        gLog("Locale: %s\n", langName.c_str());
 
-        if (usePatch) {
-            // patch goes first -> fake priority handling
-            sprintf(path, "%s%s", gamePath.c_str(), "patch.MPQ");
-            archives.push_back(new MPQArchive(path));
-
-            sprintf(path, "%s%s", gamePath.c_str(), "enUS\\Patch-enUS.MPQ");
-            archives.push_back(new MPQArchive(path));
-            sprintf(path, "%s%s", gamePath.c_str(), "enUS\\Patch-enUS-2.MPQ");
-            archives.push_back(new MPQArchive(path));
-
-            sprintf(path, "%s%s", gamePath.c_str(), "enGB\\Patch-enGB.MPQ");
-            archives.push_back(new MPQArchive(path));
-
-            sprintf(path, "%s%s", gamePath.c_str(), "deDE\\Patch-deDE.MPQ");
-            archives.push_back(new MPQArchive(path));
-
-            sprintf(path, "%s%s", gamePath.c_str(), "frFR\\Patch-frFR.MPQ");
+        // load main archives
+        const char* archiveNames[] = {"common.MPQ", "expansion.MPQ"};
+        for (auto & archiveName : archiveNames)
+        {
+            sprintf(path, "%s%s", gamePath.c_str(), archiveName);
             archives.push_back(new MPQArchive(path));
         }
 
-        for (size_t i=0; i<10; i++) {
-            gLog("Trying to open mpq %s \n", archiveNames[i]);
-            sprintf(path, "%s%s", gamePath.c_str(), archiveNames[i]);
+        // load locale archives
+        sprintf(path, "%s%s", gamePath.c_str(), std::string(langName + "\\locale-" + langName + ".MPQ").c_str());
+        archives.push_back(new MPQArchive(path));
+        sprintf(path, "%s%s", gamePath.c_str(), std::string(langName + "\\expansion-locale-" + langName + ".MPQ").c_str());
+        archives.push_back(new MPQArchive(path));
+
+        // load patches
+        if (usePatch)
+        {
+            sprintf(path, "%s%s", gamePath.c_str(), "patch.MPQ");
             archives.push_back(new MPQArchive(path));
+
+            {
+                auto dirIter = std::filesystem::directory_iterator(gamePath.c_str());
+                for (auto& fl : dirIter)
+                {
+                    if (fl.is_regular_file())
+                    {
+                        const std::filesystem::path &p(fl.path());
+                        if (p.extension().string() != ".mpq" && p.extension().string() != ".MPQ")
+                            continue;
+                        auto fileName = p.stem().string();
+                        if (fileName.find("patch-") == std::string::npos)
+                            continue;
+
+                        archives.push_back(new MPQArchive(p.string().c_str()));
+                    }
+                }
+            }
+
+            auto pathLocale = gamePath;
+            pathLocale.append(langName + "\\");
+            if (std::filesystem::exists(pathLocale))
+            {
+                sprintf(path, "%s%s", pathLocale.c_str(), std::string("patch-" + langName + ".MPQ").c_str());
+                archives.push_back(new MPQArchive(path));
+                auto dirIter = std::filesystem::directory_iterator(pathLocale.c_str());
+                for (auto& fl : dirIter)
+                {
+                    if (fl.is_regular_file())
+                    {
+                        const std::filesystem::path &p(fl.path());
+                        if (p.extension().string() != ".mpq" && p.extension().string() != ".MPQ")
+                            continue;
+                        auto fileName = p.stem().string();
+                        if (fileName.find(std::string("patch-" + langName + "-")) == std::string::npos)
+                            continue;
+
+                        archives.push_back(new MPQArchive(p.string().c_str()));
+                    }
+                }
+            }
+        }
+    }
+    else if (expansion == 2)
+    {
+        // detect locale
+        std::string langName;
+        const char* locales[] = {"enUS", "enGB", "deDE", "frFR", "zhTW", "ruRU", "esES", "koKR", "zhCN", "ptBR"};
+        for (auto & locale : locales)
+        {
+            sprintf(path, "%s%s\\locale-%s.MPQ", gamePath.c_str(), locale, locale);
+            //gLog(path);
+            if (file_exists(path)) {
+                langName = locale;
+                break;
+            }
+        }
+        gLog("Locale: %s\n", langName.c_str());
+
+        // load main archives
+        const char* archiveNames[] = {"common.MPQ", "common-2.MPQ", "expansion.MPQ", "lichking.MPQ"};
+        for (auto & archiveName : archiveNames)
+        {
+            sprintf(path, "%s%s", gamePath.c_str(), archiveName);
+            archives.push_back(new MPQArchive(path));
+        }
+
+        // load locale archives
+        sprintf(path, "%s%s", gamePath.c_str(), std::string(langName + "\\locale-" + langName + ".MPQ").c_str());
+        archives.push_back(new MPQArchive(path));
+        sprintf(path, "%s%s", gamePath.c_str(), std::string(langName + "\\expansion-locale-" + langName + ".MPQ").c_str());
+        archives.push_back(new MPQArchive(path));
+        sprintf(path, "%s%s", gamePath.c_str(), std::string(langName + "\\lichking-locale-" + langName + ".MPQ").c_str());
+        archives.push_back(new MPQArchive(path));
+
+        // load patches
+        if (usePatch)
+        {
+            sprintf(path, "%s%s", gamePath.c_str(), "patch.MPQ");
+            archives.push_back(new MPQArchive(path));
+
+            {
+                auto dirIter = std::filesystem::directory_iterator(gamePath.c_str());
+                for (auto& fl : dirIter)
+                {
+                    if (fl.is_regular_file())
+                    {
+                        const std::filesystem::path &p(fl.path());
+                        if (p.extension().string() != ".mpq" && p.extension().string() != ".MPQ")
+                            continue;
+                        auto fileName = p.stem().string();
+                        if (fileName.find("patch-") == std::string::npos)
+                            continue;
+
+                        archives.push_back(new MPQArchive(p.string().c_str()));
+                    }
+                }
+            }
+
+            auto pathLocale = gamePath;
+            pathLocale.append(langName + "\\");
+            if (std::filesystem::exists(pathLocale))
+            {
+                sprintf(path, "%s%s", pathLocale.c_str(), std::string("patch-" + langName + ".MPQ").c_str());
+                archives.push_back(new MPQArchive(path));
+                auto dirIter = std::filesystem::directory_iterator(pathLocale.c_str());
+                for (auto& fl : dirIter)
+                {
+                    if (fl.is_regular_file())
+                    {
+                        const std::filesystem::path &p(fl.path());
+                        if (p.extension().string() != ".mpq" && p.extension().string() != ".MPQ")
+                            continue;
+                        auto fileName = p.stem().string();
+                        if (fileName.find(std::string("patch-" + langName + "-")) == std::string::npos)
+                            continue;
+
+                        archives.push_back(new MPQArchive(p.string().c_str()));
+                    }
+                }
+            }
         }
     }
     else
     {
         const char* archiveNames[] = {"texture.MPQ", "model.MPQ", "wmo.MPQ", "terrain.MPQ", "interface.MPQ", "misc.MPQ", "dbc.MPQ"};
 
-        for (auto & archiveName : archiveNames) {
+        // load main archives
+        for (auto & archiveName : archiveNames)
+        {
             sprintf(path, "%s%s", gamePath.c_str(), archiveName);
             archives.push_back(new MPQArchive(path));
         }
 
+        // load patches
         if (usePatch)
         {
             auto dirIter = std::filesystem::directory_iterator(gamePath.c_str());
-            // load patch first
             sprintf(path, "%s%s", gamePath.c_str(), "patch.MPQ");
             archives.push_back(new MPQArchive(path));
             for (auto& fl : dirIter)
