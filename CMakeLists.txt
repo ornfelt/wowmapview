@@ -191,6 +191,18 @@ if(LINUX)
     )
 endif()
 
+if (MSVC)
+    # Add /FORCE:MULTIPLE
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+    # For shared libraries
+    #set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
+    # Clang/GCC (haven't tried)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+
+    # Adding /P Flag to Generate Preprocessed Output
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /P")
+endif()
+
 add_custom_command(
         TARGET ${PROJECT_NAME}  POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -213,3 +225,4 @@ if(WIN32)
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_no_patch.cmd" "wowmapview -w -np")
 endif()
+

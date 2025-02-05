@@ -1,3 +1,5 @@
+#define HBY
+
 #ifdef _WIN32
 #pragma comment(lib,"OpenGL32.lib")
 #pragma comment(lib,"glu32.lib")
@@ -38,7 +40,11 @@ extern "C" FILE * __cdecl __iob_func(void)
 int fullscreen = 0;
 
 #ifdef _WIN32
+#ifdef HBY
+std::string gamePath = "C:\\Users\\jonas\\Downloads\\wow_classic";//"./";
+#else
 std::string gamePath = "C:\\Users\\jonas\\OneDrive\\Documents\\Games\\wow_classic";//"./";
+#endif
 #else
 std::string gamePath = "/home/jonas/Downloads/wow_classic";
 #endif
@@ -150,7 +156,11 @@ int main(int argc, char *argv[])
     if (expansion > 0)
         std::cout << "Expansion > 0" << std::endl;
 	std::cout << "usePatch: " << usePatch << std::endl;
-    gamePath = "C:\\Users\\jonas\\OneDrive\\Documents\\Games\\wow_classic";
+#ifdef HBY
+    gamePath = "C:\\Users\\jonas\\Downloads\\wow_classic";
+#else
+	gamePath = "C:\\Users\\jonas\\OneDrive\\Documents\\Games\\wow_classic";
+#endif
 
     if (override_game_path || gamePath != "./")
     {
