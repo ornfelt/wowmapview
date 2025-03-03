@@ -83,10 +83,12 @@ install(TARGETS zliblocal
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
 		
-if (NOT MSVC)
+if (MSVC)
     set(CMAKE_PREFIX_PATH "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
     #set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6/cmake")
     set(SDL2_DIR "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
+    set(SDL2_ROOT "C:/local/SDL2-devel-2.30.6-VC/SDL2-2.30.6")
+    target_link_directories(wowmapview PRIVATE "${SDL2_ROOT}/lib/x64")
 endif()
 
 find_package(SDL2 REQUIRED)
@@ -158,7 +160,6 @@ else()
 	#	${CMAKE_SOURCE_DIR}/SDL/lib
 	#	"C:/Program Files/MySQL/MySQL Server 8.0/lib"
 	#)
-	
 	
 	include_directories(${SDL2_INCLUDE_DIRS})
 
@@ -243,7 +244,7 @@ if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SDL2_DLL}"
-        $<TARGET_FILE_DIR:my_wow>)
+        $<TARGET_FILE_DIR:wowmapview>)
         #${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SDL2.dll)
 
     file(WRITE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/windowed_with_patch.cmd" "wowmapview -w -p")
