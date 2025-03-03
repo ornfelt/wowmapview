@@ -627,7 +627,7 @@ void Model::initAnimated(MPQFile &f)
 
 	//glGenBuffersARB(1,&vbuf);
 	//glGenBuffersARB(1,&tbuf);
-	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	static PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
 	glGenBuffers(1,&vbuf);
 	glGenBuffers(1,&tbuf);
 	const size_t size = header.nVertices * sizeof(float);
@@ -656,8 +656,8 @@ void Model::initAnimated(MPQFile &f)
 
 	}
 
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
 	if (!animGeometry) {
 		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
 		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, vbufsize, vertices, GL_STATIC_DRAW_ARB);
@@ -772,10 +772,10 @@ void Model::animate(int anim)
 		calcBones(anim, t);
 	}
 
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
-	PFNGLMAPBUFFERPROC glMapBuffer = (PFNGLMAPBUFFERPROC)SDL_GL_GetProcAddress("glMapBuffer");
-	PFNGLUNMAPBUFFERPROC glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)SDL_GL_GetProcAddress("glUnmapBuffer");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	static PFNGLMAPBUFFERPROC glMapBuffer = (PFNGLMAPBUFFERPROC)SDL_GL_GetProcAddress("glMapBuffer");
+	static PFNGLUNMAPBUFFERPROC glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)SDL_GL_GetProcAddress("glUnmapBuffer");
 
 	if (animGeometry) {
 		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbuf);
@@ -883,7 +883,7 @@ bool ModelRenderPass::init(Model *m)
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (usetex2) {
 		//glActiveTextureARB(GL_TEXTURE1);
 		glActiveTexture(GL_TEXTURE1);
@@ -973,7 +973,7 @@ void ModelRenderPass::deinit()
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 	}
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (usetex2) {
 		glDisable(GL_TEXTURE_2D);
 		//glActiveTextureARB(GL_TEXTURE0);
@@ -984,10 +984,10 @@ void ModelRenderPass::deinit()
 
 void Model::drawModel()
 {
-	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
-	PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
+	static PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	static PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)SDL_GL_GetProcAddress("glDrawRangeElements");
 
 	// assume these client states are enabled: GL_VERTEX_ARRAY, GL_NORMAL_ARRAY, GL_TEXTURE_COORD_ARRAY
 	if (animated) {

@@ -501,9 +501,9 @@ void initGlobalVBOs()
 		//glBindBufferARB(GL_ARRAY_BUFFER_ARB, detailtexcoords);
 		//glBufferDataARB(GL_ARRAY_BUFFER_ARB, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW_ARB);
 
-		PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
-		PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-		PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+		static PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+		static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+		static PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
 		glGenBuffers(1, &detailtexcoords);
 		glBindBuffer(GL_ARRAY_BUFFER, detailtexcoords);
 		glBufferData(GL_ARRAY_BUFFER, mapbufsize*2*sizeof(float), temp, GL_STATIC_DRAW);
@@ -910,7 +910,7 @@ void World::draw()
 	modelmanager.resetAnim();
 
 	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	highresdistance2 = highresdistance * highresdistance;
@@ -1029,7 +1029,7 @@ void World::draw()
 	glEnable(GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	//PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glClientActiveTexture");
 
 	//glClientActiveTextureARB(GL_TEXTURE0_ARB);

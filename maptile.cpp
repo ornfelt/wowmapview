@@ -519,9 +519,9 @@ void MapChunk::init(MapTile* mt, MPQFile &f)
 		f.seek((int)nextpos);
 	}
 
-	PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
+	static PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC)SDL_GL_GetProcAddress("glGenBuffers");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBUFFERDATAPROC glBufferData = (PFNGLBUFFERDATAPROC)SDL_GL_GetProcAddress("glBufferData");
 
 	// create vertex buffers
 	//glGenBuffersARB(1,&vertices);
@@ -596,7 +596,7 @@ void MapChunk::destroy()
 	// delete VBOs
 	//glDeleteBuffersARB(1, &vertices);
 	//glDeleteBuffersARB(1, &normals);
-	PFNGLDELETEBUFFERSPROC glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
+	static PFNGLDELETEBUFFERSPROC glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)SDL_GL_GetProcAddress("glDeleteBuffers");
 	glDeleteBuffers(1, &vertices);
 	glDeleteBuffers(1, &normals);
 
@@ -607,7 +607,7 @@ void MapChunk::destroy()
 
 void MapChunk::drawPass(int anim)
 {
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 	if (anim) {
 		//glActiveTextureARB(GL_TEXTURE0_ARB);
 		glActiveTexture(GL_TEXTURE0);
@@ -664,8 +664,8 @@ void MapChunk::draw()
 		}
 	}
 
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 
 	// setup vertex buffers
 	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertices);
@@ -769,8 +769,8 @@ void MapChunk::draw()
 
 void MapChunk::drawNoDetail()
 {
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
-	PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLACTIVETEXTUREPROC glActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture");
 
 	//glActiveTextureARB(GL_TEXTURE1_ARB);
 	glActiveTexture(GL_TEXTURE1);

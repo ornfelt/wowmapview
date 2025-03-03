@@ -73,7 +73,7 @@ Menu::~Menu()
 
 void Menu::randBackground()
 {
-	PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
+	static PFNGLBINDBUFFERPROC glBindBuffer = (PFNGLBINDBUFFERPROC)SDL_GL_GetProcAddress("glBindBuffer");
 	if (bg) delete bg;
 	//glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
